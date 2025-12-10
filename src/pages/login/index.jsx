@@ -21,7 +21,7 @@ import 'antd/dist/antd.css'
 import servicioUsuario from '../../services/usuarios'
 import Checkbox from '@mui/material/Checkbox';
 
-import marcas from '../../Assets/imagenlogin.jpg'
+import marcas from '../../assets/imagenlogin.jpg'
 
 
 
