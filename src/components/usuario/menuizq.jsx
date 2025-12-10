@@ -14,16 +14,7 @@ import NfcIcon from '@mui/icons-material/Nfc';
 import { useState, useEffect } from "react";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import Navbar from './Navbar';
-import Badge from '@mui/material/Badge';
 
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import PaidIcon from '@mui/icons-material/Paid';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import PlagiarismIcon from '@mui/icons-material/Plagiarism';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import MoneyOffIcon from '@mui/icons-material/MoneyOff';
-import PriceCheckIcon from '@mui/icons-material/PriceCheck';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -99,28 +90,24 @@ useEffect(() => {
         },
     
         {
-          text: 'Lotes',
+          text: 'pacientes',
           icon: <NfcIcon style={{ color: "#1a303e" }} />,
-          path:  '/usuario2/lotes',
+          path:  '/pacientes',
         }
        
       ];
 
       const menuItems2 = [
-        /*  { 
-           text: 'Ver Clientes', 
-           icon: <GroupIcon color="primary" />, 
-           path: '/nivel3/clientes' 
-         }, */
+     
          {
            text: 'Pacientes',
            icon: <NfcIcon color="primary" />,
-           path:  '/usuario/pacientes',
+           path:  '/pacientes',
          },
            {
-           text: 'Clientes',
+           text: 'Pacientes',
            icon: <NfcIcon color="primary" />,
-           path:  '/usuario/pacientes',
+           path:  '/pacientes',
          }
          
          

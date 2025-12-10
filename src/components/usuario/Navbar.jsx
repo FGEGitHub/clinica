@@ -46,11 +46,6 @@ const traer = async () => {
   setUser(notis[0])
   setCargado(true)
 
-
-  /* if (notificaciones>0) {
-    document.title= 'Santa Catalina ('+notificaciones+')'
- 
-  }   */
 }
 
   const handleClick = () => {
@@ -100,7 +95,7 @@ const traer = async () => {
               </Button>  }
             
                 {cargado ? <div> <Button onClick={inicio} sx={{ marginLeft: "10px" }} variant="Outlined">
-                  {user != undefined ? <> <Tab label= {`hola ${user.nombre}!`}/></>: <><Tab /></>}
+                  {/* {user != undefined ? <> <Tab label= {`hola ${user.nombre}!`}/></>: <><Tab /></>} */}
                   
               </Button> </div>:<div></div>}
               
