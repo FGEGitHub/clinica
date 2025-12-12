@@ -48,7 +48,13 @@ const traerpacientes = async () => {
 
 }
 
+const traerturnos = async () => {
 
+  // const data = await axios.post('http://localhost:4000/signupp', datos)
+  const { data } = await axios.get(baseUrl + 'traerturnos/' ,config)
+  return data
+
+}
 const datospaciente = async (id) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
@@ -80,4 +86,4 @@ const borrarturno = async (datos)=> {
 } 
 
 
-export default {borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+export default {traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

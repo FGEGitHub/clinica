@@ -105,9 +105,9 @@ useEffect(() => {
            path:  '/usuario/pacientes',
          },
            {
-           text: 'Pacientes',
+           text: 'turnos',
            icon: <NfcIcon color="primary" />,
-           path:  '/usuario/pacientes',
+           path:  '/usuario/turnos',
          }
          
          

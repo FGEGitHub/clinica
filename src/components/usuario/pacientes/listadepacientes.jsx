@@ -107,9 +107,9 @@ const guardarPaciente = async () => {
 <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={handleOpen}>
   Nuevo Paciente
 </Button>
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer component={Paper}>
-          <Table size="small">
+ <Paper sx={{ width: '100%', overflowX: 'auto' }}>
+  <TableContainer component={Paper}>
+    <Table sx={{ minWidth: 900, tableLayout: 'auto' }}>
            <TableHead>
   <TableRow>
     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>DNI</TableCell>
