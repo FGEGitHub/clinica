@@ -1,10 +1,10 @@
 import axios from "axios"
 
 
-import url from "./url";
+const API = import.meta.env.VITE_API_URL;
 
 
-const baseUrl = url.database+'clinica/'
+const baseUrl = API+'clinica/'
 //const baseUrl = 'http://localhost:4000/'
 
 
