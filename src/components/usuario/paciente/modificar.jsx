@@ -1,101 +1,179 @@
-import * as React from 'react';
-import { useParams } from "react-router-dom"
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import * as React from "react";
+import { useParams } from "react-router-dom";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import servicioDtc from "../../../services/pacientes";
 import { useState } from "react";
-import servicioDtc from '../../../services/pacientes'
-import { useNavigate } from "react-router-dom";
-import { Paper } from '@mui/material';
+import { Paper, Grid } from "@mui/material";
 
-import Box from '@mui/material/Box';
+// DatePicker
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { es } from "date-fns/locale";
 
-export default function Clasenueva(props) {
-    let params = useParams()
-    let id = params.id
-    const navigate = useNavigate();
-    const [open, setOpen] = React.useState(false);
-    const [form, setForm] = useState({ id_curso: id })
-    const handleChange = (e) => {
-        console.log(form)
-        setForm({ ...form, [e.target.name]: e.target.value })
+export default function Modificar(props) {
+  const [open, setOpen] = useState(false);
+
+  const [form, setForm] = useState({
+    id: props.id,
+    nombre: props.nombre,
+    apellido: props.apellido,
+    dni: props.dni,
+    telefono: props.telefono,
+    domicilio: props.domicilio,
+    fecha_nacimiento: props.fecha_nacimiento
+      ? new Date(props.fecha_nacimiento)
+      : null,
+    fecha_ingreso: props.fecha_ingreso ? new Date(props.fecha_ingreso) : null,
+  });
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleGuardar = async () => {
+    try {
+      const dataEnviar = {
+        ...form,
+        fecha_nacimiento: form.fecha_nacimiento
+          ? form.fecha_nacimiento.toISOString().split("T")[0]
+          : null,
+        fecha_ingreso: form.fecha_ingreso
+          ? form.fecha_ingreso.toISOString().split("T")[0]
+          : null,
+      };
+
+      const r = await servicioDtc.modificarusuario(dataEnviar);
+      alert(r);
+
+      props.traer();
+      setOpen(false);
+    } catch (e) {
+      console.log(e);
     }
+  };
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-    const handleDeterminar = async (event) => {
-        event.preventDefault();
-        try {
+  return (
+    <>
+      <Button variant="contained" onClick={handleClickOpen}>
+        Modificar
+      </Button>
 
-         const respuesta=  await servicioDtc.borrarusuariodtcpsiq({id:props.id})
-         alert(respuesta)
-         if(respuesta=="Usuario borrado"){
-           navigate('/dtc/usuario1/chiques')
-         }
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+        <DialogTitle>Modificar datos</DialogTitle>
 
+        <Paper sx={{ p: 2 }}>
+          <DialogContent>
+            <Grid container spacing={2}>
+              {/* Nombre */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Nombre"
+                  fullWidth
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                />
+              </Grid>
 
+              {/* Apellido */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Apellido"
+                  fullWidth
+                  name="apellido"
+                  value={form.apellido}
+                  onChange={handleChange}
+                />
+              </Grid>
 
-        } catch (error) {
-            console.error(error);
-            console.log('Error algo sucedio')
+              {/* DNI */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="DNI"
+                  fullWidth
+                  name="dni"
+                  value={form.dni}
+                  onChange={handleChange}
+                />
+              </Grid>
 
+              {/* Teléfono */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Teléfono"
+                  fullWidth
+                  name="telefono"
+                  value={form.telefono}
+                  onChange={handleChange}
+                />
+              </Grid>
 
-        }
-        props.traer()
+              {/* Dirección */}
+              <Grid item xs={12} md={12}>
+                <TextField
+                  label="Dirección"
+                  fullWidth
+                  name="domicilio"
+                  value={form.domicilio}
+                  onChange={handleChange}
+                />
+              </Grid>
 
-        setOpen(false);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-
-    };
-
-    return (
-        <div>
-
-
-            <Button variant="contained"  color="error" onClick={handleClickOpen} /* style={{ width: '25%' }} */ >
-            Borrar Usuario
-            </Button>
-            <Dialog open={open} onClose={handleClose}>
-
-                <DialogTitle>Borrar Usuario</DialogTitle>
-                <Paper
-                    sx={{
-                        cursor: 'pointer',
-                        background: '#fafafa',
-                        color: '#bdbdbd',
-                        border: '1px dashed #ccc',
-                        '&:hover': { border: '1px solid #ccc' },
-                    }}
+              {/* Fecha de nacimiento */}
+              <Grid item xs={12} md={6}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
                 >
-                    <DialogContent>
-                        <DialogContentText>
-                           Seguro que quieres borrar al usuario?
-                         
-                        </DialogContentText>
-                      
+                  <DatePicker
+                    label="Fecha de nacimiento"
+                    value={form.fecha_nacimiento}
+                    format="dd/MM/yyyy"
+                    onChange={(newValue) =>
+                      setForm({ ...form, fecha_nacimiento: newValue })
+                    }
+                  />
+                </LocalizationProvider>
+              </Grid>
 
-                            <DialogActions>
-                       <Button variant="contained" color="error" onClick={handleDeterminar}>si</Button>
-                                <Button variant="outlined" color="error" style={{ marginLeft: "auto" }} onClick={handleClose}>Cancelar</Button>
+              {/* Fecha de ingreso */}
+              <Grid item xs={12} md={6}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
+                  <DatePicker
+                    label="Fecha de ingreso"
+                    value={form.fecha_ingreso}
+                    format="dd/MM/yyyy"
+                    onChange={(newValue) =>
+                      setForm({ ...form, fecha_ingreso: newValue })
+                    }
+                  />
+                </LocalizationProvider>
+              </Grid>
+            </Grid>
+          </DialogContent>
 
-                            </DialogActions>
-                      
-
-
-                    </DialogContent>
-
-                </Paper>
-
-            </Dialog>
-
-        </div>
-    );
+          <DialogActions>
+            <Button variant="contained" onClick={handleGuardar}>
+              Guardar
+            </Button>
+            <Button variant="outlined" color="error" onClick={handleClose}>
+              Cancelar
+            </Button>
+          </DialogActions>
+        </Paper>
+      </Dialog>
+    </>
+  );
 }

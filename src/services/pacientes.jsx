@@ -41,7 +41,7 @@ if (loggedUserJSON) {
 
 
 const traerpacientes = async () => {
-console.log(API)
+
   // const data = await axios.post('http://localhost:4000/signupp', datos)
   const { data } = await axios.get(baseUrl + 'traerpacientes/' ,config)
   return data
@@ -69,5 +69,8 @@ const agregarPersona = async (datos)=> {
     return data 
 } 
 
-
-export default { traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+const crearturno = async (datos)=> {
+    const {data } = await axios.post(baseUrl + 'crearturno' ,datos,config)
+    return data 
+} 
+export default {crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

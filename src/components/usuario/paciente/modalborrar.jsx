@@ -60,11 +60,11 @@ export default function Clasenueva(props) {
 
 
             <Button variant="contained"  color="error" onClick={handleClickOpen} /* style={{ width: '25%' }} */ >
-            Borrar Usuario
+            Borrar Paciente
             </Button>
             <Dialog open={open} onClose={handleClose}>
 
-                <DialogTitle>Borrar Usuario</DialogTitle>
+                <DialogTitle>Borrar Paciente</DialogTitle>
                 <Paper
                     sx={{
                         cursor: 'pointer',
