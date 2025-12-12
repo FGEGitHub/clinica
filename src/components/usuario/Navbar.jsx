@@ -39,7 +39,7 @@ const traer = async () => {
   const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
 
     const user = JSON.parse(loggedUserJSON)
-    console.log(user)
+
    
   const notis = await serviciousuarios.traerusuario(user.usuario)
  

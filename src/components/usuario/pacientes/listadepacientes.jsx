@@ -115,6 +115,8 @@ const guardarPaciente = async () => {
     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>DNI</TableCell>
     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>Apellido</TableCell>
     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>Nombre</TableCell>
+    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>Acciones</TableCell>
+
   
   </TableRow>
 </TableHead>
@@ -125,6 +127,16 @@ const guardarPaciente = async () => {
                   <TableCell>{row.dni}</TableCell>
                   <TableCell>{row.apellido}</TableCell>
                   <TableCell>{row.nombre}</TableCell>
+                  <TableCell>
+  <Button
+    variant="contained"
+    color="primary"
+    size="small"
+    onClick={() => navigate(`/usuario/paciente/${row.id}`)}
+  >
+    Ver
+  </Button>
+</TableCell>
                
                 </TableRow>
               ))}

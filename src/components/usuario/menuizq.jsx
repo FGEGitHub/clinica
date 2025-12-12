@@ -86,13 +86,13 @@ useEffect(() => {
         { 
           text: 'Ver Clientes', 
           icon: <GroupIcon style={{ color: "#1a303e" }} />, 
-          path: '/usuario2/clientes' 
+          path: '/usuario/clientes' 
         },
     
         {
           text: 'pacientes',
           icon: <NfcIcon style={{ color: "#1a303e" }} />,
-          path:  '/pacientes',
+          path:  '/usuario/pacientes',
         }
        
       ];
@@ -102,12 +102,12 @@ useEffect(() => {
          {
            text: 'Pacientes',
            icon: <NfcIcon color="primary" />,
-           path:  '/pacientes',
+           path:  '/usuario/pacientes',
          },
            {
            text: 'Pacientes',
            icon: <NfcIcon color="primary" />,
-           path:  '/pacientes',
+           path:  '/usuario/pacientes',
          }
          
          

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import  { useEffect, useState } from "react";
-import PAcintes from '../../components/usuario/pacientes/listadepacientes';
+import PAcintes from '../../components/usuario/paciente/ficha';
 import {nivel} from '../../helpers/herlperlogin'
 import { useNavigate } from "react-router-dom";
 
 import BarraLAteral from '../../components/usuario/menuizq'
 
-
+const drawerWidth = 240;
 
 export default function MenuUsuario2() {
   const navigate = useNavigate();

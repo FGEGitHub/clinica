@@ -1,11 +1,9 @@
 import axios from "axios"
 
-import url from "./url";
 
 
-const baseUrl = url.database+'signincl/'
-//const  baseUrl ='https://api.santacatalinafideicomiso.com/signinn'
-//const  baseUrl ='http://localhost:4000/signinn'
+const API = import.meta.env.VITE_API_URL;
+const baseUrl = API+'signincl/'
 
 
 

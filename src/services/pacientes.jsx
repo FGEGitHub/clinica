@@ -1,9 +1,10 @@
 import axios from "axios"
 
 
-import url from "./url";
 
-const baseUrl = url.database+'clinica/'
+const API = import.meta.env.VITE_API_URL;
+
+const baseUrl = API+'clinica/'
 let token = null
 
 const setToken = newToken => {
@@ -40,12 +41,28 @@ if (loggedUserJSON) {
 
 
 const traerpacientes = async () => {
-
+console.log(API)
   // const data = await axios.post('http://localhost:4000/signupp', datos)
   const { data } = await axios.get(baseUrl + 'traerpacientes/' ,config)
   return data
 
 }
+
+
+const datospaciente = async (id) => {
+
+  // const data = await axios.post('http://localhost:4000/signupp', datos)
+  const { data } = await axios.get(baseUrl + 'datospaciente/'+id ,config)
+  return data
+
+}
+
+const borrarpaciente = async (datos)=> {
+    const {data } = await axios.post(baseUrl + 'borrarpaciente' ,datos,config)
+    return data 
+} 
+
+
 
 const agregarPersona = async (datos)=> {
     const {data } = await axios.post(baseUrl + 'agregarPersona' ,datos,config)
@@ -53,4 +70,4 @@ const agregarPersona = async (datos)=> {
 } 
 
 
-export default { traerpacientes , agregarPersona }
+export default { traerpacientes , agregarPersona , datospaciente, borrarpaciente}

@@ -23,7 +23,7 @@ import Checkbox from '@mui/material/Checkbox';
 
 import marcas from '../../assets/imagenlogin.jpg'
 
-
+import Nav from '../../components/usuario/Navbar'
 
 const Login = () => {
 
@@ -47,7 +47,7 @@ const Login = () => {
       
       switch (user.nivel) {
         case 1:
-          navigate('/menu')
+          navigate('/usuario/pacientes')
           break;
        
         default:
@@ -86,7 +86,7 @@ const Login = () => {
 
       
       switch(user.nivel){
-        case '1': navigate('/menu')
+        case '1': navigate('/usuario/pacientes')
         window.location.reload(true);
           break;
         
@@ -113,7 +113,7 @@ const Login = () => {
   const btnstyle = { margin: '8px 0' }
 
 const LoginReturn = () => (
-  <Grid container component="main" sx={{ height: '100vh' }}>
+  <Grid container component="main" sx={{ height: '100vh', background: '#002D57' }}>
     
     {/* Columna izquierda con fondo y logo 
     'linear-gradient(to bottom right,hsl(209, 100%, 9%),rgb(0, 34, 66))'*/}
@@ -132,8 +132,16 @@ const LoginReturn = () => (
         color: 'white',
       }}
     >
-      <Box component="img" src={marcas} alt="Santa Catalina Logo" 
-      sx={{ width: 700, maxWidth: '100%' }} />
+<Box
+  component="img"
+  src={marcas}
+  alt="Santa Catalina Logo"
+  sx={{
+    width: '100vw',
+    height: 'auto',
+    maxWidth: 700,
+  }}
+/>
       
     </Grid>
 
@@ -143,7 +151,7 @@ const LoginReturn = () => (
       <Box
         sx={{
           width: '100%',
-          maxWidth: 400,
+        
           mx: 4,
         }}
       >
