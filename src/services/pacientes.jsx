@@ -73,4 +73,11 @@ const crearturno = async (datos)=> {
     const {data } = await axios.post(baseUrl + 'crearturno' ,datos,config)
     return data 
 } 
-export default {crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+
+const borrarturno = async (datos)=> {
+    const {data } = await axios.post(baseUrl + 'borrarturno' ,datos,config)
+    return data 
+} 
+
+
+export default {borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

@@ -21,6 +21,8 @@ import servicioDtc from "../../../services/pacientes";
 import Modificar from "./modificar"
 import Borrarusuaio from "./modalborrar";
 import NuevoTurno from "./nuevoturno";
+import BorrarTurno from "./modalborrarturno";
+
 
 const FichaPersona = (props) => {
   let params = useParams();
@@ -195,6 +197,7 @@ const FichaPersona = (props) => {
                   <TableCell><strong>motivo</strong></TableCell>
           <TableCell><strong>Asistencia</strong></TableCell>
           <TableCell><strong>Observaciones</strong></TableCell>
+          <TableCell><strong>Borrar</strong></TableCell>
         </TableRow>
       </TableHead>
 
@@ -218,6 +221,8 @@ const FichaPersona = (props) => {
               <TableCell>{ob.motivo}</TableCell>
             <TableCell>{ob.asistencia}</TableCell>
             <TableCell>{ob.observaciones}</TableCell>
+             <TableCell>   <BorrarTurno id_turno={ob.id} traer={traer} /></TableCell>
+         
           </TableRow>
         ))}
       </TableBody>

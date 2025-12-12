@@ -63,7 +63,8 @@ export default function Modificar(props) {
 
   return (
     <>
-      <Button variant="contained" onClick={handleClickOpen}>
+      <Button  variant="outlined"
+                                sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", }} onClick={handleClickOpen}>
         Modificar
       </Button>
 

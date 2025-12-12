@@ -55,7 +55,8 @@ const NuevoTurno = ({ id_paciente, traer }) => {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleClickOpen}>
+      <Button  variant="outlined"
+                                sx={{ color: "black", borderColor: "red", fontSize: "0.70rem"   , }} color="primary" onClick={handleClickOpen}>
         Nuevo Turno
       </Button>
 
