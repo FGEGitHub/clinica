@@ -80,10 +80,15 @@ const crearturno = async (datos)=> {
     return data 
 } 
 
+
+const modificarusuario = async (datos)=> {
+    const {data } = await axios.post(baseUrl + 'modificarusuario' ,datos,config)
+    return data 
+} 
 const borrarturno = async (datos)=> {
     const {data } = await axios.post(baseUrl + 'borrarturno' ,datos,config)
     return data 
 } 
 
 
-export default {traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+export default {modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

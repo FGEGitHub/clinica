@@ -42,9 +42,19 @@ const handleChangeNuevo = (e) => {
 
 const guardarPaciente = async () => {
   try {
-    await servicioFidei.agregarPersona(nuevoPaciente);
-    traer(); // <- actualiza tabla
-    handleClose();
+    const rta = await servicioFidei.agregarPersona(nuevoPaciente);
+    // rta = { ok: true/false, msg: "...", id? }
+
+    if (!rta.ok) {
+      // ❌ DNI existente → NO cerrar modal
+      alert(rta.msg);
+      return;
+    }
+
+    // ✅ Alta correcta
+    alert(rta.msg);
+    traer(); // actualiza tabla
+    handleClose(); // cerrar modal SOLO si ok === true
 
     // limpia formulario
     setNuevoPaciente({
@@ -59,6 +69,7 @@ const guardarPaciente = async () => {
 
   } catch (error) {
     console.error("Error al guardar paciente", error);
+    alert("Error al guardar paciente");
   }
 };
   useEffect(() => {
