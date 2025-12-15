@@ -115,12 +115,15 @@ const guardarPaciente = async () => {
         onChange={handleSearch}
         sx={{ mb: 2 }}
       />
-<Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={handleOpen}>
+<Button                             
+   sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "hsla(249, 88%, 75%, 1.00)" }}
+ onClick={handleOpen}>
   Nuevo Paciente
 </Button>
+<br/>
  <Paper sx={{ width: '100%', overflowX: 'auto' }}>
   <TableContainer component={Paper}>
-    <Table sx={{ minWidth: 900, tableLayout: 'auto' }}>
+  <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
            <TableHead>
   <TableRow>
     <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>DNI</TableCell>
@@ -140,7 +143,9 @@ const guardarPaciente = async () => {
                   <TableCell>{row.nombre}</TableCell>
                   <TableCell>
   <Button
-    variant="contained"
+   ariant="outlined"
+                                sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "#c5bdbdff" }}
+
     color="primary"
     size="small"
     onClick={() => navigate(`/usuario/paciente/${row.id}`)}

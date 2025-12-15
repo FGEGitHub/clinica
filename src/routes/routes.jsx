@@ -4,7 +4,7 @@ import Login from '../pages/login';
 import Pacientes from '../pages/pacientes';
 import Paciente from '../pages/paciente';
 import Turnos from '../pages/turnos';
-
+import Turno from '../pages/turno';
 
 import NOtFound from '../pages/notfound';
 const Rutas = [
@@ -19,7 +19,7 @@ const Rutas = [
     { path: '/usuario/paciente/:id', element: <Paciente /> },
         { path: '/usuario/turnos', element: <Turnos /> },
 
-    
+        { path: '/usuario/turno/:id', element: <Turno /> },
     ];
 
 

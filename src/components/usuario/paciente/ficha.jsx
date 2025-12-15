@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import {
   Paper,
   Box,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams , useNavigate } from "react-router-dom";
 
 import servicioDtc from "../../../services/pacientes";
 import Modificar from "./modificar"
@@ -25,6 +25,7 @@ import BorrarTurno from "./modalborrarturno";
 
 
 const FichaPersona = (props) => {
+    const navigate = useNavigate();
   let params = useParams();
   let id = params.id;
 
@@ -197,6 +198,7 @@ const FichaPersona = (props) => {
                   <TableCell><strong>motivo</strong></TableCell>
           <TableCell><strong>Asistencia</strong></TableCell>
           <TableCell><strong>Observaciones</strong></TableCell>
+          <TableCell><strong>Atender</strong></TableCell>
           <TableCell><strong>Borrar</strong></TableCell>
         </TableRow>
       </TableHead>
@@ -221,6 +223,17 @@ const FichaPersona = (props) => {
               <TableCell>{ob.motivo}</TableCell>
             <TableCell>{ob.asistencia}</TableCell>
             <TableCell>{ob.observaciones}</TableCell>
+            <TableCell>
+{/*   {ob.asistencia !== "Atendido" && ( */}
+    <Button
+      variant="contained"
+      size="small"
+      onClick={() => navigate(`/usuario/turno/${ob.id}`)}
+    >
+      Consulta
+    </Button>
+{/*   )} */}
+</TableCell>
              <TableCell>   <BorrarTurno id_turno={ob.id} traer={traer} /></TableCell>
          
           </TableRow>
