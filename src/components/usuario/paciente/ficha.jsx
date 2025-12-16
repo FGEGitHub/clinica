@@ -16,6 +16,7 @@ import {
   Box,
 } from "@mui/material";
 import { useParams , useNavigate } from "react-router-dom";
+import { Tabs, Tab } from "@mui/material";
 
 import servicioDtc from "../../../services/pacientes";
 import Modificar from "./modificar"
@@ -23,7 +24,24 @@ import Borrarusuaio from "./modalborrar";
 import NuevoTurno from "./nuevoturno";
 import BorrarTurno from "./modalborrarturno";
 
+const sectionStyle = {
+  border: "1px solid #c62828",
+  borderRadius: 1,
+  mb: 3,
+};
 
+const sectionHeader = {
+  backgroundColor: "#f8d7da",
+  px: 2,
+  py: 0.5,
+  fontWeight: "bold",
+  fontSize: 14,
+  color: "#7f0000",
+};
+
+const sectionBody = {
+  p: 2,
+};
 const FichaPersona = (props) => {
     const navigate = useNavigate();
   let params = useParams();
@@ -32,10 +50,16 @@ const FichaPersona = (props) => {
   const [chico, setchico] = useState();
   const [turnos, setTurnos] = useState([]);
   const [usuario, setUsuario] = useState();
-
+const [tab, setTab] = useState(0);
   useEffect(() => {
     traer();
   }, []);
+
+  
+const handleTabChange = (event, newValue) => {
+  setTab(newValue);
+};
+
 
   const traer = async () => {
     try {
@@ -61,121 +85,147 @@ const FichaPersona = (props) => {
   return (
     <>
       {/* -------------------------------- FICHA PRINCIPAL -------------------------------- */}
-      <Card variant="outlined" sx={{ p: 2, mt: 2 }}>
-        <CardContent>
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 3 }}>
-            Información del paciente
-          </Typography>
+   {/* -------------------------------- FICHA PRINCIPAL -------------------------------- */}
+<Box
+  sx={{
+    width: "100vw",
+    height: "100vh",
+    maxWidth: 1200,   // 👈 ancho fijo para TODAS las pestañas
+    margin: "auto",
+    mt: 4,
+  }}
+>
+  <Paper elevation={3} sx={{ borderRadius: 2 }}>
+   
+  <CardContent>
 
-          <Grid container spacing={2}>
-            {/* Nombre */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Nombre"
-                fullWidth
-                value={chico.nombre || ""}
-                InputProps={{ readOnly: true }}
-              />
+    <Typography
+      variant="h6"
+      align="center"
+      sx={{ fontWeight: "bold", mb: 2 }}
+    >
+      HISTORIA CLÍNICA – FICHA DEL PACIENTE
+    </Typography>
+
+    {/* ================= PESTAÑAS ================= */}
+    <Tabs
+      value={tab}
+      onChange={handleTabChange}
+      variant="fullWidth"
+      sx={{
+        mb: 3,
+        "& .MuiTab-root": {
+          fontWeight: "bold",
+          border: "1px solid #c62828",
+          borderBottom: "none",
+          borderRadius: "6px 6px 0 0",
+          backgroundColor: "#f8d7da",
+        },
+        "& .Mui-selected": {
+          backgroundColor: "#ffffff",
+        },
+      }}
+    >
+      <Tab label="Datos del paciente" />
+      <Tab label="Turnos" />
+      <Tab label="Otros" />
+    </Tabs>
+
+    {/* ================= TAB DATOS ================= */}
+    {tab === 0 && (
+      <>
+        {/* ===== DATOS PERSONALES ===== */}
+        <Box sx={sectionStyle}>
+          <Box sx={sectionHeader}>DATOS PERSONALES</Box>
+          <Box sx={sectionBody}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Apellido" fullWidth size="small"
+                  value={chico.apellido || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField label="Nombre" fullWidth size="small"
+                  value={chico.nombre || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField label="DNI" fullWidth size="small"
+                  value={chico.dni || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField label="Género" fullWidth size="small"
+                  value={chico.genero || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField label="Fecha nacimiento" fullWidth size="small"
+                  value={chico.fecha_nacimiento || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField label="Fecha ingreso" fullWidth size="small"
+                  value={chico.fecha_ingreso || ""} InputProps={{ readOnly: true }} />
+              </Grid>
             </Grid>
-
-            {/* Apellido */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Apellido"
-                fullWidth
-                value={chico.apellido || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            {/* DNI */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="DNI"
-                fullWidth
-                value={chico.dni || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            {/* Teléfono */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Teléfono"
-                fullWidth
-                value={chico.telefono || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            {/* Dirección */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Dirección"
-                fullWidth
-                value={chico.domicilio || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            {/* Fecha nacimiento */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Fecha de nacimiento"
-                fullWidth
-                value={chico.fecha_nacimiento || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            {/* Fecha ingreso */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Fecha de ingreso"
-                fullWidth
-                value={chico.primer_ingreso || chico.fecha_ingreso || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-
-            {/* Observaciones */}
-            <Grid item xs={12}>
-              <TextField
-                label="Observaciones"
-                fullWidth
-                multiline
-                rows={2}
-                value={chico.observaciones || ""}
-                InputProps={{ readOnly: true }}
-              />
-            </Grid>
-          </Grid>
-
-          {/* BOTONES */}
-          <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
-            <Modificar
-              {...chico}
-              traer={async () => {
-                const loggedUserJSON =
-                  window.localStorage.getItem("loggedNoteAppUser");
-                if (loggedUserJSON) {
-                  const usuario = JSON.parse(loggedUserJSON);
-                  const novedades_aux = await servicioDtc.datospaciente(
-                    id === undefined ? props.id : id
-                  );
-                  setchico(novedades_aux[0][0]);
-                }
-              }}
-            />
-
-           <Borrarusuaio id={chico.id} />
           </Box>
-        </CardContent>
-      </Card>
+        </Box>
 
-      {/* -------------------------------- TABLA DE TURNOS -------------------------------- */}
-    <Box 
+        {/* ===== CONTACTO ===== */}
+        <Box sx={sectionStyle}>
+          <Box sx={sectionHeader}>DOMICILIO Y CONTACTO</Box>
+          <Box sx={sectionBody}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField label="Dirección" fullWidth size="small"
+                  value={chico.direccion || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField label="Teléfono" fullWidth size="small"
+                  value={chico.telefono || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField label="Email" fullWidth size="small"
+                  value={chico.email || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+
+        {/* ===== COBERTURA ===== */}
+        <Box sx={sectionStyle}>
+          <Box sx={sectionHeader}>COBERTURA MÉDICA</Box>
+          <Box sx={sectionBody}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Obra social" fullWidth size="small"
+                  value={chico.obra_social || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField label="N° afiliado" fullWidth size="small"
+                  value={chico.numero_afiliado || ""} InputProps={{ readOnly: true }} />
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+
+        {/* ===== BOTONES ===== */}
+        <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "flex-end" }}>
+          <Modificar {...chico} traer={traer} />
+          <Borrarusuaio id={chico.id} />
+        </Box>
+      </>
+    )}
+
+    {/* ================= TAB TURNOS ================= */}
+    {tab === 1 && (
+       <Box 
   sx={{ 
+       width: "100%",
     mt: 4,
     p: 2,
     borderRadius: 2,
@@ -242,6 +292,22 @@ const FichaPersona = (props) => {
     </Table>
   </TableContainer>
 </Box>
+    )}
+
+    {/* ================= TAB OTROS ================= */}
+    {tab === 2 && (
+      <Box sx={{ p: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          Próximamente: antecedentes, diagnósticos, archivos, etc.
+        </Typography>
+      </Box>
+    )}
+
+    </CardContent>
+  </Paper>
+</Box>
+      {/* -------------------------------- TABLA DE TURNOS -------------------------------- */}
+  
     </>
   );
 };
