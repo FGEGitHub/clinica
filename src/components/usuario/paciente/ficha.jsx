@@ -55,11 +55,31 @@ const [tab, setTab] = useState(0);
     traer();
   }, []);
 
-  
+  const calcularEdad = (fecha) => {
+  if (!fecha) return "";
+  const nacimiento = new Date(fecha);
+  const hoy = new Date();
+
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
+
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+    edad--;
+  }
+
+  return edad;
+};
+
+
 const handleTabChange = (event, newValue) => {
   setTab(newValue);
 };
 
+const formatFecha = (fecha) => {
+  if (!fecha) return "";
+  const [year, month, day] = fecha.split("-");
+  return `${day}/${month}/${year}`;
+}; 
 
   const traer = async () => {
     try {
@@ -159,14 +179,29 @@ const handleTabChange = (event, newValue) => {
                   value={chico.genero || ""} InputProps={{ readOnly: true }} />
               </Grid>
 
-              <Grid item xs={12} sm={4}>
-                <TextField label="Fecha nacimiento" fullWidth size="small"
-                  value={chico.fecha_nacimiento || ""} InputProps={{ readOnly: true }} />
-              </Grid>
+         <Grid item xs={12} sm={4}>
+  <TextField
+    label="Fecha nacimiento"
+    fullWidth
+    size="small"
+    value={formatFecha(chico.fecha_nacimiento)}
+    InputProps={{ readOnly: true }}
+  />
+</Grid>
+
+<Grid item xs={12} sm={2}>
+  <TextField
+    label="Edad"
+    fullWidth
+    size="small"
+    value={calcularEdad(chico.fecha_nacimiento)}
+    InputProps={{ readOnly: true }}
+  />
+</Grid>
 
               <Grid item xs={12} sm={4}>
                 <TextField label="Fecha ingreso" fullWidth size="small"
-                  value={chico.fecha_ingreso || ""} InputProps={{ readOnly: true }} />
+                  value={formatFecha(chico.ingreso) || ""} InputProps={{ readOnly: true }} />
               </Grid>
             </Grid>
           </Box>

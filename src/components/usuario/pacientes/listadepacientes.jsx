@@ -10,7 +10,7 @@ import {
 
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, IconButton,  TablePagination, Box, Typography
+  Paper, TablePagination, Box, Typography
 } from '@mui/material';
 
 export default function Ingresos() {
@@ -115,14 +115,14 @@ const guardarPaciente = async () => {
         onChange={handleSearch}
         sx={{ mb: 2 }}
       />
-<Button                             
+{/* <Button                             
    sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "hsla(249, 88%, 75%, 1.00)" }}
  onClick={handleOpen}>
   Nuevo Paciente
-</Button>
+</Button> */}
  <Button
     variant="contained"
-    color="primary"
+       sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "hsla(249, 88%, 75%, 1.00)" }}
     onClick={() => navigate("/usuario/pacientenuevo")}
   >
     ➕ Paciente nuevo

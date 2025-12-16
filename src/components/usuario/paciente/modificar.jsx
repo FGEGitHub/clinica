@@ -1,14 +1,20 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import servicioDtc from "../../../services/pacientes";
 import { useState } from "react";
-import { Paper, Grid } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Paper,
+  Grid,
+  MenuItem,
+  Divider,
+  Typography,
+} from "@mui/material";
+
+import servicioDtc from "../../../services/pacientes";
 
 // DatePicker
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -21,23 +27,25 @@ export default function Modificar(props) {
 
   const [form, setForm] = useState({
     id: props.id,
-    nombre: props.nombre,
-    apellido: props.apellido,
-    dni: props.dni,
-    telefono: props.telefono,
-    domicilio: props.domicilio,
+    nombre: props.nombre || "",
+    apellido: props.apellido || "",
+    dni: props.dni || "",
+    genero: props.genero || "",
+    telefono: props.telefono || "",
+    direccion: props.direccion || "",
+    obra_social: props.obra_social || "",
+    numero_afiliado: props.numero_afiliado || "",
     fecha_nacimiento: props.fecha_nacimiento
       ? new Date(props.fecha_nacimiento)
       : null,
-    fecha_ingreso: props.fecha_ingreso ? new Date(props.fecha_ingreso) : null,
+    fecha_ingreso: props.fecha_ingreso
+      ? new Date(props.fecha_ingreso)
+      : null,
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
-  const handleClickOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   const handleGuardar = async () => {
     try {
@@ -52,29 +60,41 @@ export default function Modificar(props) {
       };
 
       const r = await servicioDtc.modificarusuario(dataEnviar);
-      alert(r);
+
+      if (r?.ok === false) {
+        alert(r.msg);
+        return;
+      }
 
       props.traer();
       setOpen(false);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   return (
     <>
-      <Button  variant="outlined"
-                                sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", }} onClick={handleClickOpen}>
+      <Button
+        variant="outlined"
+        sx={{ color: "black", borderColor: "black", fontSize: "0.75rem" }}
+        onClick={() => setOpen(true)}
+      >
         Modificar
       </Button>
 
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Modificar datos</DialogTitle>
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">
+        <DialogTitle>Modificar ficha del paciente</DialogTitle>
 
-        <Paper sx={{ p: 2 }}>
+        <Paper sx={{ p: 3 }}>
           <DialogContent>
+            {/* DATOS PERSONALES */}
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+              Datos personales
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+
             <Grid container spacing={2}>
-              {/* Nombre */}
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Nombre"
@@ -85,7 +105,6 @@ export default function Modificar(props) {
                 />
               </Grid>
 
-              {/* Apellido */}
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Apellido"
@@ -96,8 +115,7 @@ export default function Modificar(props) {
                 />
               </Grid>
 
-              {/* DNI */}
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <TextField
                   label="DNI"
                   fullWidth
@@ -107,7 +125,52 @@ export default function Modificar(props) {
                 />
               </Grid>
 
-              {/* Teléfono */}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  select
+                  label="Género"
+                  fullWidth
+                  name="genero"
+                  value={form.genero}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="">Sin especificar</MenuItem>
+                  <MenuItem value="Masculino">Masculino</MenuItem>
+                  <MenuItem value="Femenino">Femenino</MenuItem>
+                  <MenuItem value="Otro">Otro</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDateFns}
+                  adapterLocale={es}
+                >
+                  <DatePicker
+                    label="Fecha de nacimiento"
+                    value={form.fecha_nacimiento}
+                    format="dd/MM/yyyy"
+                    slotProps={{ textField: { fullWidth: true } }}
+                    onChange={(newValue) =>
+                      setForm({ ...form, fecha_nacimiento: newValue })
+                    }
+                  />
+                </LocalizationProvider>
+              </Grid>
+            </Grid>
+
+            {/* CONTACTO */}
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              sx={{ mt: 4 }}
+              gutterBottom
+            >
+              Contacto
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+
+            <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Teléfono"
@@ -118,58 +181,77 @@ export default function Modificar(props) {
                 />
               </Grid>
 
-              {/* Dirección */}
-              <Grid item xs={12} md={12}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   label="Dirección"
                   fullWidth
-                  name="domicilio"
-                  value={form.domicilio}
+                  name="direccion"
+                  value={form.direccion}
+                  onChange={handleChange}
+                />
+              </Grid>
+            </Grid>
+
+            {/* OBRA SOCIAL */}
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              sx={{ mt: 4 }}
+              gutterBottom
+            >
+              Datos de obra social
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Obra social"
+                  fullWidth
+                  name="obra_social"
+                  value={form.obra_social}
                   onChange={handleChange}
                 />
               </Grid>
 
-              {/* Fecha de nacimiento */}
               <Grid item xs={12} md={6}>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={es}
-                >
-                  <DatePicker
-                    label="Fecha de nacimiento"
-                    value={form.fecha_nacimiento}
-                    format="dd/MM/yyyy"
-                    onChange={(newValue) =>
-                      setForm({ ...form, fecha_nacimiento: newValue })
-                    }
-                  />
-                </LocalizationProvider>
+                <TextField
+                  label="Número de afiliado"
+                  fullWidth
+                  name="numero_afiliado"
+                  value={form.numero_afiliado}
+                  onChange={handleChange}
+                />
               </Grid>
 
-              {/* Fecha de ingreso */}
               <Grid item xs={12} md={6}>
                 <LocalizationProvider
                   dateAdapter={AdapterDateFns}
                   adapterLocale={es}
                 >
                   <DatePicker
-                    label="Fecha de ingreso"
-                    value={form.fecha_ingreso}
-                    format="dd/MM/yyyy"
-                    onChange={(newValue) =>
-                      setForm({ ...form, fecha_ingreso: newValue })
-                    }
-                  />
+    label="Fecha de ingreso"
+    value={form.fecha_ingreso}
+    format="dd/MM/yyyy"
+    onChange={(newValue) =>
+      setForm({ ...form, fecha_ingreso: newValue })
+    }
+    slotProps={{
+      textField: {
+        fullWidth: true,
+      },
+    }}
+  />
                 </LocalizationProvider>
               </Grid>
             </Grid>
           </DialogContent>
 
-          <DialogActions>
+          <DialogActions sx={{ mt: 2 }}>
             <Button variant="contained" onClick={handleGuardar}>
-              Guardar
+              Guardar cambios
             </Button>
-            <Button variant="outlined" color="error" onClick={handleClose}>
+            <Button variant="outlined" color="error" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
           </DialogActions>
