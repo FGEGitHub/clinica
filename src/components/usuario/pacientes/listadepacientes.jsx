@@ -120,6 +120,13 @@ const guardarPaciente = async () => {
  onClick={handleOpen}>
   Nuevo Paciente
 </Button>
+ <Button
+    variant="contained"
+    color="primary"
+    onClick={() => navigate("/usuario/pacientenuevo")}
+  >
+    ➕ Paciente nuevo
+  </Button>
 <br/>
  <Paper sx={{ width: '100%', overflowX: 'auto' }}>
   <TableContainer component={Paper}>

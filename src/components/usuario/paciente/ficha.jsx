@@ -230,7 +230,7 @@ const FichaPersona = (props) => {
       size="small"
       onClick={() => navigate(`/usuario/turno/${ob.id}`)}
     >
-      Consulta
+      Ver Consulta
     </Button>
 {/*   )} */}
 </TableCell>

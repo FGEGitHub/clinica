@@ -18,10 +18,12 @@ const TurnoDetalle = () => {
 
   const [turno, setTurno] = useState(null);
   const [paciente, setPaciente] = useState(null);
+
   const [consulta, setConsulta] = useState({
     motivo: "",
     evolucion: "",
-    examen_fisico: "",
+    tratamiento: "",
+    fecha: "",
   });
 
   useEffect(() => {
@@ -31,21 +33,25 @@ const TurnoDetalle = () => {
   const traerTurno = async () => {
     try {
       const res = await servicioDtc.traerTurnoDetalle(id);
-
-      /**
-       * Backend recomendado:
-       * res = {
-       *   turno: {...},
-       *   paciente: {...},
-       *   consulta: {...} | null
-       * }
-       */
-
+console.log(res);
       setTurno(res.turno);
       setPaciente(res.paciente);
 
       if (res.consulta) {
-        setConsulta(res.consulta);
+        setConsulta({
+          motivo: res.consulta.motivo || "",
+          evolucion: res.consulta.evolucion || "",
+          tratamiento: res.consulta.tratamiento || "",
+          fecha: res.consulta.fecha
+            ? res.consulta.fecha.slice(0, 16) // yyyy-MM-ddTHH:mm
+            : "",
+        });
+      } else {
+        // Fecha por defecto: ahora
+        setConsulta((prev) => ({
+          ...prev,
+          fecha: new Date().toISOString().slice(0, 16),
+        }));
       }
 
       setLoading(false);
@@ -58,7 +64,10 @@ const TurnoDetalle = () => {
     try {
       await servicioDtc.guardarConsulta({
         id_turno: turno.id,
-        ...consulta,
+        motivo: consulta.motivo,
+        evolucion: consulta.evolucion,
+        tratamiento: consulta.tratamiento,
+        fecha: consulta.fecha,
       });
 
       alert("Consulta guardada");
@@ -82,7 +91,7 @@ const TurnoDetalle = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <TextField
-                label="Fecha"
+                label="Fecha del turno"
                 fullWidth
                 value={turno.fecha}
                 InputProps={{ readOnly: true }}
@@ -138,6 +147,18 @@ const TurnoDetalle = () => {
           <Divider sx={{ mb: 2 }} />
 
           <TextField
+            label="Fecha de la consulta"
+            type="datetime-local"
+            fullWidth
+            sx={{ mb: 2 }}
+            value={consulta.fecha}
+            onChange={(e) =>
+              setConsulta({ ...consulta, fecha: e.target.value })
+            }
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <TextField
             label="Motivo de consulta"
             fullWidth
             multiline
@@ -162,14 +183,14 @@ const TurnoDetalle = () => {
           />
 
           <TextField
-            label="Examen físico"
+            label="Tratamiento"
             fullWidth
             multiline
             rows={3}
             sx={{ mb: 3 }}
-            value={consulta.examen_fisico}
+            value={consulta.tratamiento}
             onChange={(e) =>
-              setConsulta({ ...consulta, examen_fisico: e.target.value })
+              setConsulta({ ...consulta, tratamiento: e.target.value })
             }
           />
 
