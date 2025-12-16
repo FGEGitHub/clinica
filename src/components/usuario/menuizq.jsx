@@ -91,7 +91,7 @@ useEffect(() => {
     
         {
           text: 'pacientes',
-          icon: <NfcIcon style={{ color: "#1a303e" }} />,
+        icon: <NfcIcon />, 
           path:  '/usuario/pacientes',
         }
        
@@ -101,12 +101,12 @@ useEffect(() => {
      
          {
            text: 'Pacientes',
-           icon: <NfcIcon color="primary" />,
+        icon: <NfcIcon />,
            path:  '/usuario/pacientes',
          },
            {
            text: 'turnos',
-           icon: <NfcIcon color="primary" />,
+        icon: <NfcIcon />,
            path:  '/usuario/turnos',
          }
          
