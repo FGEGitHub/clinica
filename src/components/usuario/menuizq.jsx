@@ -1,308 +1,147 @@
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import {
+  Box,
+  Drawer,
+  CssBaseline,
+  Toolbar,
+  List,
+  Divider,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  AppBar,
+  useMediaQuery,
+} from '@mui/material';
+
+import MenuIcon from '@mui/icons-material/Menu';
 import GroupIcon from '@mui/icons-material/Group';
 import NfcIcon from '@mui/icons-material/Nfc';
+
 import { useState, useEffect } from "react";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import Navbar from './Navbar';
 
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+const drawerWidth = 240;
 
+export default function MenuIzq2({ children }) {
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width:900px)');
+  const [menuOpen, setMenuOpen] = useState(!isMobile);
+  const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    setMenuOpen(!isMobile);
+  }, [isMobile]);
 
-const initialWidth = 240; // Ancho inicial del menú
-export default function MenuIzq2 ({children}) {
-    const navigate = useNavigate();
-  
-    const [notificaciones, setNotificaciones] = useState();
-    const [notificacioneslegajos, setNotificacioneslegajos] = useState();
-    const [notificacionescbus, setNotificacionescbus] = useState();
-    const [user, setUser] = useState();
-    const [drawerWidth, setDrawerWidth] = useState(initialWidth);
-    const [resizing, setResizing] = useState(false);
-    const [menuVisible, setMenuVisible] = useState(true);
-    ///////////////
-///Funciones para ajustar el ancho 
-const handleMouseDown = () => {
-  setResizing(true);
-};
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser');
+    if (loggedUserJSON) {
+      setUser(JSON.parse(loggedUserJSON));
+    }
+  }, []);
 
-const handleMouseMove = (e) => {
-  if (resizing) {
-    const newWidth = Math.max(200, Math.min(e.clientX, 500)); // Limita entre 200 y 500px
-    setDrawerWidth(newWidth);
-  }
-};
-
-const handleMouseUp = () => {
-  setResizing(false);
-};
-useEffect(() => {
-  if (resizing) {
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-  } else {
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-  }
-  return () => {
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
+  const handleClick = (path) => {
+    navigate(path);
+    if (isMobile) setMenuOpen(false); // UX clave
   };
-}, [resizing]);
-    ///////////
-    useEffect(() => {
-      const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
-      const useer = JSON.parse(loggedUserJSON)
-      setUser(useer)
 
-  }, [])
- 
-    const handleClick = (path) => {
-        
-        navigate(path);
-      }; 
-    
+  const menuItemsNivel2 = [
+    { text: 'Ver Clientes', icon: <GroupIcon />, path: '/usuario/clientes' },
+    { text: 'Pacientes', icon: <NfcIcon />, path: '/usuario/pacientes' },
+  ];
 
-       const hanleLogout = () => {
-       /* console.log('click')
-        setUser(null)
-        servicioUsuario.setToken(user.token) */
-        window.localStorage.removeItem('loggedNoteAppUser')
-        window.location.reload(true);
-      } 
-    const menuItems = [
-        { 
-          text: 'Ver Clientes', 
-          icon: <GroupIcon style={{ color: "#1a303e" }} />, 
-          path: '/usuario/clientes' 
-        },
-    
-        {
-          text: 'pacientes',
-        icon: <NfcIcon />, 
-          path:  '/usuario/pacientes',
-        }
-       
-      ];
+  const menuItemsNivel1 = [
+    { text: 'Pacientes', icon: <NfcIcon />, path: '/usuario/pacientes' },
+    { text: 'Turnos', icon: <NfcIcon />, path: '/usuario/turnos' },
+  ];
 
-      const menuItems2 = [
-     
-         {
-           text: 'Pacientes',
-        icon: <NfcIcon />,
-           path:  '/usuario/pacientes',
-         },
-           {
-           text: 'turnos',
-        icon: <NfcIcon />,
-           path:  '/usuario/turnos',
-         }
-         
-         
-      
-       ];
+  const menuItems =
+    user?.nivel === 2 ? menuItemsNivel2 : menuItemsNivel1;
 
-
-    /*const toggleMenu = () => {
-        setMenuVisible(!menuVisible);
-    };
-    return(
-      <>
-      <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
-          {menuVisible && (
-              <Drawer
-              sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                "& .MuiDrawer-paper": {
-                  width: drawerWidth,
-                  boxSizing: "border-box",
-                },
-              }}
-              variant="permanent"
-              anchor="left"
-              >
-                  <Navbar />
-                  <Toolbar />
-                
-                  <List>
-                  <Button variant="contained" onClick={toggleMenu} sx={{ mb: 2, backgroundColor: '#114c5f', '&:hover': { backgroundColor: '#0d3a49' } }}>
-                  {menuVisible ? 'Ocultar Menú' : 'Mostrar Menú'}
-              </Button>
-          {user ? <>
-          {user.nivel === 2 ? <> 
-            {menuItems.map((item) => (
-            <ListItem 
-              button 
-              key={item.text} 
-              onClick={() => {
-                handleClick(item.path)
-              }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-          ))}
-          </>: <>
-          {menuItems2.map((item) => (
-            <ListItem 
-              button 
-              key={item.text} 
-              onClick={() => {
-                handleClick(item.path)
-              }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-          ))}
-          
-          </>}
-          </> :  <></>}
-        </List>
-                  
-              </Drawer>
-          )}
-
-          <Box
-              component="main"
-              sx={{
-                  flexGrow: 1,
-                  bgcolor: 'background.default',
-                  p: 3,
-                 // marginLeft: menuVisible ? `${drawerWidth}px` : '0',
-                  transition: 'margin 0.3s ease-in-out',
-              }}
-          >
-              <Navbar />
-              <Toolbar />
-           
-              {children}
-          </Box>
-      </Box>
-  </>
-  );*/
-  const toggleMenu = () => {
-  setMenuVisible(!menuVisible);
-};
-
-return (
-  <>
-    <Box sx={{background: '#fffff', display: 'flex'}}>
+  return (
+    <Box sx={{ display: 'flex', bgcolor: '#f5f6f8', minHeight: '100vh' }}>
       <CssBaseline />
 
-      {/* Drawer lateral */}
-      {menuVisible && (
-        <Drawer
+      {/* ===== APPBAR MOBILE ===== */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          elevation={1}
           sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              width: drawerWidth,
-             
-              bgcolor: '#fffff',
-            },
+            bgcolor: '#1a303e',
+            color: '#fff',
+            borderBottom: '1px solid #e0e0e0',
           }}
-          variant="permanent"
-          anchor="left"
         >
-          <Navbar />
-          <Toolbar />
-          <Divider />
-          <List sx={{background: '#fffff'}}>
-            {/* Botón solo dentro del Drawer cuando el menú está visible */}
-           <Box sx={{display: 'flex', justifyContent: 'flex-end'}}>
-  <IconButton
-    onClick={toggleMenu}
-    sx={{
-      color: '#1a303e',
-      '&:hover': {
-        backgroundColor: 'transparent',
-        color: '#0d3a49',
-      },
-    }}
-  >
-    <CloseIcon />
-  </IconButton>
-</Box>
-
-
-            {user ? (
-              user.nivel === 2 ? (
-                menuItems.map((item) => (
-                  <ListItem
-                    button
-                    key={item.text}
-                    onClick={() => handleClick(item.path)}
-                  >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.text} />
-                  </ListItem>
-                ))
-              ) : (
-                menuItems2.map((item) => (
-                  <ListItem
-                    button
-                    key={item.text}
-                    onClick={() => handleClick(item.path)}
-                  >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.text} />
-                  </ListItem>
-                ))
-              )
-            ) : null}
-          </List>
-          <Divider />
-        </Drawer>
+          <Toolbar>
+            <IconButton edge="start" onClick={() => setMenuOpen(true)}>
+              <MenuIcon   sx={{bgcolor: '#1a303e',
+            color: '#fff', }}/>
+            </IconButton>
+            <Box sx={{ fontWeight: 600, fontSize: 16 }}>
+              Menu
+            </Box>
+          </Toolbar>
+        </AppBar>
       )}
 
-      {/* Contenido principal */}
+      {/* ===== DRAWER ===== */}
+      <Drawer
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            bgcolor: '#fff',
+          },
+        }}
+      >
+        {!isMobile && <Navbar />}
+        <Toolbar />
+        <Divider />
+
+        <List>
+          {menuItems.map((item) => (
+            <ListItem
+              button
+              key={item.text}
+              onClick={() => handleClick(item.path)}
+              sx={{
+                borderRadius: 1,
+                mx: 1,
+                mb: 0.5,
+                '&:hover': {
+                  bgcolor: '#f0f4f7',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: '#1a303e' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+
+      {/* ===== CONTENIDO ===== */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: 'background.default',
           p: 3,
-          transition: 'margin 0.3s ease-in-out',
+          mt: isMobile ? '64px' : 0,
         }}
       >
-        <Navbar />
-        <Toolbar />
-
-        {/* Mostrar botón SOLO cuando el menú está oculto */}
-        {!menuVisible && (
-          <Button
-            variant="contained"
-            onClick={toggleMenu}
-            sx={{
-              mb: 2,
-              backgroundColor: '#1a303e',
-              '&:hover': { backgroundColor: '#0d3a49' },
-            }}
-          >
-            Mostrar Menú
-          </Button>
-        )}
-
+        {!isMobile && <Navbar />}
         {children}
       </Box>
     </Box>
-  </>
-);
-
-
+  );
 }
