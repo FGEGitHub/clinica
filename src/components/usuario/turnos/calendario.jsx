@@ -47,10 +47,14 @@ const CalendarioTurnos = () => {
 
   // --- Cuando selecciono un día ---
   const cargarTurnosDelDia = (date) => {
+    if (!date) return; // ⬅️ CLAVE
+
     setSelectedDate(date);
 
     const lista = turnos.filter(
-      (t) => startOfDay(parseISO(t.fecha)).getTime() === startOfDay(date).getTime()
+      (t) =>
+        startOfDay(parseISO(t.fecha)).getTime() ===
+        startOfDay(date).getTime()
     );
 
     setTurnosDelDia(lista);
@@ -59,64 +63,65 @@ const CalendarioTurnos = () => {
   return (
     <Box sx={{ display: "flex", gap: 3, p: 2, height: "90vh" }}>
       {/* --- CALENDARIO --- */}
-     <Paper sx={{ flex: 1.3, p: 2 }}>
-  <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-    Calendario de Turnos
-  </Typography>
+      <Paper sx={{ flex: 1.3, p: 2 }}>
+        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+          Calendario de Turnos
+        </Typography>
 
-  <DayPicker
-    locale={es}
-    mode="single"
-    selected={selectedDate}
-    onSelect={cargarTurnosDelDia}
-    modifiers={{ tieneTurnos: diasConTurnos }}
-    modifiersStyles={{
-      tieneTurnos: { background: "#c8e6c9", borderRadius: "50%" },
-    }}
-    styles={{
-      months: {
-        width: "100%",
-        height: "100%",
-      },
-      month: {
-        fontSize: "1.5rem",
-      },
-      caption: {
-        fontSize: "2rem",
-        fontWeight: "bold",
-        padding: "16px 0",
-      },
-      weekdays: {
-        fontSize: "1.4rem",
-      },
-      weekday: {
-        fontSize: "1.3rem",
-        padding: "15px",
-      },
-      table: {
-        width: "100%",
-        height: "100%",
-      },
-      cell: {
-        width: "90px",
-        height: "90px",
-        fontSize: "1.4rem",
-      },
-      day: {
-        padding: "12px",
-        margin: "4px",
-        fontSize: "1.4rem",
-        width: "100%",
-        height: "100%",
-      },
-    }}
-  />
+        <DayPicker
+          locale={es}
+          mode="single"
+          selected={selectedDate}
+          onSelect={cargarTurnosDelDia}
+          modifiers={{ tieneTurnos: diasConTurnos }}
+          modifiersStyles={{
+            tieneTurnos: { background: "#c8e6c9", borderRadius: "50%" },
+          }}
+          styles={{
+            months: {
+              width: "100%",
+              height: "100%",
+            },
+            month: {
+              fontSize: "1.5rem",
+            },
+            caption: {
+              fontSize: "2rem",
+              fontWeight: "bold",
+              padding: "16px 0",
+            },
+            weekdays: {
+              fontSize: "1.4rem",
+            },
+            weekday: {
+              fontSize: "1.3rem",
+              padding: "15px",
+            },
+            table: {
+              width: "100%",
+              height: "100%",
+            },
+            cell: {
+              width: "90px",
+              height: "90px",
+              fontSize: "1.4rem",
+            },
+            day: {
+              padding: "12px",
+              margin: "4px",
+              fontSize: "1.4rem",
+              width: "100%",
+              height: "100%",
+            },
+          }}
+        />
       </Paper>
 
       {/* --- TABLA DE TURNOS DEL DÍA --- */}
       <Paper sx={{ flex: 1, p: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
-          Turnos del día: {format(selectedDate, "dd/MM/yyyy")}
+          Turnos del día:{" "}
+          {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "--/--/----"}
         </Typography>
 
         <TableContainer>

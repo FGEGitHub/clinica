@@ -131,17 +131,10 @@ export default function MenuIzq2({ children }) {
       </Drawer>
 
       {/* ===== CONTENIDO ===== */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          mt: isMobile ? '64px' : 0,
-        }}
-      >
-        {!isMobile && <Navbar />}
-        {children}
-      </Box>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+  <Toolbar />
+  {children}
+</Box>
     </Box>
   );
 }
