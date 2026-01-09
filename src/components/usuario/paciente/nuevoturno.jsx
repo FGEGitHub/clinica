@@ -14,12 +14,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { es } from "date-fns/locale";
-
+import { parseISO, isSameDay } from "date-fns";
 import servicioDtc from "../../../services/pacientes";
 
 const NuevoTurno = ({ id_paciente, traer }) => {
   const [open, setOpen] = useState(false);
 
+
+const [turnos, setTurnos] = useState([]);
+const [turnosDelDia, setTurnosDelDia] = useState([]);
   const [form, setForm] = useState({
     id_paciente: id_paciente,
     fecha: null,
@@ -32,8 +35,24 @@ const NuevoTurno = ({ id_paciente, traer }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleClickOpen = () => setOpen(true);
+const handleClickOpen = () => {
+  setOpen(true);
+  traerTurnos();
+};
   const handleClose = () => setOpen(false);
+const traerTurnos = async () => {
+  try {
+    const data = await servicioDtc.traerturnos();
+    setTurnos(
+      data.map((t) => ({
+        ...t,
+        fechaObj: parseISO(t.fecha),
+      }))
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleGuardar = async () => {
     try {
@@ -76,15 +95,26 @@ const NuevoTurno = ({ id_paciente, traer }) => {
               {/* Fecha */}
               <Grid item xs={12} md={6}>
                 <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DatePicker
-                    label="Fecha"
-                    value={form.fecha}
-                    onChange={(newValue) => setForm({ ...form, fecha: newValue })}
-                    inputFormat="dd/MM/yyyy"
-                    renderInput={(params) => (
-                      <TextField {...params} fullWidth />
-                    )}
-                  />
+                 <DatePicker
+  label="Fecha"
+  value={form.fecha}
+  onChange={(newValue) => {
+    setForm({ ...form, fecha: newValue });
+
+    if (!newValue) {
+      setTurnosDelDia([]);
+      return;
+    }
+
+    const filtrados = turnos.filter((t) =>
+      isSameDay(t.fechaObj, newValue)
+    );
+
+    setTurnosDelDia(filtrados);
+  }}
+  inputFormat="dd/MM/yyyy"
+  renderInput={(params) => <TextField {...params} fullWidth />}
+/>
                 </LocalizationProvider>
               </Grid>
 
@@ -124,6 +154,35 @@ const NuevoTurno = ({ id_paciente, traer }) => {
   helperText={`${form.observaciones.length}/120 caracteres`} // opcional
 />
               </Grid>
+              {turnosDelDia.length > 0 && (
+  <Grid item xs={12}>
+    <Paper sx={{ p: 1, background: "#f5f5f5" }}>
+      <strong>Turnos que ya existen es esa fecha:</strong>
+
+      {turnosDelDia.map((t) => (
+        <Grid
+          key={t.id}
+          container
+          justifyContent="space-between"
+          sx={{
+            mt: 1,
+            p: 1,
+            background: "white",
+            borderRadius: 1,
+            fontSize: "0.85rem",
+          }}
+        >
+          <span>
+            {t.apellido} {t.nombre}
+          </span>
+          <span>
+            🕒 {t.hora}
+          </span>
+        </Grid>
+      ))}
+    </Paper>
+  </Grid>
+)}
             </Grid>
           </DialogContent>
 

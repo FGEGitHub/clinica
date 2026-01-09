@@ -60,8 +60,8 @@ export default function MenuIzq2({ children }) {
     user?.nivel === 2 ? menuItemsNivel2 : menuItemsNivel1;
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: '#f5f6f8', minHeight: '100vh' }}>
-      <CssBaseline />
+    <Box sx={{ display: 'flex',minHeight: '100vh' }}>
+
 
       {/* ===== APPBAR MOBILE ===== */}
       {isMobile && (
@@ -87,6 +87,7 @@ export default function MenuIzq2({ children }) {
       )}
 
       {/* ===== DRAWER ===== */}
+      
       <Drawer
         variant={isMobile ? 'temporary' : 'permanent'}
         open={menuOpen}
@@ -107,6 +108,7 @@ export default function MenuIzq2({ children }) {
         <Divider />
 
         <List>
+          <br/>      <br/>     
           {menuItems.map((item) => (
             <ListItem
               button
@@ -131,9 +133,18 @@ export default function MenuIzq2({ children }) {
       </Drawer>
 
       {/* ===== CONTENIDO ===== */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+<Box
+  component="main"
+  sx={{
+    flexGrow: 1,
+    p: 3,
+    bgcolor: '#f5f6f8',
+    color: '#1a303e',   // ⬅️ CLAVE
+  }}
+>
   <Toolbar />
   {children}
+
 </Box>
     </Box>
   );

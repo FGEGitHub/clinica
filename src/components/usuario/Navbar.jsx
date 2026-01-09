@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../assets/marcas.png";
+import logo from "../../assets/diente.jpeg";
 import  useUser from '../hooks/useUser'
 import {
   AppBar,
@@ -26,7 +26,7 @@ const Navbar = (props) => {
 
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
   const islogo = {
-                  width: "75px",                  
+                  width: "100px",                  
                   };
   const navigate = useNavigate();
 
@@ -72,7 +72,8 @@ const traer = async () => {
   //1a303e COLOR AZUL OSCURO DEL NAV
   return (
     <React.Fragment>
-      <AppBar sx={{ background: "#002D57" }}> 
+      <AppBar sx={{ background:
+  "linear-gradient(90deg, #051821 0%, #051821 30%, #0b2a3a 45%, #01567c 65%, #148D8D 100%)",}}> 
         <Toolbar>
 
           

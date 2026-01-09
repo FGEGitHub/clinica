@@ -6,15 +6,17 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, TextField
 } from "@mui/material";
-
-
+import { alpha } from "@mui/material/styles";
+import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, TablePagination, Box, Typography
+  Paper, TablePagination, Box, Typography,  Chip
 } from '@mui/material';
-
+import { useTheme, useMediaQuery } from "@mui/material";
 export default function Ingresos() {
   const navigate = useNavigate();
+  const theme = useTheme();
+const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [inscrip, setInscrip] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
@@ -105,6 +107,93 @@ const guardarPaciente = async () => {
 
   return (
     <Box p={2}>
+          <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          px: { xs: 2, md: 2.5 },
+          py: { xs: 2, md: 2.25 },
+          background:
+            "linear-gradient(90deg, #0a3b4f 0%, #0b4f6c 55%, #0f7f86 100%)",
+          boxShadow: "0 14px 35px rgba(15,127,134,0.25)",
+          color: "#fff",
+          border: `1px solid ${alpha("#ffffff", 0.12)}`,
+        }}
+      >
+       <Box
+          sx={{
+            display: "flex",
+            alignItems: { xs: "stretch", md: "center" },
+            justifyContent: "space-between",
+            gap: 2,
+            flexDirection: { xs: "column", md: "row" },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: 2,
+                background: "rgba(48, 11, 179, 1)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <PeopleRoundedIcon sx={{ color: "#ffffffff" }} />
+            </Box>
+
+            <Box>
+              <Typography sx={{ fontWeight: 900, fontSize: 18, lineHeight: 1.1 }}>
+               Pacientes
+              </Typography>
+              <Typography sx={{ opacity: 0.9, fontSize: 13 }}>
+                Listado y acceso rápido a detalle / edición
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.25,
+              alignItems: "center",
+              justifyContent: { xs: "flex-start", md: "flex-end" },
+              flexWrap: "wrap",
+            }}
+          >
+            <Chip
+              label={`Cantidad: ${inscrip.length}`}
+              sx={{
+                color: "#fff",
+                fontWeight: 900,
+                background: "rgba(255,255,255,0.14)",
+                border: "1px solid rgba(255,255,255,0.24)",
+                px: 0.75,
+                borderRadius: 999,
+              }}
+            />
+
+<Button
+  variant="contained"
+  sx={{
+    color: "white",
+    backgroundColor: "hsla(249, 88%, 75%, 1.00)",
+    fontSize: "0.90rem",
+    borderRadius: "999px",   // ⬅️ clave
+    px: 2,                   // padding horizontal
+    py: 0.6,                 // padding vertical
+    textTransform: "none",   // evita MAYÚSCULAS
+  }}
+  onClick={() => navigate("/usuario/pacientenuevo")}
+>
+  ➕ Paciente nuevo
+</Button>
+
+          </Box>
+        </Box>
+        </Paper>
       <Typography variant="h6" gutterBottom>Lista de Pacientes</Typography>
 
       <TextField
@@ -120,6 +209,7 @@ const guardarPaciente = async () => {
  onClick={handleOpen}>
   Nuevo Paciente
 </Button> */}
+
  <Button
     variant="contained"
        sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "hsla(249, 88%, 75%, 1.00)" }}
@@ -128,6 +218,25 @@ const guardarPaciente = async () => {
     ➕ Paciente nuevo
   </Button>
 <br/>
+{isMobile ? (
+  <Box>
+    {paginatedRows.map((row) => (
+      <Paper key={row.id} sx={{ p: 2, mb: 1 }}>
+        <Typography variant="subtitle2"><b>DNI:</b> {row.dni}</Typography>
+        <Typography variant="subtitle2"><b>Apellido:</b> {row.apellido}</Typography>
+        <Typography variant="subtitle2"><b>Nombre:</b> {row.nombre}</Typography>
+
+        <Button
+          fullWidth
+          sx={{ mt: 1, backgroundColor: "#c5bdbdff", color: "black" }}
+          onClick={() => navigate(`/usuario/paciente/${row.id}`)}
+        >
+          Ver paciente
+        </Button>
+      </Paper>
+    ))}
+  </Box>
+) : (
  <Paper sx={{ width: '100%', overflowX: 'auto' }}>
   <TableContainer component={Paper}>
   <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
@@ -184,6 +293,8 @@ const guardarPaciente = async () => {
           rowsPerPageOptions={[5, 10, 20]}
         />
       </Paper>
+)}
+
     <Dialog open={open} onClose={handleClose} fullWidth>
   <DialogTitle>Nuevo Paciente</DialogTitle>
   <DialogContent dividers>
