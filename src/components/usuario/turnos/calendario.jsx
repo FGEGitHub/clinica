@@ -61,9 +61,17 @@ const CalendarioTurnos = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", gap: 3, p: 2, height: "90vh" }}>
+ <Box
+  sx={{
+    display: "flex",
+    flexDirection: { xs: "column", md: "row" }, // ⬅️ mobile abajo, PC al costado
+    gap: 3,
+    p: 2,
+    height: { xs: "auto", md: "90vh" }, // ⬅️ en mobile que crezca natural
+  }}
+>
       {/* --- CALENDARIO --- */}
-      <Paper sx={{ flex: 1.3, p: 2 }}>
+<Paper sx={{ flex: { xs: "none", md: 1.3 }, p: 2 }}>
         <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
           Calendario de Turnos
         </Typography>
@@ -118,8 +126,8 @@ const CalendarioTurnos = () => {
       </Paper>
 
       {/* --- TABLA DE TURNOS DEL DÍA --- */}
-      <Paper sx={{ flex: 1, p: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+<Paper sx={{ flex: { xs: "none", md: 1 }, p: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
           Turnos del día:{" "}
           {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "--/--/----"}
         </Typography>
