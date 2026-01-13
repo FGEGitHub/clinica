@@ -15,6 +15,8 @@ import {
   Paper,
   Box,
 } from "@mui/material";
+import FormularioConsulta from "./FormularioConsulta";
+
 import { useParams , useNavigate } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
 
@@ -46,7 +48,8 @@ const FichaPersona = (props) => {
     const navigate = useNavigate();
   let params = useParams();
   let id = params.id;
-
+const [consultas, setConsultas] = useState([]);
+const [nuevaConsulta, setNuevaConsulta] = useState(false);
   const [chico, setchico] = useState();
   const [turnos, setTurnos] = useState([]);
   const [usuario, setUsuario] = useState();
@@ -94,6 +97,7 @@ const formatFecha = (fecha) => {
 
         setchico(novedades[0][0]);
         setTurnos(novedades[2]);
+        setConsultas(novedades[3] || []);
       }
     } catch (error) {
       console.log(error);
@@ -148,7 +152,7 @@ const formatFecha = (fecha) => {
     >
       <Tab label="Datos del paciente" />
       <Tab label="Turnos" />
-      <Tab label="Otros" />
+      <Tab label="Consultas" />
     </Tabs>
 
     {/* ================= TAB DATOS ================= */}
@@ -330,13 +334,51 @@ const formatFecha = (fecha) => {
     )}
 
     {/* ================= TAB OTROS ================= */}
-    {tab === 2 && (
-      <Box sx={{ p: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Próximamente: antecedentes, diagnósticos, archivos, etc.
-        </Typography>
-      </Box>
+{tab === 2 && (
+  <Box sx={{ p: 2 }}>
+
+    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        Consultas
+      </Typography>
+
+      <Button 
+        variant="contained"
+        onClick={() => setNuevaConsulta(true)}
+      >
+        Nueva consulta
+      </Button>
+    </Box>
+
+    {/* LISTADO DE CONSULTAS */}
+    {consultas.length === 0 && (
+      <Typography>No hay consultas cargadas</Typography>
     )}
+
+    {consultas.map((c, i) => (
+      <Card key={i} sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography sx={{ fontWeight: "bold" }}>
+            Fecha: {c.fecha}
+          </Typography>
+          <Typography>Motivo: {c.motivo}</Typography>
+          <Typography>Evolución: {c.evolucion}</Typography>
+          <Typography>Tratamiento: {c.tratamiento}</Typography>
+        </CardContent>
+      </Card>
+    ))}
+
+    {/* FORMULARIO NUEVA CONSULTA */}
+    {nuevaConsulta && (
+    <FormularioConsulta
+  turnoSeleccionado={turnos[0]}
+  id_paciente={chico.id}   // 👈 pasamos id del paciente
+  traer={traer}
+  cerrar={() => setNuevaConsulta(false)}
+/>
+    )}
+  </Box>
+)}
 
     </CardContent>
   </Paper>
