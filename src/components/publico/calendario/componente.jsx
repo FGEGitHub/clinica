@@ -37,6 +37,8 @@ const PaginaTurnosPublica = () => {
   const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
   const [categoria, setCategoria] = useState("");
   const formularioRef = useRef(null);
+  const tablaRef = useRef(null);
+
   // formulario
   const [nombre, setNombre] = useState("");
   const [dni, setDni] = useState("");
@@ -70,10 +72,18 @@ const scrollToFormulario = () => {
   const diasConTurnos = turnos.map((t) => t.fechaObj);
 
   // --- al seleccionar día ---
-  const cargarTurnosDelDia = (date) => {
-    if (!date) return;
-    setSelectedDate(date);
-  };
+const cargarTurnosDelDia = (date) => {
+  if (!date) return;
+  setSelectedDate(date);
+
+  // scroll suave hacia la tabla
+  setTimeout(() => {
+    tablaRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 200);
+};
 
   useEffect(() => {
     const lista = turnos.filter(
@@ -238,7 +248,7 @@ const scrollToTop = () => {
 </Paper>
 
         {/* TABLA DE HORARIOS */}
-        <Paper sx={{ flex: 1, p: 2 }}>
+        <Paper sx={{ flex: 1, p: 2 }}  ref={tablaRef}>
     <Typography
   sx={{
     mb: 2,
