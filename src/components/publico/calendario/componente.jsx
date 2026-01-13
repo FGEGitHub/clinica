@@ -125,20 +125,41 @@ const scrollToTop = () => {
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth:  "100%" , margin: "auto" }}>
 
       {/* ENCABEZADO */}
-      <Typography
-        variant="h3"
-        align="center"
-        fontWeight="bold"
-        sx={{ color: "#1976d2" }}
-      >
-        Reservá tu turno online
-      </Typography>
+   <Paper
+  elevation={0}
+  sx={{
+    background: "linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%)",
+    borderRadius: 4,
+    p: { xs: 3, md: 4 },
+    mb: 3,
+    textAlign: "center",
+    border: "1px solid #dbe3ec"
+  }}
+>
+  <Typography
+    sx={{
+      fontSize: { xs: "1.9rem", md: "2.4rem" },
+      fontWeight: 700,
+      color: "#1976d2",
+      lineHeight: 1.2,
+      mb: 1
+    }}
+  >
+    Reservá tu turno online
+  </Typography>
 
-      <Typography align="center" sx={{ mb: 4, fontSize: "1.2rem" }}>
-        Elegí un día, seleccioná tu horario y dejanos tus datos.  
-        ¡Es rápido y sencillo!
-      </Typography>
-
+  <Typography
+    sx={{
+      fontSize: "1.05rem",
+      color: "#555",
+      maxWidth: 360,
+      margin: "0 auto"
+    }}
+  >
+    Elegí un día y horario disponible.  
+    Luego completá tus datos y confirmá tu solicitud.
+  </Typography>
+</Paper>
       <Box
         sx={{
           display: "flex",
@@ -147,33 +168,87 @@ const scrollToTop = () => {
         }}
       >
         {/* CALENDARIO GRANDE */}
-        <Paper sx={{ flex: 1.3, p: 2 }}>
-          <DayPicker
-            locale={es}
-            mode="single"
-            selected={selectedDate}
-            onSelect={cargarTurnosDelDia}
-            modifiers={{ tieneTurnos: diasConTurnos }}
-            modifiersStyles={{
-              tieneTurnos: {
-                backgroundColor: "#81c784",
-                color: "white",
-                borderRadius: "50%",
-              },
-            }}
-            styles={{
-              caption: { fontSize: "1.8rem", fontWeight: "bold" },
-              day: { fontSize: "1.2rem" },
-            }}
-          />
-        </Paper>
+      <Paper
+  sx={{
+    flex: 1.3,
+    p: 2.5,
+    borderRadius: 4,
+    border: "1px solid #dbe3ec",
+    background: "linear-gradient(135deg, #e3f2fd 0%, #ffffff 70%)",
+    boxShadow: "0 6px 16px rgba(25, 118, 210, 0.08)"
+  }}
+>
+  {/* Banda superior */}
+  <Box
+    sx={{
+      background: "linear-gradient(90deg, #1976d2, #42a5f5)",
+      borderRadius: 3,
+      p: 1.5,
+      mb: 2,
+      textAlign: "center"
+    }}
+  >
+    <Typography
+      sx={{
+        color: "#fff",
+        fontWeight: "600",
+        fontSize: "1.1rem"
+      }}
+    >
+      Seleccioná el día de tu turno
+    </Typography>
+  </Box>
+
+  {/* Calendario */}
+  <DayPicker
+    locale={es}
+    mode="single"
+    selected={selectedDate}
+    onSelect={cargarTurnosDelDia}
+    modifiers={{ tieneTurnos: diasConTurnos }}
+    modifiersStyles={{
+      tieneTurnos: {
+        backgroundColor: "#1976d2",
+        color: "#ffffff",
+        borderRadius: "50%"
+      },
+      selected: {
+        backgroundColor: "#0d47a1",
+        color: "#ffffff"
+      }
+    }}
+    styles={{
+      caption: {
+        fontSize: "1.6rem",
+        fontWeight: "700",
+        color: "#1976d2",
+        marginBottom: "0.6rem"
+      },
+      day: {
+        fontSize: "1.05rem",
+        borderRadius: "50%"
+      },
+      head_cell: {
+        color: "#555",
+        fontWeight: 600,
+        fontSize: "0.9rem"
+      }
+    }}
+  />
+</Paper>
 
         {/* TABLA DE HORARIOS */}
         <Paper sx={{ flex: 1, p: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Horarios disponibles para{" "}
-            <strong>{format(selectedDate, "dd/MM/yyyy")}</strong>
-          </Typography>
+    <Typography
+  sx={{
+    mb: 2,
+    fontWeight: "bold",
+    color: "#1976d2",
+    fontSize: "1.1rem"
+  }}
+>
+  Horarios disponibles – {format(selectedDate, "dd/MM/yyyy")}
+</Typography>
 
           <TableContainer>
             <Table>
@@ -225,8 +300,20 @@ const scrollToTop = () => {
 
       {/* FORMULARIO */}
       {turnoSeleccionado && (
-        <Paper sx={{ p: 3, mt: 4 }}  ref={formularioRef} >
-          <Typography variant="h6" sx={{ mb: 2 }}>
+        <Paper  sx={{
+    p: 3,
+    mt: 4,
+    borderRadius: 3,
+    backgroundColor: "#f9fbff",
+    border: "1px solid #e0e0e0"
+  }} ref={formularioRef} >
+            <Typography
+    sx={{
+      mb: 2,
+      fontWeight: "bold",
+      color: "#1976d2"
+    }}
+  >
             Completá tus datos para confirmar el turno de las{" "}
             <strong>{turnoSeleccionado.hora}</strong>
           </Typography>

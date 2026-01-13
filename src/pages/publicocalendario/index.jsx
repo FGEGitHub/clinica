@@ -1,25 +1,29 @@
 import * as React from 'react';
 import  { useEffect, useState } from "react";
 import PAcintes from '../../components/publico/calendario/componente';
-import {nivel} from '../../helpers/herlperlogin'
-import { useNavigate } from "react-router-dom";
+import {
+  Box
+  
+  
+} from "@mui/material";
 
 
 
 
 export default function MenuUsuario2() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null)
-  const [] = useState('')
-
-  const [logueado, setLogueado] = useState(true) 
-
-  
-
-    
-
   return (
-    <div> 
-    <PAcintes/> </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #f4f8fb 0%, #ffffff 60%)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        paddingTop: { xs: 2, md: 4 }
+      }}
+    >
+      <PAcintes />
+    </Box>
   );
 }
+
