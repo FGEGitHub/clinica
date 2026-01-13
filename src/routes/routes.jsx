@@ -6,7 +6,7 @@ import Paciente from '../pages/paciente';
 import Pacientenuevo from '../pages/nuevopaciente';
 import Turnos from '../pages/turnos';
 import Turno from '../pages/turno';
-
+import Calendariopublico from '../pages/publicocalendario';
 import NOtFound from '../pages/notfound';
 const Rutas = [
  
@@ -22,6 +22,9 @@ const Rutas = [
         { path: '/usuario/turnos', element: <Turnos /> },
 
         { path: '/usuario/turno/:id', element: <Turno /> },
+
+         { path: '/calendariopublico', element: <Calendariopublico /> },
+        
     ];
 
 
