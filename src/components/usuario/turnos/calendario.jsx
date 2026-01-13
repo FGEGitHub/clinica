@@ -3,7 +3,7 @@ import { es } from "date-fns/locale";
 import { startOfDay, format, parseISO } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-
+import AgendarTurno from "./AgendarTurno";
 import {
   Box,
   Typography,
@@ -22,7 +22,9 @@ const CalendarioTurnos = () => {
   const [turnos, setTurnos] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [turnosDelDia, setTurnosDelDia] = useState([]);
-
+const [horaNueva, setHoraNueva] = useState("");
+const [obsNueva, setObsNueva] = useState("");
+const [loadingNuevo, setLoadingNuevo] = useState(false);
   // --- CARGAR TURNOS ---
   const traerTurnos = async () => {
     try {
@@ -37,6 +39,38 @@ const CalendarioTurnos = () => {
       console.error(error);
     }
   };
+const guardarNuevoTurno = async () => {
+  if (!selectedDate || !horaNueva) {
+    alert("Seleccioná una fecha y una hora");
+    return;
+  }
+
+  const nuevoTurno = {
+    fecha: format(selectedDate, "yyyy-MM-dd"),
+    hora: horaNueva,
+    observaciones: obsNueva || "",
+  };
+
+  try {
+    setLoadingNuevo(true);
+    await servicioDtc.nuevoturnodisp(nuevoTurno);
+
+    // limpiar campos
+    setHoraNueva("");
+    setObsNueva("");
+
+    // recargar turnos
+    await traerTurnos();
+
+    // refrescar lista del día actual
+    cargarTurnosDelDia(selectedDate);
+  } catch (error) {
+    console.error(error);
+    alert("Error al guardar turno");
+  } finally {
+    setLoadingNuevo(false);
+  }
+};
 
   useEffect(() => {
     traerTurnos();
@@ -46,20 +80,21 @@ const CalendarioTurnos = () => {
   const diasConTurnos = turnos.map((t) => t.fechaObj);
 
   // --- Cuando selecciono un día ---
-  const cargarTurnosDelDia = (date) => {
-    if (!date) return; // ⬅️ CLAVE
+const cargarTurnosDelDia = (date) => {
+  if (!date) return;
+  setSelectedDate(date);
+};
+useEffect(() => {
+  if (!selectedDate) return;
 
-    setSelectedDate(date);
+  const lista = turnos.filter(
+    (t) =>
+      startOfDay(parseISO(t.fecha)).getTime() ===
+      startOfDay(selectedDate).getTime()
+  );
 
-    const lista = turnos.filter(
-      (t) =>
-        startOfDay(parseISO(t.fecha)).getTime() ===
-        startOfDay(date).getTime()
-    );
-
-    setTurnosDelDia(lista);
-  };
-
+  setTurnosDelDia(lista);
+}, [turnos, selectedDate]);
   return (
  <Box
   sx={{
@@ -121,7 +156,7 @@ const CalendarioTurnos = () => {
               width: "100%",
               height: "100%",
             },
-          }}
+          }}jaja
         />
       </Paper>
 
@@ -131,7 +166,38 @@ const CalendarioTurnos = () => {
           Turnos del día:{" "}
           {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "--/--/----"}
         </Typography>
+<Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+  
+  <input
+    type="time"
+    value={horaNueva}
+    onChange={(e) => setHoraNueva(e.target.value)}
+    style={{ padding: "8px", fontSize: "16px" }}
+  />
 
+  <input
+    type="text"
+    placeholder="Observaciones"
+    value={obsNueva}
+    onChange={(e) => setObsNueva(e.target.value)}
+    style={{ padding: "8px", fontSize: "16px", flex: 1 }}
+  />
+
+  <button
+    onClick={guardarNuevoTurno}
+    disabled={loadingNuevo}
+    style={{
+      padding: "8px 16px",
+      background: "#1976d2",
+      color: "white",
+      border: "none",
+      cursor: "pointer",
+      fontSize: "16px",
+    }}
+  >
+    {loadingNuevo ? "Guardando..." : "Nuevo Turno"}
+  </button>
+</Box>
         <TableContainer>
           <Table>
             <TableHead>
@@ -139,7 +205,7 @@ const CalendarioTurnos = () => {
                 <TableCell>Hora</TableCell>
                 <TableCell>Paciente</TableCell>
                 <TableCell>Asistencia</TableCell>
-                <TableCell>Observaciones</TableCell>
+                <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
 
@@ -152,7 +218,15 @@ const CalendarioTurnos = () => {
                       {t.apellido} {t.nombre}
                     </TableCell>
                     <TableCell>{t.asistencia}</TableCell>
-                    <TableCell>{t.observaciones}</TableCell>
+                <TableCell>
+  <AgendarTurno
+    idTurno={t.id}
+    onAgendar={(data) => {
+      servicioDtc.agendarapaciente(data)
+        .then(() => traerTurnos());
+    }}
+  />
+</TableCell>
                   </TableRow>
                 ))
               ) : (
