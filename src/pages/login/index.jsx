@@ -113,7 +113,7 @@ const Login = () => {
   const btnstyle = { margin: '8px 0' }
 
 const LoginReturn = () => (
-  <Grid container component="main" sx={{ height: '100vh', background: '#002D57' }}>
+  <Grid container component="main" sx={{ height: '100vh', width: '100vw', background: '#002D57', justifyContent: 'center' }}>
     
     {/* Columna izquierda con fondo y logo 
     'linear-gradient(to bottom right,hsl(209, 100%, 9%),rgb(0, 34, 66))'*/}
