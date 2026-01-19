@@ -31,7 +31,7 @@ const FormularioSolicitud = ({ turno, onSuccess }) => {
       telefono,
       categoria
     });
-
+console.log("Respuesta de la solicitud:", resp);
     // 🔥 REDIRECCIÓN A MERCADO PAGO
     if (resp.pago_url) {
       window.location.href = resp.pago_url;

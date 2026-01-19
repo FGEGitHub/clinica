@@ -95,39 +95,53 @@ const cargarTurnosDelDia = (date) => {
   }, [turnos, selectedDate]);
 
   // --- enviar solicitud ---
-  const solicitarTurno = async () => {
-    if (!nombre || !dni || !telefono) {
-      alert("Completá todos los datos 🙂");
+const solicitarTurno = async () => {
+  if (!nombre || !dni || !telefono || !categoria) {
+    alert("Completá todos los datos 🙂");
+    return;
+  }
+
+  const data = {
+    id_turno: turnoSeleccionado.id,
+    nombre,
+    dni,
+    telefono,
+    categoria
+  };
+
+  try {
+    setLoading(true);
+
+    const resp = await servicioDtc.solicitarturno(data);
+
+    console.log("Respuesta solicitarTurno:", resp);
+
+    // 🔥 Si Mercado Pago devuelve link → redirigir
+    if (resp?.pago_url) {
+      window.location.href = resp.pago_url;
       return;
     }
 
-    const data = {
-      id_turno: turnoSeleccionado.id,
-      nombre,
-      dni,
-      telefono,
-      categoria
-    };
+    // ✅ Fallback (si no hay pago)
+    setOpenExito(true);
 
-    try {
-      setLoading(true);
-      await servicioDtc.solicitarturno(data);
+    // limpiar
+    setTurnoSeleccionado(null);
+    setNombre("");
+    setDni("");
+    setTelefono("");
+    setCategoria("");
 
-     setOpenExito(true);
+    traerTurnos();
 
-      // limpiar
-      setTurnoSeleccionado(null);
-      setNombre("");
-      setDni("");
-      setTelefono("");
+  } catch (error) {
+    console.error(error);
+    alert("Error al enviar solicitud");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      traerTurnos();
-    } catch (error) {
-      alert("Error al enviar solicitud");
-    } finally {
-      setLoading(false);
-    }
-  };
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
