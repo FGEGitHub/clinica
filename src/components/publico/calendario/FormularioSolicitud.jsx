@@ -15,15 +15,16 @@ const FormularioSolicitud = ({ turno, onSuccess }) => {
   const [categoria, setCategoria] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const enviarSolicitud = async () => {
-    if (!nombre || !dni || !telefono || !categoria) {
-      alert("Complete todos los campos");
-      return;
-    }
+ const enviarSolicitud = async () => {
+  if (!nombre || !dni || !telefono || !categoria) {
+    alert("Complete todos los campos");
+    return;
+  }
 
+  try {
     setLoading(true);
 
-    await servicioDtc.solicitarturno({
+    const resp = await servicioDtc.solicitarturno({
       id_turno: turno.id,
       nombre,
       dni,
@@ -31,13 +32,27 @@ const FormularioSolicitud = ({ turno, onSuccess }) => {
       categoria
     });
 
+    // 🔥 REDIRECCIÓN A MERCADO PAGO
+    if (resp.pago_url) {
+      window.location.href = resp.pago_url;
+      return;
+    }
+
+    // fallback por si no hay pago
+    onSuccess();
+
+  } catch (error) {
+    console.error(error);
+    alert("Error al solicitar el turno");
+  } finally {
     setLoading(false);
     setNombre("");
     setDni("");
     setTelefono("");
     setCategoria("");
-    onSuccess();
-  };
+  }
+};
+
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 420 }}>

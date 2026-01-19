@@ -102,6 +102,7 @@ useEffect(() => {
     flexDirection: { xs: "column", md: "row" }, // ⬅️ mobile abajo, PC al costado
     gap: 3,
     p: 2,
+     maxWidth: 1900,
     height: { xs: "auto", md: "90vh" }, // ⬅️ en mobile que crezca natural
   }}
 >

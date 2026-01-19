@@ -114,7 +114,7 @@ const formatFecha = (fecha) => {
   sx={{
     width: "100vw",
     height: "100vh",
-    maxWidth: 1200,   // 👈 ancho fijo para TODAS las pestañas
+    maxWidth: 1900,   // 👈 ancho fijo para TODAS las pestañas
     margin: "auto",
     mt: 4,
   }}
