@@ -15,8 +15,8 @@ import DrawerNav from "./DrawerNav";
 import serviciousuarios from "../../services/usuarios"
 
 const Navbar = (props) => {
-  const usuario  = useUser().userContext
 
+  const [usuario, setUsuario] = useState(null)
   
   const [user, setUser] = useState(null)
   const [cargado, setCargado] = useState(false)
@@ -39,7 +39,10 @@ const traer = async () => {
   const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
 
     const user = JSON.parse(loggedUserJSON)
-
+    console.log(user)
+if (user != null){
+       setUsuario(user)
+      }
    
   const notis = await serviciousuarios.traerusuario(user.usuario)
  
@@ -92,7 +95,7 @@ const traer = async () => {
                 onChange={(e, value) => setValue(value)}
               >
                   {usuario &&  <Button onClick={inicio} sx={{ marginLeft: "10px" }} variant="Outlined">
-                  <Tab label="inicio" />
+        
               </Button>  }
             
                 {cargado ? <div> <Button onClick={inicio} sx={{ marginLeft: "10px" }} variant="Outlined">
