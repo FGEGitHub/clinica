@@ -210,13 +210,13 @@ const guardarPaciente = async () => {
   Nuevo Paciente
 </Button> */}
 
- <Button
+{/*  <Button
     variant="contained"
        sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "hsla(249, 88%, 75%, 1.00)" }}
     onClick={() => navigate("/usuario/pacientenuevo")}
   >
     ➕ Paciente nuevo
-  </Button>
+  </Button> */}
 <br/>
 {isMobile ? (
   <Box>
