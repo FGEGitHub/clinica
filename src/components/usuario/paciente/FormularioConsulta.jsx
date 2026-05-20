@@ -16,7 +16,7 @@ export default function FormularioConsulta({ turnoSeleccionado, traer, cerrar,  
 
   const guardarConsulta = async () => {
     try {
-      await servicioDtc.guardarConsulta({
+      await servicioDtc.guardarConsultanueva({
         id_paciente: id_paciente,   
         id_turno: turnoSeleccionado?.id || "sin_turno",
         motivo: consulta.motivo,
