@@ -104,41 +104,96 @@ const PaginaTurnosPublica = () => {
   // =========================
   // CONSULTAR ESTADO
   // =========================
-  useEffect(() => {
-    if (!solicitudId) return;
+useEffect(() => {
 
-    const interval = setInterval(async () => {
-      try {
-        const resp =
-          await servicioDtc.estadoSolicitud(
-            solicitudId
-          );
+  if (!solicitudId) return;
 
-        console.log(resp);
+  console.log(
+    "INICIANDO INTERVALO:",
+    solicitudId
+  );
 
-        if (resp.estado === "confirmado") {
-          setEstadoSolicitud("confirmado");
+  const interval = setInterval(async () => {
 
-          clearInterval(interval);
+    try {
 
-          setOpenExito(true);
+      console.log(
+        "CONSULTANDO CADA 5 SEGUNDOS..."
+      );
 
-          traerTurnos();
-        }
+      const resp =
+        await servicioDtc.estadoSolicitud(
+          solicitudId
+        );
 
-        if (resp.estado === "rechazado") {
-          setEstadoSolicitud("rechazado");
+      console.log(
+        "RESPUESTA:",
+        resp
+      );
 
-          clearInterval(interval);
-        }
-      } catch (error) {
-        console.error(error);
+      const estado =
+        resp?.solicitud?.estado ||
+        resp?.estado;
+
+      console.log(
+        "ESTADO:",
+        estado
+      );
+
+      // =========================
+      // CONFIRMADO
+      // =========================
+
+      if (estado === "confirmado") {
+
+        setEstadoSolicitud(
+          "confirmado"
+        );
+
+        setOpenExito(true);
+
+        traerTurnos();
+
+        clearInterval(interval);
+
       }
-    }, 5000);
 
-    return () => clearInterval(interval);
-  }, [solicitudId]);
+      // =========================
+      // RECHAZADO
+      // =========================
 
+      if (estado === "rechazado") {
+
+        setEstadoSolicitud(
+          "rechazado"
+        );
+
+        clearInterval(interval);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "ERROR CONSULTANDO:",
+        error
+      );
+
+    }
+
+  }, 5000);
+
+  return () => {
+
+    console.log(
+      "LIMPIANDO INTERVALO"
+    );
+
+    clearInterval(interval);
+
+  };
+
+}, [solicitudId]);
   // =========================
   // DÍAS CON TURNOS
   // =========================
@@ -185,7 +240,14 @@ const PaginaTurnosPublica = () => {
       });
     }, 200);
   };
+useEffect(() => {
 
+  console.log(
+    "SOLICITUD ID CAMBIÓ:",
+    solicitudId
+  );
+
+}, [solicitudId]);
   // =========================
   // SOLICITAR TURNO
   // =========================
@@ -212,12 +274,20 @@ const PaginaTurnosPublica = () => {
           categoria,
         });
 
-      console.log(resp);
+      console.log(
+  "RESPUESTA COMPLETA:",
+  resp
+);
+
+console.log(
+  "ID SOLICITUD:",
+  resp.id_solicitud
+);;
 
       // guardar id solicitud
-      if (resp.id_solicitud) {
-        setSolicitudId(resp.id_solicitud);
-      }
+setSolicitudId(
+  turnoSeleccionado.id
+);
 
       // guardar url pago
       if (resp.pago_url) {

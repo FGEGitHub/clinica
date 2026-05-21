@@ -119,7 +119,13 @@ const traerTurnoDetalle = async (id) => {
 
 }
 
+const estadoSolicitud = async (id) => {
 
+  // const data = await axios.post('http://localhost:4000/signupp', datos)
+  const { data } = await axios.get(baseUrl + 'estadoSolicitud/'+id ,config)
+  return data
+
+}
 const nuevoturnodisp = async (datos) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
@@ -147,4 +153,4 @@ const solicitarturno = async (datos) => {
   return data
 
 }
-export default {guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+export default {estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
