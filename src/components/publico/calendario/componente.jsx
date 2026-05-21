@@ -46,7 +46,11 @@ const PaginaTurnosPublica = () => {
 
   const [turnoSeleccionado, setTurnoSeleccionado] =
     useState(null);
+const [tiempoRestante, setTiempoRestante] =
+  useState(300); // 5 minutos
 
+const [expirado, setExpirado] =
+  useState(false);
   // =========================
   // FORM
   // =========================
@@ -100,7 +104,40 @@ const PaginaTurnosPublica = () => {
   useEffect(() => {
     traerTurnos();
   }, []);
+useEffect(() => {
 
+  if (
+    estadoSolicitud !== "pendiente"
+  ) return;
+
+  if (expirado) return;
+
+  const timer = setInterval(() => {
+
+    setTiempoRestante((prev) => {
+
+      if (prev <= 1) {
+
+        clearInterval(timer);
+
+        setExpirado(true);
+
+        setEstadoSolicitud(
+          "rechazado"
+        );
+
+        return 0;
+      }
+
+      return prev - 1;
+
+    });
+
+  }, 1000);
+
+  return () => clearInterval(timer);
+
+}, [estadoSolicitud, expirado]);
   // =========================
   // CONSULTAR ESTADO
   // =========================
@@ -200,7 +237,17 @@ useEffect(() => {
   const diasConTurnos = turnos.map(
     (t) => t.fechaObj
   );
+const formatearTiempo = (segundos) => {
 
+  const min = Math.floor(
+    segundos / 60
+  );
+
+  const sec = segundos % 60;
+
+  return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+
+};
   // =========================
   // CARGAR TURNOS DEL DÍA
   // =========================
@@ -704,7 +751,18 @@ setSolicitudId(
               </Button>
 
               {/* BLOQUE PAGO */}
+<Alert severity="info">
 
+  Tiempo restante para pagar:
+
+  <strong>
+    {" "}
+    {formatearTiempo(
+      tiempoRestante
+    )}
+  </strong>
+
+</Alert>
               {estadoSolicitud ===
                 "pendiente" &&
                 pagoUrl && (
