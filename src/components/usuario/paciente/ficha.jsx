@@ -25,7 +25,8 @@ import Modificar from "./modificar"
 import Borrarusuaio from "./modalborrar";
 import NuevoTurno from "./nuevoturno";
 import BorrarTurno from "./modalborrarturno";
-
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 const sectionStyle = {
   border: "1px solid #c62828",
   borderRadius: 1,
@@ -72,7 +73,142 @@ const [tab, setTab] = useState(0);
 
   return edad;
 };
+const descargarHistoriaClinica = () => {
+  const doc = new jsPDF();
 
+  // =========================
+  // TITULO
+  // =========================
+
+  doc.setFontSize(18);
+  doc.text("HISTORIA CLÍNICA", 14, 20);
+
+  doc.setFontSize(11);
+
+  // =========================
+  // DATOS PACIENTE
+  // =========================
+
+  let y = 35;
+
+  const datosPaciente = [
+    ["Apellido", chico.apellido || ""],
+    ["Nombre", chico.nombre || ""],
+    ["DNI", chico.dni || ""],
+    ["Género", chico.genero || ""],
+    ["Fecha nacimiento", formatFecha(chico.fecha_nacimiento)],
+    ["Edad", calcularEdad(chico.fecha_nacimiento)],
+    ["Teléfono", chico.telefono || ""],
+    ["Email", chico.email || ""],
+    ["Dirección", chico.direccion || ""],
+    ["Obra social", chico.obra_social || ""],
+    ["N° afiliado", chico.numero_afiliado || ""],
+  ];
+
+  autoTable(doc, {
+    startY: y,
+    head: [["Campo", "Valor"]],
+    body: datosPaciente,
+    theme: "grid",
+    styles: {
+      fontSize: 10,
+    },
+    headStyles: {
+      fillColor: [198, 40, 40],
+    },
+  });
+
+  y = doc.lastAutoTable.finalY + 15;
+
+  // =========================
+  // CONSULTAS
+  // =========================
+
+  doc.setFontSize(14);
+  doc.text("CONSULTAS MÉDICAS", 14, y);
+
+  y += 5;
+
+  if (consultas.length === 0) {
+    doc.setFontSize(10);
+    doc.text("No hay consultas registradas.", 14, y + 10);
+  } else {
+    consultas.forEach((c, index) => {
+      autoTable(doc, {
+        startY: y + 5,
+        body: [
+          ["Fecha", c.fecha || ""],
+          ["Motivo", c.motivo || ""],
+          ["Evolución", c.evolucion || ""],
+          ["Tratamiento", c.tratamiento || ""],
+        ],
+        theme: "grid",
+        styles: {
+          fontSize: 10,
+          cellWidth: "wrap",
+        },
+        columnStyles: {
+          0: {
+            fontStyle: "bold",
+            cellWidth: 40,
+          },
+        },
+      });
+
+      y = doc.lastAutoTable.finalY + 10;
+
+      // salto de pagina automático
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+    });
+  }
+
+  // =========================
+  // TURNOS
+  // =========================
+
+  doc.addPage();
+
+  doc.setFontSize(14);
+  doc.text("HISTORIAL DE TURNOS", 14, 20);
+
+  autoTable(doc, {
+    startY: 30,
+    head: [
+      [
+        "Fecha",
+        "Hora",
+        "Motivo",
+        "Asistencia",
+        "Observaciones",
+      ],
+    ],
+    body: turnos.map((t) => [
+      t.fecha || "",
+      t.hora || "",
+      t.motivo || "",
+      t.asistencia || "",
+      t.observaciones || "",
+    ]),
+    theme: "grid",
+    styles: {
+      fontSize: 9,
+    },
+    headStyles: {
+      fillColor: [198, 40, 40],
+    },
+  });
+
+  // =========================
+  // DESCARGA
+  // =========================
+
+  doc.save(
+    `Historia_Clinica_${chico.apellido}_${chico.nombre}.pdf`
+  );
+};
 
 const handleTabChange = (event, newValue) => {
   setTab(newValue);
@@ -128,7 +264,13 @@ const formatFecha = (fecha) => {
     }}
   >
     <CardContent>
-
+<Button
+  variant="contained"
+  color="error"
+  onClick={descargarHistoriaClinica}
+>
+  Descargar PDF
+</Button>
       <Typography
         variant="h6"
         align="center"
