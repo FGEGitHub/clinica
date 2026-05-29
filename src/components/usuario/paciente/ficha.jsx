@@ -19,7 +19,7 @@ import FormularioConsulta from "./FormularioConsulta";
 import Odontograma from "./Odontograma";
 import { useParams , useNavigate } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
-
+import html2canvas from "html2canvas";
 import servicioDtc from "../../../services/pacientes";
 import Modificar from "./modificar"
 import Borrarusuaio from "./modalborrar";
@@ -73,136 +73,306 @@ const [tab, setTab] = useState(0);
 
   return edad;
 };
-const descargarHistoriaClinica = () => {
-  const doc = new jsPDF();
+const descargarHistoriaClinica = async () => {
+
+  // ir a odontograma
+  setTab(3);
+
+  await new Promise(
+    (resolve) =>
+      setTimeout(resolve, 800)
+  );
+
+  const doc = new jsPDF(
+    "p",
+    "mm",
+    "a4"
+  );
+
+  let y = 15;
 
   // =========================
   // TITULO
   // =========================
 
   doc.setFontSize(18);
-  doc.text("HISTORIA CLÍNICA", 14, 20);
 
-  doc.setFontSize(11);
+  doc.text(
+    "Historia Clínica",
+    70,
+    y
+  );
+
+  y += 15;
 
   // =========================
-  // DATOS PACIENTE
+  // DATOS PERSONALES
   // =========================
 
-  let y = 35;
+  doc.setFontSize(12);
 
-  const datosPaciente = [
-    ["Apellido", chico.apellido || ""],
-    ["Nombre", chico.nombre || ""],
-    ["DNI", chico.dni || ""],
-    ["Género", chico.genero || ""],
-    ["Fecha nacimiento", formatFecha(chico.fecha_nacimiento)],
-    ["Edad", calcularEdad(chico.fecha_nacimiento)],
-    ["Teléfono", chico.telefono || ""],
-    ["Email", chico.email || ""],
-    ["Dirección", chico.direccion || ""],
-    ["Obra social", chico.obra_social || ""],
-    ["N° afiliado", chico.numero_afiliado || ""],
+  doc.text(
+    "Datos Personales:",
+    14,
+    y
+  );
+
+  y += 10;
+
+  doc.setFontSize(10);
+
+  doc.text(
+    `Apellido y Nombre: ${chico.apellido || ""} ${chico.nombre || ""}`,
+    14,
+    y
+  );
+
+  y += 8;
+
+  doc.text(
+    `Domicilio actual: ${chico.direccion || ""}`,
+    14,
+    y
+  );
+
+  y += 8;
+
+  doc.text(
+    `DNI: ${chico.dni || ""}      Edad: ${calcularEdad(chico.fecha_nacimiento)}      Fecha Nacimiento: ${formatFecha(chico.fecha_nacimiento)}      Sexo: ${chico.genero || ""}`,
+    14,
+    y
+  );
+
+  y += 8;
+
+  doc.text(
+    `Teléfono: ${chico.telefono || ""}`,
+    14,
+    y
+  );
+
+  y += 12;
+
+  // =========================
+  // MOTIVO
+  // =========================
+
+  doc.setFontSize(12);
+
+  doc.text(
+    "Motivo de la consulta:",
+    14,
+    y
+  );
+
+  y += 8;
+
+  doc.setFontSize(10);
+
+  doc.text(
+    "........................................................................................................................",
+    14,
+    y
+  );
+
+  y += 12;
+
+  // =========================
+  // ANTECEDENTES
+  // =========================
+
+  doc.setFontSize(12);
+
+  doc.text(
+    "Antecedentes Personales:",
+    14,
+    y
+  );
+
+  y += 10;
+
+  doc.setFontSize(10);
+
+  const antecedentes = [
+
+    "Hospitalización en los últimos dos años: SI ( )   NO ( )",
+    "Atención médica en los últimos 6 meses:",
+    "Tratamientos Quirúrgicos:",
+    "Medicación actual:",
+    "Alergias:",
+    "Grupo Sanguíneo:",
+    "Antecedentes Hereditarios:",
+    "Problemas de Coagulación:",
+    "Fuma: SI ( ) NO ( )",
+    "Embarazo: SI ( ) NO ( )",
+    "Anticonceptivos:",
+    "Presión arterial:",
+    "HTA:",
+    "Enfermedades sistémicas:",
+    "Enfermedades de transmisión sexual:",
+    "HIV:",
   ];
 
-  autoTable(doc, {
-    startY: y,
-    head: [["Campo", "Valor"]],
-    body: datosPaciente,
-    theme: "grid",
-    styles: {
-      fontSize: 10,
-    },
-    headStyles: {
-      fillColor: [198, 40, 40],
-    },
+  antecedentes.forEach((txt) => {
+
+    doc.text(
+      `${txt} ........................................................................`,
+      14,
+      y
+    );
+
+    y += 7;
+
   });
-
-  y = doc.lastAutoTable.finalY + 15;
-
-  // =========================
-  // CONSULTAS
-  // =========================
-
-  doc.setFontSize(14);
-  doc.text("CONSULTAS MÉDICAS", 14, y);
 
   y += 5;
 
-  if (consultas.length === 0) {
-    doc.setFontSize(10);
-    doc.text("No hay consultas registradas.", 14, y + 10);
-  } else {
-    consultas.forEach((c, index) => {
-      autoTable(doc, {
-        startY: y + 5,
-        body: [
-          ["Fecha", c.fecha || ""],
-          ["Motivo", c.motivo || ""],
-          ["Evolución", c.evolucion || ""],
-          ["Tratamiento", c.tratamiento || ""],
-        ],
-        theme: "grid",
-        styles: {
-          fontSize: 10,
-          cellWidth: "wrap",
-        },
-        columnStyles: {
-          0: {
-            fontStyle: "bold",
-            cellWidth: 40,
-          },
-        },
-      });
+  // =========================
+  // ODONTOGRAMA
+  // =========================
 
-      y = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
 
-      // salto de pagina automático
-      if (y > 250) {
-        doc.addPage();
-        y = 20;
-      }
-    });
+  doc.text(
+    "Odontograma:",
+    14,
+    y
+  );
+
+  y += 10;
+
+  const odontograma =
+    document.getElementById(
+      "odontograma-pdf"
+    );
+
+  if (odontograma) {
+
+    const canvas =
+      await html2canvas(
+        odontograma,
+        {
+          scale: 4,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+        }
+      );
+
+    const imgData =
+      canvas.toDataURL(
+        "image/png"
+      );
+
+    const imgWidth = 180;
+
+    const imgHeight =
+      (canvas.height * imgWidth)
+      / canvas.width;
+
+    doc.addImage(
+      imgData,
+      "PNG",
+      15,
+      y,
+      imgWidth,
+      imgHeight
+    );
+
+    y += imgHeight + 15;
   }
 
   // =========================
-  // TURNOS
+  // CONSENTIMIENTO
   // =========================
 
-  doc.addPage();
+  if (y > 220) {
 
-  doc.setFontSize(14);
-  doc.text("HISTORIAL DE TURNOS", 14, 20);
+    doc.addPage();
 
-  autoTable(doc, {
-    startY: 30,
-    head: [
-      [
-        "Fecha",
-        "Hora",
-        "Motivo",
-        "Asistencia",
-        "Observaciones",
-      ],
-    ],
-    body: turnos.map((t) => [
-      t.fecha || "",
-      t.hora || "",
-      t.motivo || "",
-      t.asistencia || "",
-      t.observaciones || "",
-    ]),
-    theme: "grid",
-    styles: {
-      fontSize: 9,
-    },
-    headStyles: {
-      fillColor: [198, 40, 40],
-    },
-  });
+    y = 20;
+
+  }
+
+  doc.setFontSize(12);
+
+  doc.text(
+    "Consentimiento Informado:",
+    14,
+    y
+  );
+
+  y += 12;
+
+  doc.setFontSize(10);
+
+  const consentimiento = `
+Yo......................................................................................., DNI N°............................................
+
+Con domicilio en calle...........................................................................................................................
+
+He comprendido todas las explicaciones que se me han facilitado en lenguaje claro y sencillo.
+
+Otorgo mi total consentimiento para realizar el tratamiento necesario para rehabilitar mi salud bucodental.
+  `;
+
+  const lineas =
+    doc.splitTextToSize(
+      consentimiento,
+      180
+    );
+
+  doc.text(
+    lineas,
+    14,
+    y
+  );
+
+  y += 45;
 
   // =========================
-  // DESCARGA
+  // FIRMAS
+  // =========================
+
+  doc.text(
+    "....................................",
+    20,
+    y
+  );
+
+  doc.text(
+    "....................................",
+    80,
+    y
+  );
+
+  doc.text(
+    "....................................",
+    150,
+    y
+  );
+
+  y += 6;
+
+  doc.text(
+    "Firma Paciente/Tutor",
+    18,
+    y
+  );
+
+  doc.text(
+    "Aclaración",
+    95,
+    y
+  );
+
+  doc.text(
+    "DNI",
+    165,
+    y
+  );
+
+  // =========================
+  // DESCARGAR
   // =========================
 
   doc.save(
@@ -780,8 +950,18 @@ const formatFecha = (fecha) => {
       Odontograma
     </Typography>
 
-    <Odontograma
-    id_paciente={id} />
+<div
+  id="odontograma-pdf"
+  style={{
+    background: "#fff",
+    padding: 20,
+    width: 1200,
+  }}
+>
+  <Odontograma
+    id_paciente={id}
+  />
+</div>
   </Box>
 )}
     </CardContent>
