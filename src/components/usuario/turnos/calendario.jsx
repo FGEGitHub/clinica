@@ -96,14 +96,26 @@ useEffect(() => {
   setTurnosDelDia(lista);
 }, [turnos, selectedDate]);
   return (
- <Box
+<Box
   sx={{
     display: "flex",
-    flexDirection: { xs: "column", md: "row" }, // ⬅️ mobile abajo, PC al costado
+    flexDirection: {
+      xs: "column",
+      md: "row",
+    },
     gap: 3,
-    p: 2,
-     maxWidth: 1900,
-    height: { xs: "auto", md: "90vh" }, // ⬅️ en mobile que crezca natural
+    p: {
+      xs: 1,
+      md: 2,
+    },
+    width: "100%",
+    maxWidth: 1900,
+    margin: "0 auto",
+    overflowX: "hidden",
+    height: {
+      xs: "auto",
+      md: "90vh",
+    },
   }}
 >
       {/* --- CALENDARIO --- */}
