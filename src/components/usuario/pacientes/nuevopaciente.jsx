@@ -41,13 +41,30 @@ const [paciente, setPaciente] = useState({
   dni: "",
   genero: "",
   fecha_nacimiento: "",
-  fecha_ingreso: "",   // ✅ AGREGAR
+  fecha_ingreso: "",
   telefono: "",
   direccion: "",
   obra_social: "",
   numero_afiliado: "",
   email: "",
-  observaciones: ""
+  observaciones: "",
+
+  hospitalizacion_2_anios: "",
+  atencion_medica_6_meses: "",
+  tratamientos_quirurgicos: "",
+  medicacion_actual: "",
+  alergias: "",
+  grupo_sanguineo: "",
+  antecedentes_hereditarios: "",
+  problemas_coagulacion: "",
+  fuma: "",
+  embarazo: "",
+  anticonceptivos: "",
+  presion_arterial: "",
+  hta: "",
+  enfermedades_sistemicas: "",
+  enfermedades_transmision_sexual: "",
+  hiv: "",
 });
 const [errores, setErrores] = useState({});
 
@@ -230,6 +247,202 @@ const validarCampos = () => {
             />
           </Box>
         </Box>
+        {/* ANTECEDENTES PERSONALES */}
+<Box sx={sectionStyle}>
+  <Box sx={sectionHeader}>ANTECEDENTES PERSONALES</Box>
+
+  <Box sx={sectionBody}>
+    <Grid container spacing={2}>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Hospitalización últimos 2 años"
+          name="hospitalizacion_2_anios"
+          fullWidth
+          size="small"
+          value={paciente.hospitalizacion_2_anios}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Atención médica últimos 6 meses"
+          name="atencion_medica_6_meses"
+          fullWidth
+          size="small"
+          value={paciente.atencion_medica_6_meses}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Tratamientos quirúrgicos"
+          name="tratamientos_quirurgicos"
+          fullWidth
+          size="small"
+          value={paciente.tratamientos_quirurgicos}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Medicación actual"
+          name="medicacion_actual"
+          fullWidth
+          size="small"
+          value={paciente.medicacion_actual}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <TextField
+          label="Alergias"
+          name="alergias"
+          fullWidth
+          size="small"
+          value={paciente.alergias}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <TextField
+          label="Grupo sanguíneo"
+          name="grupo_sanguineo"
+          fullWidth
+          size="small"
+          value={paciente.grupo_sanguineo}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <TextField
+          label="Antecedentes hereditarios"
+          name="antecedentes_hereditarios"
+          fullWidth
+          size="small"
+          value={paciente.antecedentes_hereditarios}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Problemas de coagulación"
+          name="problemas_coagulacion"
+          fullWidth
+          size="small"
+          value={paciente.problemas_coagulacion}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          select
+          label="Fuma"
+          name="fuma"
+          fullWidth
+          size="small"
+          value={paciente.fuma}
+          onChange={handleChange}
+        >
+          <MenuItem value="">Seleccionar</MenuItem>
+          <MenuItem value="SI">SI</MenuItem>
+          <MenuItem value="NO">NO</MenuItem>
+        </TextField>
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          select
+          label="Embarazo"
+          name="embarazo"
+          fullWidth
+          size="small"
+          value={paciente.embarazo}
+          onChange={handleChange}
+        >
+          <MenuItem value="">Seleccionar</MenuItem>
+          <MenuItem value="SI">SI</MenuItem>
+          <MenuItem value="NO">NO</MenuItem>
+        </TextField>
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Anticonceptivos"
+          name="anticonceptivos"
+          fullWidth
+          size="small"
+          value={paciente.anticonceptivos}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          label="Presión arterial"
+          name="presion_arterial"
+          fullWidth
+          size="small"
+          value={paciente.presion_arterial}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          label="HTA"
+          name="hta"
+          fullWidth
+          size="small"
+          value={paciente.hta}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Enfermedades sistémicas"
+          name="enfermedades_sistemicas"
+          fullWidth
+          size="small"
+          value={paciente.enfermedades_sistemicas}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Enfermedades transmisión sexual"
+          name="enfermedades_transmision_sexual"
+          fullWidth
+          size="small"
+          value={paciente.enfermedades_transmision_sexual}
+          onChange={handleChange}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="HIV"
+          name="hiv"
+          fullWidth
+          size="small"
+          value={paciente.hiv}
+          onChange={handleChange}
+        />
+      </Grid>
+
+    </Grid>
+  </Box>
+</Box>
 {Object.keys(errores).length > 0 && (
   <Typography color="error" sx={{ mb: 2 }}>
     Hay campos importantes sin completar
