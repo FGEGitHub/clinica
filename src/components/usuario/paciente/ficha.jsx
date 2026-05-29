@@ -169,11 +169,11 @@ const descargarHistoriaClinica = async () => {
 
   doc.setFontSize(10);
 
-  doc.text(
-    "........................................................................................................................",
-    14,
-    y
-  );
+ doc.text(
+  consultas[0]?.motivo || "Sin definir",
+  14,
+  y
+);
 
   y += 12;
 
@@ -193,37 +193,89 @@ const descargarHistoriaClinica = async () => {
 
   doc.setFontSize(10);
 
-  const antecedentes = [
+const antecedentes = [
 
-    "Hospitalización en los últimos dos años: SI ( )   NO ( )",
-    "Atención médica en los últimos 6 meses:",
-    "Tratamientos Quirúrgicos:",
-    "Medicación actual:",
-    "Alergias:",
-    "Grupo Sanguíneo:",
-    "Antecedentes Hereditarios:",
-    "Problemas de Coagulación:",
-    "Fuma: SI ( ) NO ( )",
-    "Embarazo: SI ( ) NO ( )",
-    "Anticonceptivos:",
-    "Presión arterial:",
-    "HTA:",
-    "Enfermedades sistémicas:",
-    "Enfermedades de transmisión sexual:",
-    "HIV:",
-  ];
+  `Hospitalización en los últimos dos años: ${
+    chico.hospitalizacion_2_anios || "Sin definir"
+  }`,
 
-  antecedentes.forEach((txt) => {
+  `Atención médica en los últimos 6 meses: ${
+    chico.atencion_medica_6_meses || "Sin definir"
+  }`,
 
-    doc.text(
-      `${txt} ........................................................................`,
-      14,
-      y
-    );
+  `Tratamientos quirúrgicos: ${
+    chico.tratamientos_quirurgicos || "Sin definir"
+  }`,
 
-    y += 7;
+  `Medicación actual: ${
+    chico.medicacion_actual || "Sin definir"
+  }`,
 
-  });
+  `Alergias: ${
+    chico.alergias || "Sin definir"
+  }`,
+
+  `Grupo sanguíneo: ${
+    chico.grupo_sanguineo || "Sin definir"
+  }`,
+
+  `Antecedentes hereditarios: ${
+    chico.antecedentes_hereditarios || "Sin definir"
+  }`,
+
+  `Problemas de coagulación: ${
+    chico.problemas_coagulacion || "Sin definir"
+  }`,
+
+  `Fuma: ${
+    chico.fuma || "Sin definir"
+  }`,
+
+  `Embarazo: ${
+    chico.embarazo || "Sin definir"
+  }`,
+
+  `Anticonceptivos: ${
+    chico.anticonceptivos || "Sin definir"
+  }`,
+
+  `Presión arterial: ${
+    chico.presion_arterial || "Sin definir"
+  }`,
+
+  `HTA: ${
+    chico.hta || "Sin definir"
+  }`,
+
+  `Enfermedades sistémicas: ${
+    chico.enfermedades_sistemicas || "Sin definir"
+  }`,
+
+  `Enfermedades de transmisión sexual: ${
+    chico.enfermedades_transmision_sexual || "Sin definir"
+  }`,
+
+  `HIV: ${
+    chico.hiv || "Sin definir"
+  }`,
+];
+
+antecedentes.forEach((txt) => {
+
+  const lineas = doc.splitTextToSize(
+    txt,
+    180
+  );
+
+  doc.text(
+    lineas,
+    14,
+    y
+  );
+
+  y += lineas.length * 6;
+
+});
 
   y += 5;
 
