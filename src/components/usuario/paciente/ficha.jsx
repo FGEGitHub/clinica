@@ -16,7 +16,7 @@ import {
   Box,
 } from "@mui/material";
 import FormularioConsulta from "./FormularioConsulta";
-
+import Odontograma from "./Odontograma";
 import { useParams , useNavigate } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
 
@@ -317,6 +317,7 @@ const formatFecha = (fecha) => {
         <Tab label="Datos del paciente" />
         <Tab label="Turnos" />
         <Tab label="Consultas" />
+        <Tab label="Odontograma" />
       </Tabs>
 
       {/* ================= TAB DATOS ================= */}
@@ -757,7 +758,32 @@ const formatFecha = (fecha) => {
           )}
         </Box>
       )}
+{/* ================= TAB ODONTOGRAMA ================= */}
 
+{tab === 3 && (
+  <Box
+    sx={{
+      p: 2,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "column",
+    }}
+  >
+    <Typography
+      variant="h6"
+      sx={{
+        fontWeight: "bold",
+        mb: 2,
+      }}
+    >
+      Odontograma
+    </Typography>
+
+    <Odontograma
+    id_paciente={id} />
+  </Box>
+)}
     </CardContent>
   </Paper>
 </Box>

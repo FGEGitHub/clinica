@@ -118,7 +118,13 @@ const traerTurnoDetalle = async (id) => {
   return data
 
 }
+const traerodontograma =
+  async (id) => {
 
+
+  const { data } = await axios.get(baseUrl + 'traerodontograma/'+id ,config)
+    return data;
+};
 const estadoSolicitud = async (id) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
@@ -144,7 +150,13 @@ const agendarapaciente = async (datos) => {
 
 }
 
+const guardarodontogramapaciente =
+  async (datas) => {
 
+   const { data } = await axios.post(baseUrl + 'guardarodontogramapaciente', datas, config)
+
+    return data;
+};
 
 const solicitarturno = async (datos) => {
 
@@ -153,4 +165,4 @@ const solicitarturno = async (datos) => {
   return data
 
 }
-export default {estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+export default {traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
