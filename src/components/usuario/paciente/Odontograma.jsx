@@ -44,7 +44,7 @@ const traerOdontograma =
       console.log(r);
 
       if (
-        r.odontograma
+        r.odontograma 
       ) {
 
         setOdontograma(
