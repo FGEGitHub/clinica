@@ -163,6 +163,6 @@ const solicitarturno = async (datos) => {
   // const data = await axios.post('http://localhost:4000/signupp', datos)
   const { data } = await axios.post(baseUrl + 'solicitarturno', datos)
   return data
-
+ 
 }
 export default {traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
