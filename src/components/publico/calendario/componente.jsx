@@ -459,6 +459,8 @@ setSolicitudId(
                 "linear-gradient(135deg, #e3f2fd 0%, #ffffff 70%)",
               boxShadow:
                 "0 6px 16px rgba(25, 118, 210, 0.08)",
+                overflow: "hidden",
+width: "100%",
             }}
           >
             <Box
@@ -482,31 +484,81 @@ setSolicitudId(
               </Typography>
             </Box>
 
-            <DayPicker
-              locale={es}
-              mode="single"
-              selected={selectedDate}
-              onSelect={
-                cargarTurnosDelDia
-              }
-              modifiers={{
-                tieneTurnos:
-                  diasConTurnos,
-              }}
-              modifiersStyles={{
-                tieneTurnos: {
-                  backgroundColor:
-                    "#1976d2",
-                  color: "#fff",
-                  borderRadius: "50%",
-                },
-                selected: {
-                  backgroundColor:
-                    "#0d47a1",
-                  color: "#fff",
-                },
-              }}
-            />
+          <Box
+  sx={{
+    width: "100%",
+    overflowX: "auto",
+    display: "flex",
+    justifyContent: "center",
+
+    "& .rdp": {
+      margin: 0,
+      width: {
+        xs: "100%",
+        sm: "auto",
+      },
+    },
+
+    "& .rdp-month": {
+      width: "100%",
+    },
+
+    "& .rdp-table": {
+      width: "100%",
+      maxWidth: "100%",
+    },
+
+    "& .rdp-cell": {
+      padding: {
+        xs: "2px",
+        sm: "4px",
+      },
+    },
+
+    "& .rdp-button": {
+      width: {
+        xs: 36,
+        sm: 42,
+      },
+      height: {
+        xs: 36,
+        sm: 42,
+      },
+      fontSize: {
+        xs: "0.8rem",
+        sm: "0.95rem",
+      },
+    },
+
+    "& .rdp-caption_label": {
+      fontSize: {
+        xs: "0.95rem",
+        sm: "1rem",
+      },
+    },
+  }}
+>
+  <DayPicker
+    locale={es}
+    mode="single"
+    selected={selectedDate}
+    onSelect={cargarTurnosDelDia}
+    modifiers={{
+      tieneTurnos: diasConTurnos,
+    }}
+    modifiersStyles={{
+      tieneTurnos: {
+        backgroundColor: "#1976d2",
+        color: "#fff",
+        borderRadius: "50%",
+      },
+      selected: {
+        backgroundColor: "#0d47a1",
+        color: "#fff",
+      },
+    }}
+  />
+</Box>
           </Paper>
 
           {/* ========================= */}

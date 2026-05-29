@@ -112,53 +112,89 @@ useEffect(() => {
           Calendario de Turnos
         </Typography>
 
-        <DayPicker
-          locale={es}
-          mode="single"
-          selected={selectedDate}
-          onSelect={cargarTurnosDelDia}
-          modifiers={{ tieneTurnos: diasConTurnos }}
-          modifiersStyles={{
-            tieneTurnos: { background: "#c8e6c9", borderRadius: "50%" },
-          }}
-          styles={{
-            months: {
-              width: "100%",
-              height: "100%",
-            },
-            month: {
-              fontSize: "1.5rem",
-            },
-            caption: {
-              fontSize: "2rem",
-              fontWeight: "bold",
-              padding: "16px 0",
-            },
-            weekdays: {
-              fontSize: "1.4rem",
-            },
-            weekday: {
-              fontSize: "1.3rem",
-              padding: "15px",
-            },
-            table: {
-              width: "100%",
-              height: "100%",
-            },
-            cell: {
-              width: "90px",
-              height: "90px",
-              fontSize: "1.4rem",
-            },
-            day: {
-              padding: "12px",
-              margin: "4px",
-              fontSize: "1.4rem",
-              width: "100%",
-              height: "100%",
-            },
-          }}jaja
-        />
+      <Box
+  sx={{
+    width: "100%",
+    overflowX: "auto",
+    display: "flex",
+    justifyContent: "center",
+
+    "& .rdp": {
+      margin: 0,
+      width: "100%",
+    },
+
+    "& .rdp-month": {
+      width: "100%",
+    },
+
+    "& .rdp-table": {
+      width: "100%",
+      maxWidth: "100%",
+    },
+
+    "& .rdp-caption_label": {
+      fontSize: {
+        xs: "1rem",
+        md: "2rem",
+      },
+      fontWeight: "bold",
+    },
+
+    "& .rdp-head_cell": {
+      fontSize: {
+        xs: "0.75rem",
+        md: "1.2rem",
+      },
+      padding: {
+        xs: "4px",
+        md: "12px",
+      },
+    },
+
+    "& .rdp-cell": {
+      padding: {
+        xs: "2px",
+        md: "6px",
+      },
+    },
+
+    "& .rdp-button": {
+      width: {
+        xs: 36,
+        md: 80,
+      },
+
+      height: {
+        xs: 36,
+        md: 80,
+      },
+
+      fontSize: {
+        xs: "0.8rem",
+        md: "1.3rem",
+      },
+
+      borderRadius: "50%",
+    },
+  }}
+>
+  <DayPicker
+    locale={es}
+    mode="single"
+    selected={selectedDate}
+    onSelect={cargarTurnosDelDia}
+    modifiers={{
+      tieneTurnos: diasConTurnos,
+    }}
+    modifiersStyles={{
+      tieneTurnos: {
+        background: "#c8e6c9",
+        borderRadius: "50%",
+      },
+    }}
+  />
+</Box>
       </Paper>
 
       {/* --- TABLA DE TURNOS DEL DÍA --- */}
