@@ -665,7 +665,179 @@ const formatFecha = (fecha) => {
               </Grid>
             </Box>
           </Box>
+{/* ===== ANTECEDENTES PERSONALES ===== */}
 
+<Box sx={sectionStyle}>
+  <Box sx={sectionHeader}>
+    ANTECEDENTES PERSONALES
+  </Box>
+
+  <Box sx={sectionBody}>
+    <Grid container spacing={2}>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Hospitalización últimos 2 años"
+          fullWidth
+          size="small"
+          value={chico.hospitalizacion_2_anios || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Atención médica últimos 6 meses"
+          fullWidth
+          size="small"
+          value={chico.atencion_medica_6_meses || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Tratamientos quirúrgicos"
+          fullWidth
+          size="small"
+          value={chico.tratamientos_quirurgicos || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Medicación actual"
+          fullWidth
+          size="small"
+          value={chico.medicacion_actual || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <TextField
+          label="Alergias"
+          fullWidth
+          size="small"
+          value={chico.alergias || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <TextField
+          label="Grupo sanguíneo"
+          fullWidth
+          size="small"
+          value={chico.grupo_sanguineo || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <TextField
+          label="Antecedentes hereditarios"
+          fullWidth
+          size="small"
+          value={chico.antecedentes_hereditarios || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Problemas de coagulación"
+          fullWidth
+          size="small"
+          value={chico.problemas_coagulacion || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          label="Fuma"
+          fullWidth
+          size="small"
+          value={chico.fuma || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          label="Embarazo"
+          fullWidth
+          size="small"
+          value={chico.embarazo || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Anticonceptivos"
+          fullWidth
+          size="small"
+          value={chico.anticonceptivos || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          label="Presión arterial"
+          fullWidth
+          size="small"
+          value={chico.presion_arterial || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={3}>
+        <TextField
+          label="HTA"
+          fullWidth
+          size="small"
+          value={chico.hta || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Enfermedades sistémicas"
+          fullWidth
+          size="small"
+          value={chico.enfermedades_sistemicas || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="Enfermedades transmisión sexual"
+          fullWidth
+          size="small"
+          value={chico.enfermedades_transmision_sexual || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <TextField
+          label="HIV"
+          fullWidth
+          size="small"
+          value={chico.hiv || ""}
+          InputProps={{ readOnly: true }}
+        />
+      </Grid>
+
+    </Grid>
+  </Box>
+</Box>
           {/* ===== BOTONES ===== */}
 
           <Box
