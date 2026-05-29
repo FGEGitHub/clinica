@@ -2,7 +2,9 @@ import React, {
   useState,
   useEffect
 } from "react";
+
 import Diente from "./Diente";
+
 import servicioDtc from "../../../services/pacientes";
 
 export default function Odontograma({
@@ -19,45 +21,56 @@ export default function Odontograma({
     setOdontograma,
   ] = useState({});
 
+  // =========================
+  // TRAER ODONTOGRAMA
+  // =========================
 
-useEffect(() => {
+  useEffect(() => {
 
-  if (id_paciente) {
+    if (id_paciente) {
 
-    traerOdontograma();
-
-  }
-
-}, [id_paciente]);
-
-const traerOdontograma =
-  async () => {
-
-    try {
-
-      const r =
-        await servicioDtc
-        .traerodontograma(
-          id_paciente
-        );
-
-      console.log(r);
-
-      if (
-        r.odontograma 
-      ) {
-   
-        setOdontograma(
-          r.odontograma
-        );
-      }
-
-    } catch (error) {
-
-      console.log(error);
+      traerOdontograma();
 
     }
-};
+
+  }, [id_paciente]);
+
+  const traerOdontograma =
+    async () => {
+
+      try {
+
+        const r =
+          await servicioDtc
+          .traerodontograma(
+            id_paciente
+          );
+
+        console.log(
+          "ODONTOGRAMA:"
+        );
+
+        console.log(r);
+
+        if (
+          r.odontograma
+        ) {
+
+          setOdontograma(
+            r.odontograma
+          );
+        }
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+    };
+
+  // =========================
+  // TOGGLE CARA
+  // =========================
 
   const toggleCara = (
     numero,
@@ -65,36 +78,104 @@ const traerOdontograma =
     color
   ) => {
 
-    setOdontograma((prev) => ({
+    setOdontograma((prev) => {
 
-      ...prev,
+      const actual =
+        prev[numero]?.[cara];
 
-      [numero]: {
+      return {
 
-        ...prev[numero],
+        ...prev,
 
-        [cara]:
-          prev[numero]?.[cara]
-          === color
-            ? null
-            : color,
-      },
-    }));
+        [numero]: {
+
+          ...prev[numero],
+
+          [cara]:
+            actual === color
+              ? null
+              : color,
+        },
+      };
+    });
   };
+
+  // =========================
+  // LIMPIAR OBJETO
+  // =========================
+
+  const limpiarOdontograma =
+    (data) => {
+
+      const limpio = {};
+
+      Object.keys(data)
+        .forEach((diente) => {
+
+          const caras =
+            data[diente];
+
+          const carasLimpias =
+            {};
+
+          Object.keys(caras)
+            .forEach((cara) => {
+
+              if (
+                caras[cara]
+              ) {
+
+                carasLimpias[
+                  cara
+                ] =
+                  caras[cara];
+              }
+            });
+
+          if (
+            Object.keys(
+              carasLimpias
+            ).length > 0
+          ) {
+
+            limpio[diente] =
+              carasLimpias;
+          }
+        });
+
+      return limpio;
+    };
+
+  // =========================
+  // GUARDAR
+  // =========================
 
   const guardar = async () => {
 
     try {
 
+      const odontogramaLimpio =
+        limpiarOdontograma(
+          odontograma
+        );
+
       const payload = {
+
         id_paciente,
-        odontograma,
+
+        odontograma:
+          odontogramaLimpio,
       };
+
+      console.log(
+        "PAYLOAD:"
+      );
 
       console.log(payload);
 
       const r =
-        await servicioDtc.guardarodontogramapaciente(
+        await servicioDtc
+        .guardarodontogramapaciente(
           payload
         );
 
@@ -113,6 +194,10 @@ const traerOdontograma =
       );
     }
   };
+
+  // =========================
+  // FILAS
+  // =========================
 
   const fila1 = [
     18,17,16,15,14,13,12,11,
@@ -135,10 +220,17 @@ const traerOdontograma =
   ];
 
   const filaStyle = {
+
     display: "flex",
-    justifyContent: "center",
+
+    justifyContent:
+      "center",
+
     gap: "8px",
-    marginBottom: "20px",
+
+    marginBottom:
+      "20px",
+
     flexWrap: "wrap",
   };
 
@@ -156,8 +248,12 @@ const traerOdontograma =
           <Diente
             key={n}
             numero={n}
-            datos={odontograma[n]}
-            onToggle={toggleCara}
+            datos={
+              odontograma[n]
+            }
+            onToggle={
+              toggleCara
+            }
             colorSeleccionado={
               colorSeleccionado
             }
@@ -165,7 +261,11 @@ const traerOdontograma =
 
       ))}
 
-      <div style={{ width: 30 }} />
+      <div
+        style={{
+          width: 30
+        }}
+      />
 
       {dientes
         .slice(corte)
@@ -174,8 +274,12 @@ const traerOdontograma =
           <Diente
             key={n}
             numero={n}
-            datos={odontograma[n]}
-            onToggle={toggleCara}
+            datos={
+              odontograma[n]
+            }
+            onToggle={
+              toggleCara
+            }
             colorSeleccionado={
               colorSeleccionado
             }
@@ -186,20 +290,33 @@ const traerOdontograma =
     </div>
   );
 
+  // =========================
+  // RENDER
+  // =========================
+
   return (
+
     <div>
 
-      {/* BOTONES COLOR */}
+      {/* BOTONES */}
 
       <div
         style={{
+
           display: "flex",
+
           gap: 10,
-          justifyContent: "center",
+
+          justifyContent:
+            "center",
+
           marginBottom: 30,
+
           flexWrap: "wrap",
         }}
       >
+
+        {/* ROJO */}
 
         <button
           onClick={() =>
@@ -208,6 +325,7 @@ const traerOdontograma =
             )
           }
           style={{
+
             background:
               colorSeleccionado
               === "rojo"
@@ -215,16 +333,24 @@ const traerOdontograma =
                 : "#ffcdd2",
 
             color: "white",
+
             border: "none",
+
             padding:
               "10px 20px",
+
             borderRadius: 8,
+
             cursor: "pointer",
-            fontWeight: "bold",
+
+            fontWeight:
+              "bold",
           }}
         >
           Caries
         </button>
+
+        {/* AZUL */}
 
         <button
           onClick={() =>
@@ -233,6 +359,7 @@ const traerOdontograma =
             )
           }
           style={{
+
             background:
               colorSeleccionado
               === "azul"
@@ -240,16 +367,24 @@ const traerOdontograma =
                 : "#bbdefb",
 
             color: "white",
+
             border: "none",
+
             padding:
               "10px 20px",
+
             borderRadius: 8,
+
             cursor: "pointer",
-            fontWeight: "bold",
+
+            fontWeight:
+              "bold",
           }}
         >
           Implante
         </button>
+
+        {/* VERDE */}
 
         <button
           onClick={() =>
@@ -258,6 +393,7 @@ const traerOdontograma =
             )
           }
           style={{
+
             background:
               colorSeleccionado
               === "verde"
@@ -265,12 +401,18 @@ const traerOdontograma =
                 : "#c8e6c9",
 
             color: "white",
+
             border: "none",
+
             padding:
               "10px 20px",
+
             borderRadius: 8,
+
             cursor: "pointer",
-            fontWeight: "bold",
+
+            fontWeight:
+              "bold",
           }}
         >
           Corona
@@ -281,23 +423,31 @@ const traerOdontograma =
       {/* FILAS */}
 
       {renderFila(fila1, 8)}
+
       {renderFila(fila2, 8)}
+
       {renderFila(fila3, 5)}
+
       {renderFila(fila4, 5)}
 
-      {/* GUARDAR */}
+      {/* BOTON GUARDAR */}
 
       <div
         style={{
+
           marginTop: 30,
+
           display: "flex",
-          justifyContent: "center",
+
+          justifyContent:
+            "center",
         }}
       >
 
         <button
           onClick={guardar}
           style={{
+
             padding:
               "10px 20px",
 
