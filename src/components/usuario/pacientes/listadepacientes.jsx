@@ -229,7 +229,7 @@ const guardarPaciente = async () => {
         <Button
           fullWidth
           sx={{ mt: 1, backgroundColor: "#c5bdbdff", color: "black" }}
-          onClick={() => navigate(`/usuario/paviente/${row.id}`)}
+          onClick={() => navigate(`/usuario/paciente/${row.id}`)}
         >
           Ver paciente
         </Button>
