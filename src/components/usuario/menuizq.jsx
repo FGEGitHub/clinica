@@ -14,7 +14,7 @@ import {
   AppBar,
   useMediaQuery,
 } from "@mui/material";
-
+import serviciousuarios from "../../services/usuarios";
 import MenuIcon from "@mui/icons-material/Menu";
 import GroupIcon from "@mui/icons-material/Group";
 import NfcIcon from "@mui/icons-material/Nfc";
@@ -29,22 +29,47 @@ export default function MenuIzq2({ children }) {
   const navigate = useNavigate();
 
   const isMobile = useMediaQuery("(max-width:900px)");
-
+const [colorNav, setColorNav] = useState("#1a303e");
+const [colorFondo, setColorFondo] = useState("#f5f6f8");
   const [menuOpen, setMenuOpen] = useState(!isMobile);
   const [user, setUser] = useState(null);
-
+const [config, setConfig] = useState({
+  color_nav: "#1a303e",
+  color_fondo: "#f5f6f8",
+});
   useEffect(() => {
     setMenuOpen(!isMobile);
   }, [isMobile]);
 
-  useEffect(() => {
-    const loggedUserJSON =
-      window.localStorage.getItem("loggedNoteAppUser");
+ useEffect(() => {
+  traerDatos();
+}, []);
 
-    if (loggedUserJSON) {
-      setUser(JSON.parse(loggedUserJSON));
+const traerDatos = async () => {
+  const loggedUserJSON =
+    window.localStorage.getItem("loggedNoteAppUser");
+
+  if (!loggedUserJSON) return;
+
+  const usuario = JSON.parse(loggedUserJSON);
+
+  setUser(usuario);
+
+  try {
+    const datos = await serviciousuarios.traerusuario(
+      usuario.usuario
+    );
+
+    if (datos && datos[0]) {
+      setConfig({
+        color_nav: datos[0].color_nav || "#1a303e",
+        color_fondo: datos[0].color_fondo || "#f5f6f8",
+      });
     }
-  }, []);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleClick = (item) => {
     // abrir en nueva pestaña
@@ -88,6 +113,18 @@ export default function MenuIzq2({ children }) {
       text: "Ir a Calendario publico",
       icon: <NfcIcon />,
       path: "/calendariopublico",
+      newTab: true,
+    },
+      {
+      text: "Perfil",
+      icon: <NfcIcon />,
+      path: "/usuario/perfil",
+      newTab: true,
+    },
+       {
+      text: "Config parametros",
+      icon: <NfcIcon />,
+      path: "/usuario/parametros",
       newTab: true,
     },
   ];
@@ -161,7 +198,7 @@ export default function MenuIzq2({ children }) {
           },
         }}
       >
-        {!isMobile && <Navbar />}
+        {!isMobile && <Navbar colorNav={config.color_nav} />}
 
         <Toolbar />
 
@@ -211,7 +248,7 @@ export default function MenuIzq2({ children }) {
             xs: 2,
             sm: 3,
           },
-          bgcolor: "#f5f6f8",
+     bgcolor: config.color_fondo || "#f5f6f8",
           color: "#1a303e",
           width: "100%",
         }}

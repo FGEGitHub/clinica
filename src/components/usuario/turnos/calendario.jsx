@@ -28,7 +28,9 @@ const [loadingNuevo, setLoadingNuevo] = useState(false);
   // --- CARGAR TURNOS ---
   const traerTurnos = async () => {
     try {
-      const data = await servicioDtc.traerturnos(); // debe devolver todos los turnos
+        const usuario = JSON.parse(
+    window.localStorage.getItem("loggedNoteAppUser"))
+      const data = await servicioDtc.traerturnosusuario(usuario.id); // debe devolver todos los turnos
       setTurnos(
         data.map((t) => ({
           ...t,
@@ -53,7 +55,19 @@ const guardarNuevoTurno = async () => {
 
   try {
     setLoadingNuevo(true);
-    await servicioDtc.nuevoturnodisp(nuevoTurno);
+    try {
+  const usuario = JSON.parse(
+    window.localStorage.getItem("loggedNoteAppUser")
+  );
+
+  await servicioDtc.nuevoturnodisp({
+    ...nuevoTurno,
+    id_usuario: usuario.id
+  });
+
+} catch (error) {
+  console.error(error);
+}
 
     // limpiar campos
     setHoraNueva("");

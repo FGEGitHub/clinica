@@ -40,10 +40,10 @@ if (loggedUserJSON) {
 }
 
 
-const traerpacientes = async () => {
+const traerpacientes = async (id) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
-  const { data } = await axios.get(baseUrl + 'traerpacientes/' ,config)
+  const { data } = await axios.get(baseUrl + 'traerpacientes/'+id ,config)
   return data
 
 }
@@ -56,6 +56,13 @@ const traerturnos = async () => {
 
 }
 
+const traerturnosusuario = async (id) => {
+
+  // const data = await axios.post('http://localhost:4000/signupp', datos)
+  const { data } = await axios.get(baseUrl + 'traerturnosusuario/' + id ,config)
+  return data
+
+}
 const traerTurnosDisponibles = async () => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
@@ -132,6 +139,14 @@ const estadoSolicitud = async (id) => {
   return data
 
 }
+const traerperfil = async (id) => {
+
+  // const data = await axios.post('http://localhost:4000/signupp', datos)
+  const { data } = await axios.get(baseUrl + 'traerperfil/'+id ,config)
+  return data
+
+}
+
 const nuevoturnodisp = async (datos) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
@@ -165,4 +180,15 @@ const solicitarturno = async (datos) => {
   return data
  
 }
-export default {traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+
+
+const actualizarPerfil = async (datos) => {
+
+  // const data = await axios.post('http://localhost:4000/signupp', datos)
+  const { data } = await axios.post(baseUrl + 'actualizarPerfil', datos)
+  return data
+ 
+}
+
+
+export default {traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

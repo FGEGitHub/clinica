@@ -27,7 +27,11 @@ const AgendarTurno = ({ idTurno, onAgendar }) => {
   useEffect(() => {
     const traer = async () => {
       try {
-        const data = await servicioPacientes.traerpacientes();
+          const usuario = JSON.parse(
+    window.localStorage.getItem("loggedNoteAppUser")
+  );
+
+        const data = await servicioPacientes.traerpacientes(usuario.id);
         setPacientes(data);
       } catch (error) {
         console.error("Error cargando pacientes", error);

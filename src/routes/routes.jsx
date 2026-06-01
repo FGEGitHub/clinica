@@ -7,6 +7,13 @@ import Pacientenuevo from '../pages/nuevopaciente';
 import Turnos from '../pages/turnos';
 import Turno from '../pages/turno';
 import Calendariopublico from '../pages/publicocalendario';
+import Perfil from '../pages/perfil';
+import PArametros from '../pages/parametros';
+
+
+
+
+
 import NOtFound from '../pages/notfound';
 const Rutas = [
  
@@ -18,6 +25,9 @@ const Rutas = [
 	{ path: '/menu', element: <Menu /> },
     { path: '/usuario/pacientes', element: <Pacientes /> },
     { path: '/usuario/paciente/:id', element: <Paciente /> },
+        { path: '/usuario/perfil', element: <Perfil /> },
+  { path: '/usuario/parametros', element: <PArametros /> },
+        
         { path: '/usuario/pacientenuevo', element: <Pacientenuevo /> },
         { path: '/usuario/turnos', element: <Turnos /> },
 

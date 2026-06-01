@@ -14,7 +14,7 @@ import {
 import DrawerNav from "./DrawerNav";
 import serviciousuarios from "../../services/usuarios"
 
-const Navbar = (props) => {
+const Navbar = ( { colorNav }) => {
 
   const [usuario, setUsuario] = useState(null)
   
@@ -44,9 +44,6 @@ if (user != null){
        setUsuario(user)
       }
    
-  const notis = await serviciousuarios.traerusuario(user.usuario)
- 
-  setUser(notis[0])
   setCargado(true)
 
 }
@@ -75,8 +72,18 @@ if (user != null){
   //1a303e COLOR AZUL OSCURO DEL NAV
   return (
     <React.Fragment>
-      <AppBar sx={{ background:
-  "linear-gradient(90deg, #051821 0%, #051821 30%, #0b2a3a 45%, #01567c 65%, #148D8D 100%)",}}> 
+    <AppBar
+  sx={{
+    background: colorNav
+      ? `linear-gradient(
+          90deg,
+          ${colorNav} 0%,
+          ${colorNav}CC 50%,
+          ${colorNav}99 100%
+        )`
+      : "linear-gradient(90deg, #051821 0%, #051821 30%, #0b2a3a 45%, #01567c 65%, #148D8D 100%)"
+  }}
+>
         <Toolbar>
 
           

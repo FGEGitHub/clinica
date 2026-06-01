@@ -97,13 +97,26 @@ const handleGuardar = async () => {
     if (!confirmar) return;
   }
 
-  try {
-    await servicioPacientes.agregarPersona(paciente);
-    navigate(-1);
-  } catch (error) {
-    console.error(error);
-    alert("Error al guardar paciente");
+ try {
+  const loggedUserJSON = window.localStorage.getItem("loggedNoteAppUser");
+
+  let pacienteConUsuario = { ...paciente };
+
+  if (loggedUserJSON) {
+    const usuario = JSON.parse(loggedUserJSON);
+
+    pacienteConUsuario = {
+      ...paciente,
+      id_usuario: usuario.id
+    };
   }
+
+  await servicioPacientes.agregarPersona(pacienteConUsuario);
+  navigate(-1);
+} catch (error) {
+  console.error(error);
+  alert("Error al guardar paciente");
+}
 };
 const validarCampos = () => {
   const nuevosErrores = {};

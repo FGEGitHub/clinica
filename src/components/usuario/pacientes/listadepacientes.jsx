@@ -79,11 +79,16 @@ const guardarPaciente = async () => {
     traer();
   }, []);
 
-  const traer = async () => {
-   
-    const ins = await servicioFidei.traerpacientes();
-    setInscrip(ins);
-  };
+const traer = async () => {
+     const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
+        if (loggedUserJSON) {
+            const usuario = JSON.parse(loggedUserJSON)
+console.log("Usuario logueado:", usuario);
+  const ins = await servicioFidei.traerpacientes(usuario.id);
+  setInscrip(ins);}
+
+  
+};
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
