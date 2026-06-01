@@ -113,19 +113,19 @@ const traerDatos = async () => {
       text: "Ir a Calendario publico",
       icon: <NfcIcon />,
       path: "/calendariopublico",
-      newTab: true,
+      
     },
       {
       text: "Perfil",
       icon: <NfcIcon />,
       path: "/usuario/perfil",
-      newTab: true,
+     
     },
        {
       text: "Config parametros",
       icon: <NfcIcon />,
       path: "/usuario/parametros",
-      newTab: true,
+     
     },
   ];
 
