@@ -136,19 +136,23 @@ export default function Parametros() {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <TextField
-                select
-                fullWidth
-                label="Consulta Paga"
-                name="consulta_paga"
-                value={perfil.consulta_paga}
-                onChange={handleChange}
-              >
-                <MenuItem value="Si">Sí</MenuItem>
-                <MenuItem value="No">No</MenuItem>
-              </TextField>
-            </Grid>
+<Grid item xs={12} sm={6} md={4}>
+ <TextField
+  select
+  fullWidth
+  variant="outlined"
+  label="Consulta Paga"
+  name="consulta_paga"
+  value={perfil.consulta_paga}
+  onChange={handleChange}
+  sx={{
+    minWidth: 220,
+  }}
+>
+  <MenuItem value="Si">Sí</MenuItem>
+  <MenuItem value="No">No</MenuItem>
+</TextField>
+</Grid>
           </Grid>
 
           <Box

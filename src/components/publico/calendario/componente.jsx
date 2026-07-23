@@ -312,15 +312,28 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      const resp =
-        await servicioDtc.solicitarturno({
-          id_turno: turnoSeleccionado.id,
-          nombre,
-          dni,
-          telefono,
-          categoria,
-        });
+     const servicio =
+  turnoSeleccionado.consulta_paga === "No"
+    ? servicioDtc.confirmarTurnoNoPago
+    : servicioDtc.solicitarturno;
 
+const resp = await servicio({
+  id_turno: turnoSeleccionado.id,
+  nombre,
+  dni,
+  telefono,
+  categoria,
+});
+if (turnoSeleccionado.consulta_paga === "No") {
+
+  setEstadoSolicitud("confirmado");
+
+  setOpenExito(true);
+
+  traerTurnos();
+
+  return;
+}
       console.log(
   "RESPUESTA COMPLETA:",
   resp
@@ -778,43 +791,38 @@ width: "100%",
 
               {/* BOTÓN SOLICITAR */}
 
-              <Button
-                variant="contained"
-                size="large"
-                onClick={
-                  solicitarTurno
-                }
-                disabled={
-                  loading ||
-                  estadoSolicitud ===
-                    "pendiente"
-                }
-              >
-                {loading ? (
-                  <CircularProgress
-                    size={24}
-                    sx={{
-                      color: "#fff",
-                    }}
-                  />
-                ) : (
-                  "Confirmar solicitud"
-                )}
-              </Button>
+          <Button
+  variant="contained"
+  size="large"
+  onClick={solicitarTurno}
+  disabled={
+    loading ||
+    estadoSolicitud === "pendiente"
+  }
+>
+  {loading ? (
+    <CircularProgress
+      size={24}
+      sx={{ color: "#fff" }}
+    />
+  ) : turnoSeleccionado?.consulta_paga === "No" ? (
+    "Confirmar turno"
+  ) : (
+    "Confirmar solicitud"
+  )}
+</Button>
 
               {/* BLOQUE PAGO */}
-<Alert severity="info">
-
-  Tiempo restante para pagar:
-
-  <strong>
-    {" "}
-    {formatearTiempo(
-      tiempoRestante
-    )}
-  </strong>
-
-</Alert>
+{turnoSeleccionado?.consulta_paga === "Si" &&
+ estadoSolicitud === "pendiente" && (
+  <Alert severity="info">
+    Tiempo restante para pagar:
+    <strong>
+      {" "}
+      {formatearTiempo(tiempoRestante)}
+    </strong>
+  </Alert>
+)}
               {estadoSolicitud ===
                 "pendiente" &&
                 pagoUrl && (
