@@ -1,5 +1,5 @@
 
-import PAcintes from '../../components/publico/calendario/elejir';
+import PAcintes from '../../components/publico/calendario/componente';
 import {
   Box
   

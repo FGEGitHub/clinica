@@ -5,7 +5,7 @@ import { startOfDay, parseISO, format } from "date-fns";
 
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-
+import { useParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -36,6 +36,10 @@ const categorias = [
 ];
 
 const PaginaTurnosPublica = () => {
+
+  const { id } = useParams();
+
+
   const [turnos, setTurnos] = useState([]);
 
   const [selectedDate, setSelectedDate] =
@@ -51,9 +55,9 @@ const [tiempoRestante, setTiempoRestante] =
 
 const [expirado, setExpirado] =
   useState(false);
-  // =========================
-  // FORM
-  // =========================
+          // =========================
+          // FORM
+          // =========================
   const [nombre, setNombre] = useState("");
   const [dni, setDni] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -88,9 +92,11 @@ const [expirado, setExpirado] =
   // TRAER TURNOS
   // =========================
   const traerTurnos = async () => {
-    const data =
-      await servicioDtc.traerTurnosDisponibles();
-
+    
+const data =
+  await servicioDtc.traerturnosusuario(
+     id
+  );
     setTurnos(
       data.map((t) => ({
         ...t,
@@ -101,9 +107,9 @@ const [expirado, setExpirado] =
     );
   };
 
-  useEffect(() => {
-    traerTurnos();
-  }, []);
+useEffect(() => {
+  traerTurnos();
+}, [id]);
 useEffect(() => {
 
   if (
@@ -318,12 +324,13 @@ useEffect(() => {
     : servicioDtc.solicitarturno;
 
 const resp = await servicio({
+  id_empresa: id,
   id_turno: turnoSeleccionado.id,
   nombre,
   dni,
   telefono,
   categoria,
-});
+})
 if (turnoSeleccionado.consulta_paga === "No") {
 
   setEstadoSolicitud("confirmado");
@@ -393,7 +400,7 @@ setSolicitudId(
       <Box
         sx={{
           p: { xs: 2, md: 4 },
-          maxWidth: "1400px",
+        //  maxWidth: "1400px",
           margin: "auto",
         }}
       >

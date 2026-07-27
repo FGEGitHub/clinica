@@ -7,6 +7,8 @@ import Pacientenuevo from '../pages/nuevopaciente';
 import Turnos from '../pages/turnos';
 import Turno from '../pages/turno';
 import Calendariopublico from '../pages/publicocalendario';
+import Calendariopublicoempresa from '../pages/publicocalendarioempresa';
+
 import Perfil from '../pages/perfil';
 import PArametros from '../pages/parametros';
 
@@ -34,7 +36,7 @@ const Rutas = [
         { path: '/usuario/turno/:id', element: <Turno /> },
 
          { path: '/calendariopublico', element: <Calendariopublico /> },
-        
+         { path: '/calendariop/:id', element: <Calendariopublicoempresa /> }
     ];
 
 
