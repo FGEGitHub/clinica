@@ -56,7 +56,7 @@ export default function Parametros() {
         window.localStorage.getItem("loggedNoteAppUser")
       );
 
-      await servicio.actualizarPerfil({
+      await servicio.actualizarParametros({
         id: usuario.id,
         precio_consulta: perfil.precio_consulta,
         tipo_consulta: perfil.tipo_consulta,

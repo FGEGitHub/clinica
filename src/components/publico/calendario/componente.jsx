@@ -317,7 +317,7 @@ useEffect(() => {
 
     try {
       setLoading(true);
-
+console.log(turnoSeleccionado.consulta_paga)
      const servicio =
   turnoSeleccionado.consulta_paga === "No"
     ? servicioDtc.confirmarTurnoNoPago
