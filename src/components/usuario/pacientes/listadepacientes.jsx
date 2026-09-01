@@ -87,7 +87,7 @@ export default function Ingresos() {
     const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
     if (loggedUserJSON) {
       const usuario = JSON.parse(loggedUserJSON)
-      console.log("Usuario logueado:", usuario);
+ 
       const ins = await servicioFidei.traerpacientes(usuario.id);
       setInscrip(ins);
     }

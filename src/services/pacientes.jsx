@@ -21,7 +21,7 @@ if (loggedUserJSON) {
         const userContext = JSON.parse(loggedUserJSON)
         config = {
            headers:{
-               Authorization:`Bearer ${userContext.token}`
+               authorization:`Bearer ${userContext.token}`
            }
        }
     } catch (error) {
@@ -34,7 +34,7 @@ if (loggedUserJSON) {
 }else{
      config = {
         headers:{
-            Authorization:`Bearer `
+            authorization:`Bearer `
         }
     }
 }
@@ -43,8 +43,9 @@ if (loggedUserJSON) {
 const traerpacientes = async (id) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
+
   const { data } = await axios.get(baseUrl + 'traerpacientes/'+id ,config)
-  console.log(config)
+
   return data
 
 }
