@@ -43,7 +43,7 @@ const Login = () => {
       switch (user.nivel) {
         case 1:
         case "1":
-          navigate("/usuario/pacientes");
+          navigate("/usuario/turnos");
           break;
 
         default:
@@ -73,7 +73,7 @@ const Login = () => {
       switch (user.nivel) {
         case 1:
         case "1":
-          navigate("/usuario/pacientes");
+          navigate("/usuario/turnos");
           break;
 
         default:
