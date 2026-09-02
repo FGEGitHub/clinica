@@ -14,6 +14,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Slider,
 } from "@mui/material";
 
 import servicioDtc from "../../../services/pacientes";
@@ -25,6 +26,7 @@ const CalendarioTurnos = () => {
 const [horaNueva, setHoraNueva] = useState("");
 const [obsNueva, setObsNueva] = useState("");
 const [loadingNuevo, setLoadingNuevo] = useState(false);
+const [duracionNueva, setDuracionNueva] = useState(30);
   // --- CARGAR TURNOS ---
   const traerTurnos = async () => {
     try {
@@ -47,11 +49,12 @@ const guardarNuevoTurno = async () => {
     return;
   }
 
-  const nuevoTurno = {
-    fecha: format(selectedDate, "yyyy-MM-dd"),
-    hora: horaNueva,
-    observaciones: obsNueva || "",
-  };
+const nuevoTurno = {
+  fecha: format(selectedDate, "yyyy-MM-dd"),
+  hora: horaNueva,
+  observaciones: obsNueva || "",
+  duracion: Number(duracionNueva),
+};
 
   try {
     setLoadingNuevo(true);
@@ -133,24 +136,88 @@ useEffect(() => {
   }}
 >
       {/* --- CALENDARIO --- */}
-<Paper sx={{ flex: { xs: "none", md: 1.3 }, p: 2 }}>
+<Paper
+  sx={{
+    flex: { xs: "none", md: 1.5 },
+    p: { xs: 2, md: 3 },
+    minWidth: 0,
+  }}
+>
         <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
           Calendario de Turnos
         </Typography>
 
-      <Box
+ <Box
   sx={{
     width: "100%",
-    overflowX: "auto",
     display: "flex",
     justifyContent: "center",
 
     "& .rdp": {
       margin: 0,
       width: "100%",
+      maxWidth: {
+        xs: "100%",
+        md: "850px",
+      },
+      "--rdp-accent-color": "#1976d2",
+      "--rdp-background-color": "#e3f2fd",
     },
 
+    /* CONTENEDOR DEL MES */
     "& .rdp-month": {
+      width: "100%",
+      backgroundColor: "#ffffff",
+      borderRadius: "16px",
+      padding: {
+        xs: "8px",
+        md: "20px",
+      },
+      boxSizing: "border-box",
+    },
+
+    /* ENCABEZADO DEL MES */
+    "& .rdp-month_caption": {
+      height: {
+        xs: "50px",
+        md: "70px",
+      },
+    },
+
+    "& .rdp-caption_label": {
+      fontSize: {
+        xs: "1.1rem",
+        md: "2rem",
+      },
+      fontWeight: "700",
+      color: "#1565c0",
+      textTransform: "capitalize",
+    },
+
+    /* BOTONES ANTERIOR / SIGUIENTE */
+    "& .rdp-button_previous, & .rdp-button_next": {
+      width: {
+        xs: "38px",
+        md: "50px",
+      },
+      height: {
+        xs: "38px",
+        md: "50px",
+      },
+      borderRadius: "12px",
+      border: "1px solid #bbdefb",
+      backgroundColor: "#e3f2fd",
+      color: "#1565c0",
+      transition: "all 0.2s ease",
+
+      "&:hover": {
+        backgroundColor: "#bbdefb",
+        transform: "scale(1.05)",
+      },
+    },
+
+    /* TABLA */
+    "& .rdp-month_grid": {
       width: "100%",
     },
 
@@ -159,67 +226,164 @@ useEffect(() => {
       maxWidth: "100%",
     },
 
-    "& .rdp-caption_label": {
-      fontSize: {
-        xs: "1rem",
-        md: "2rem",
-      },
-      fontWeight: "bold",
-    },
-
+    /* DÍAS DE LA SEMANA */
     "& .rdp-head_cell": {
       fontSize: {
         xs: "0.75rem",
-        md: "1.2rem",
+        md: "1.1rem",
       },
+      fontWeight: "700",
+      color: "#546e7a",
       padding: {
-        xs: "4px",
-        md: "12px",
+        xs: "5px",
+        md: "10px",
       },
+      textTransform: "uppercase",
+    },
+/* CELDAS */
+"& .rdp-cell": {
+  padding: {
+    xs: "2px",
+    md: "6px",
+  },
+  textAlign: "center",
+  verticalAlign: "middle",
+},
+
+/* DÍAS */
+"& .rdp-day": {
+  width: {
+    xs: "36px",
+    md: "85px",
+  },
+  height: {
+    xs: "36px",
+    md: "85px",
+  },
+  maxWidth: {
+    xs: "36px",
+    md: "85px",
+  },
+  padding: 0,
+  margin: "0 auto",
+  fontSize: {
+    xs: "0.8rem",
+    md: "1.35rem",
+  },
+  fontWeight: "500",
+  borderRadius: "50%",
+  transition: "all 0.2s ease",
+},
+
+/* BOTÓN INTERNO DEL DÍA */
+"& .rdp-day_button": {
+  width: {
+    xs: "36px",
+    md: "85px",
+  },
+  height: {
+    xs: "36px",
+    md: "85px",
+  },
+  maxWidth: {
+    xs: "36px",
+    md: "85px",
+  },
+  padding: 0,
+  margin: "0 auto",
+  borderRadius: "50%",
+  fontSize: {
+    xs: "0.8rem",
+    md: "1.35rem",
+  },
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+},
+/* BOTÓN INTERNO DEL DÍA */
+"& .rdp-day_button": {
+  width: {
+    xs: "36px",
+    md: "85px",
+  },
+  height: {
+    xs: "36px",
+    md: "85px",
+  },
+  maxWidth: {
+    xs: "36px",
+    md: "85px",
+  },
+  padding: 0,
+  margin: "0 auto",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "50%",
+  fontSize: {
+    xs: "0.8rem",
+    md: "1.35rem",
+  },
+},
+    /* HOVER */
+    "& .rdp-day:hover:not([disabled])": {
+      backgroundColor: "#e3f2fd",
+      color: "#1565c0",
+      transform: "scale(1.08)",
     },
 
-    "& .rdp-cell": {
-      padding: {
-        xs: "2px",
-        md: "6px",
-      },
+    /* DÍA SELECCIONADO */
+    "& .rdp-selected .rdp-day_button": {
+      backgroundColor: "#1976d2",
+      color: "#ffffff",
+      fontWeight: "700",
+      boxShadow: "0 4px 10px rgba(25, 118, 210, 0.35)",
     },
 
-    "& .rdp-button": {
-      width: {
-        xs: 36,
-        md: 80,
-      },
+    /* DÍA ACTUAL */
+    "& .rdp-today:not(.rdp-selected) .rdp-day_button": {
+      color: "#1976d2",
+      fontWeight: "700",
+      border: "2px solid #1976d2",
+    },
 
-      height: {
-        xs: 36,
-        md: 80,
-      },
 
-      fontSize: {
-        xs: "0.8rem",
-        md: "1.3rem",
-      },
+/* DÍAS QUE TIENEN TURNOS */
+"& .dia-con-turnos": {
+  backgroundColor: "#c8e6c9 !important",
+  color: "#1b5e20 !important",
+  fontWeight: "700",
+  borderRadius: "50%",
+},
 
-      borderRadius: "50%",
+"& .rdp-selected.dia-con-turnos": {
+  backgroundColor: "#1976d2 !important",
+  color: "#ffffff !important",
+},
+
+    /* DÍAS FUERA DEL MES */
+    "& .rdp-outside": {
+      opacity: 0.35,
+    },
+
+    /* DÍAS DESHABILITADOS */
+    "& .rdp-disabled": {
+      opacity: 0.3,
     },
   }}
 >
-  <DayPicker
-    locale={es}
-    mode="single"
-    selected={selectedDate}
-    onSelect={cargarTurnosDelDia}
-    modifiers={{
-      tieneTurnos: diasConTurnos,
-    }}
-    modifiersStyles={{
-      tieneTurnos: {
-        background: "#c8e6c9",
-        borderRadius: "50%",
-      },
-    }}
-  />
+<DayPicker
+  locale={es}
+  mode="single"
+  selected={selectedDate}
+  onSelect={cargarTurnosDelDia}
+  modifiers={{
+    tieneTurnos: diasConTurnos,
+  }}
+  modifiersClassNames={{
+    tieneTurnos: "dia-con-turnos",
+  }}
+/>
 </Box>
       </Paper>
 
@@ -245,7 +409,29 @@ useEffect(() => {
     onChange={(e) => setObsNueva(e.target.value)}
     style={{ padding: "8px", fontSize: "16px", flex: 1 }}
   />
+<Box sx={{ width: 220, px: 1 }}>
+  <Typography variant="body2">
+    Duración: <strong>{duracionNueva} minutos</strong>
 
+  </Typography>
+
+  <Slider
+  value={duracionNueva}
+  onChange={(event, newValue) => {
+    setDuracionNueva(Number(newValue));
+  }}
+  min={30}
+  max={90}
+  step={null}
+  marks={[
+    { value: 30, label: "30" },
+    { value: 45, label: "45" },
+    { value: 60, label: "60" },
+    { value: 90, label: "90" },
+  ]}
+  valueLabelDisplay="auto"
+/>
+</Box>
   <button
     onClick={guardarNuevoTurno}
     disabled={loadingNuevo}
