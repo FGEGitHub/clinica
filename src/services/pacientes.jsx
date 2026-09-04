@@ -210,6 +210,14 @@ const confirmarTurnoNoPago = async (datos) => {
 }
 
 
+
+
+const agregarEspecialidad = async (datos)=> {
+    const {data } = await axios.post(baseUrl + 'agregarespecialidad' ,datos,config)
+    return data 
+} 
+
+
 const traerEmpresas = async (id) => {
 
   // const data = await axios.post('http://localhost:4000/signupp', datos)
@@ -220,4 +228,4 @@ const traerEmpresas = async (id) => {
 
 
 
-export default {actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+export default {agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
