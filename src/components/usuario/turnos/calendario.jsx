@@ -164,6 +164,10 @@ useEffect(() => {
     flex: { xs: "none", md: 1.5 },
     p: { xs: 2, md: 3 },
     minWidth: 0,
+    backgroundColor: "#242426",
+    color: "#f4f4f5",
+    border: "1px solid #36363a",
+    borderRadius: 2,
   }}
 >
         <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
@@ -176,28 +180,29 @@ useEffect(() => {
     display: "flex",
     justifyContent: "center",
 
-    "& .rdp": {
-      margin: 0,
-      width: "100%",
-      maxWidth: {
-        xs: "100%",
-        md: "850px",
-      },
-      "--rdp-accent-color": "#1976d2",
-      "--rdp-background-color": "#e3f2fd",
-    },
+"& .rdp": {
+  margin: 0,
+  width: "100%",
+  maxWidth: {
+    xs: "100%",
+    md: "850px",
+  },
+
+  "--rdp-accent-color": "#3b82f6",
+  "--rdp-background-color": "#343438",
+},
 
     /* CONTENEDOR DEL MES */
-    "& .rdp-month": {
-      width: "100%",
-      backgroundColor: "#ffffff",
-      borderRadius: "16px",
-      padding: {
-        xs: "8px",
-        md: "20px",
-      },
-      boxSizing: "border-box",
-    },
+  "& .rdp-month": {
+  width: "100%",
+  backgroundColor: "#2b2b2e",
+  borderRadius: "16px",
+  padding: {
+    xs: "8px",
+    md: "20px",
+  },
+  boxSizing: "border-box",
+},
 
     /* ENCABEZADO DEL MES */
     "& .rdp-month_caption": {
@@ -289,12 +294,16 @@ useEffect(() => {
   },
   padding: 0,
   margin: "0 auto",
+
   fontSize: {
     xs: "0.8rem",
     md: "1.35rem",
   },
+
   fontWeight: "500",
   borderRadius: "50%",
+  color: "#e4e4e7",
+
   transition: "all 0.2s ease",
 },
 

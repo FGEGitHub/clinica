@@ -123,11 +123,10 @@ export default function Ingresos() {
           borderRadius: 3,
           px: { xs: 2, md: 2.5 },
           py: { xs: 2, md: 2.25 },
-          background:
-            "linear-gradient(90deg, #0a3b4f 0%, #0b4f6c 55%, #0f7f86 100%)",
-          boxShadow: "0 14px 35px rgba(15,127,134,0.25)",
+       background: "#242426",
+boxShadow: "0 8px 25px rgba(0,0,0,0.25)",
+border: "1px solid #36363a",
           color: "#fff",
-          border: `1px solid ${alpha("#ffffff", 0.12)}`,
         }}
       >
         <Box
@@ -205,32 +204,45 @@ boxShadow:6
       </Paper>
    
 <br/>
-    <TextField
-
-placeholder="Buscar paciente..."
-
-fullWidth
-
-InputProps={{
+   <TextField
+  placeholder="Buscar paciente..."
+  fullWidth
+  value={searchTerm}
+  onChange={handleSearch}
+  InputProps={{
     startAdornment: (
-        <InputAdornment position="start">
-            <SearchIcon color="action"/>
-        </InputAdornment>
-    )
-}}
+      <InputAdornment position="start">
+        <SearchIcon sx={{ color: "#a1a1aa" }} />
+      </InputAdornment>
+    ),
+  }}
+  sx={{
+    mb: 3,
 
-sx={{
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#242426",
+      color: "#f4f4f5",
+      borderRadius: 3,
 
-mb:3,
+      "& fieldset": {
+        borderColor: "#3a3a3f",
+      },
 
-"& fieldset":{
+      "&:hover fieldset": {
+        borderColor: "#52525b",
+      },
 
-borderRadius:50
+      "&.Mui-focused fieldset": {
+        borderColor: "#3b82f6",
+      },
+    },
 
-}
-
-}}
-      />
+    "& input::placeholder": {
+      color: "#a1a1aa",
+      opacity: 1,
+    },
+  }}
+/>
    
       <br />
       {isMobile ? (
@@ -252,62 +264,178 @@ borderRadius:50
           ))}
         </Box>
       ) : (
-        <Paper sx={{ width: '100%', overflowX: 'auto' }}>
-          <TableContainer component={Paper}>
-            <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>DNI</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>Apellido</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>Nombre</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#424242', color: 'white' }}>Acciones</TableCell>
+        <Paper
+  sx={{
+    width: "100%",
+    overflow: "hidden",
+    backgroundColor: "#242426",
+    border: "1px solid #36363a",
+    borderRadius: 2,
+  }}
+>
+  <TableContainer>
+    <Table
+      sx={{
+        width: "100%",
+        tableLayout: "fixed",
 
+        "& .MuiTableCell-root": {
+          borderBottom: "1px solid #3a3a3f",
+          color: "#e4e4e7",
+        },
+      }}
+    >
+      {/* ===== ENCABEZADO ===== */}
+      <TableHead>
+        <TableRow
+          sx={{
+            backgroundColor: "#343438",
+          }}
+        >
+          <TableCell
+            sx={{
+              fontWeight: 700,
+              color: "#f4f4f5 !important",
+            }}
+          >
+            DNI
+          </TableCell>
 
-                </TableRow>
-              </TableHead>
+          <TableCell
+            sx={{
+              fontWeight: 700,
+              color: "#f4f4f5 !important",
+            }}
+          >
+            Apellido
+          </TableCell>
 
-              <TableBody>
-                {paginatedRows.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>{row.dni}</TableCell>
-                    <TableCell>{row.apellido}</TableCell>
-                    <TableCell>{row.nombre}</TableCell>
-                    <TableCell>
-                      <Button
-                        ariant="outlined"
-                        sx={{ color: "black", borderColor: "black", fontSize: "0.70rem", backgroundColor: "#c5bdbdff" }}
+          <TableCell
+            sx={{
+              fontWeight: 700,
+              color: "#f4f4f5 !important",
+            }}
+          >
+            Nombre
+          </TableCell>
 
-                        color="primary"
-                        size="small"
-                        onClick={() => navigate(`/usuario/paciente/${row.id}`)}
-                      >
-                        Ver
-                      </Button>
-                    </TableCell>
+          <TableCell
+            sx={{
+              fontWeight: 700,
+              color: "#f4f4f5 !important",
+            }}
+          >
+            Acciones
+          </TableCell>
+        </TableRow>
+      </TableHead>
 
-                  </TableRow>
-                ))}
-                {paginatedRows.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      No se encontraron resultados.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+      {/* ===== CUERPO ===== */}
+      <TableBody>
+        {paginatedRows.map((row) => (
+          <TableRow
+            key={row.id}
+            sx={{
+              backgroundColor: "#2b2b2e",
 
-          <TablePagination
-            component="div"
-            count={filteredRows.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 20]}
-          />
-        </Paper>
+              "&:hover": {
+                backgroundColor: "#36363b",
+              },
+
+              transition: "background-color 0.2s ease",
+            }}
+          >
+            <TableCell>
+              {row.dni}
+            </TableCell>
+
+            <TableCell>
+              {row.apellido}
+            </TableCell>
+
+            <TableCell>
+              {row.nombre}
+            </TableCell>
+
+            <TableCell>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  navigate(`/usuario/paciente/${row.id}`)
+                }
+                sx={{
+                  color: "#60a5fa",
+                  borderColor: "#3b82f6",
+                  fontSize: "0.75rem",
+                  borderRadius: 1.5,
+                  textTransform: "none",
+
+                  "&:hover": {
+                    backgroundColor: "rgba(59,130,246,0.12)",
+                    borderColor: "#60a5fa",
+                  },
+                }}
+              >
+                Ver
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+
+        {paginatedRows.length === 0 && (
+          <TableRow>
+            <TableCell
+              colSpan={7}
+              align="center"
+              sx={{
+                color: "#a1a1aa",
+                py: 4,
+              }}
+            >
+              No se encontraron resultados.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </TableContainer>
+
+  {/* ===== PAGINACIÓN ===== */}
+  <TablePagination
+    component="div"
+    count={filteredRows.length}
+    page={page}
+    onPageChange={handleChangePage}
+    rowsPerPage={rowsPerPage}
+    onRowsPerPageChange={handleChangeRowsPerPage}
+    rowsPerPageOptions={[5, 10, 20]}
+    sx={{
+      color: "#d4d4d8",
+      borderTop: "1px solid #3a3a3f",
+
+      "& .MuiTablePagination-selectLabel": {
+        color: "#a1a1aa",
+      },
+
+      "& .MuiTablePagination-displayedRows": {
+        color: "#a1a1aa",
+      },
+
+      "& .MuiTablePagination-select": {
+        color: "#e4e4e7",
+      },
+
+      "& .MuiTablePagination-actions button": {
+        color: "#a1a1aa",
+      },
+
+      "& .MuiTablePagination-actions button:hover": {
+        backgroundColor: "#36363b",
+      },
+    }}
+  />
+</Paper>
       )}
 
       <Dialog open={open} onClose={handleClose} fullWidth>

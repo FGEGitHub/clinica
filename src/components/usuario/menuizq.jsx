@@ -180,81 +180,95 @@ const traerDatos = async () => {
       )}
 
       {/* ===== DRAWER ===== */}
-      <Drawer
-        variant={isMobile ? "temporary" : "permanent"}
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
+<Drawer
+  variant={isMobile ? "temporary" : "permanent"}
+  open={menuOpen}
+  onClose={() => setMenuOpen(false)}
+  ModalProps={{ keepMounted: true }}
+  sx={{
+    width: drawerWidth,
+    flexShrink: 0,
 
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            bgcolor: "#fff",
-            borderRight: "1px solid #e5e7eb",
+    "& .MuiDrawer-paper": {
+      width: drawerWidth,
+      boxSizing: "border-box",
+
+      // MENÚ IZQUIERDO
+      bgcolor: "#252526",
+
+      borderRight: "1px solid #111111",
+      color: "#f5f5f5",
+    },
+  }}
+>
+  {!isMobile && <Navbar colorNav={config.color_nav} />}
+
+  <Toolbar />
+
+  <Divider sx={{ borderColor: "#3a3a3a" }} />
+
+  <List sx={{ pt: 3 }}>
+    {menuItems.map((item) => (
+      <ListItemButton
+        key={item.text}
+        onClick={() => handleClick(item)}
+        sx={{
+          borderRadius: 2,
+          mx: 1.5,
+          mb: 1,
+          py: 1.2,
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+
+          "&:hover": {
+            bgcolor: "#343438",
+            transform: "translateX(2px)",
           },
         }}
       >
-        {!isMobile && <Navbar colorNav={config.color_nav} />}
+        <ListItemIcon
+          sx={{
+            color: "#b8b8b8",
+            minWidth: 42,
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
 
-        <Toolbar />
+        <ListItemText
+          primary={item.text}
+          sx={{
+            "& .MuiListItemText-primary": {
+              color: "#eeeeee",
+              fontSize: "14px",
+            },
+          }}
+        />
+      </ListItemButton>
+    ))}
+  </List>
+</Drawer>
+     {/* ===== CONTENIDO ===== */}
+<Box
+  component="main"
+  sx={{
+    flexGrow: 1,
 
-        <Divider />
+    p: {
+      xs: 2,
+      sm: 3,
+    },
 
-        <List sx={{ pt: 3 }}>
-          {menuItems.map((item) => (
-            <ListItemButton
-              key={item.text}
-              onClick={() => handleClick(item)}
-              sx={{
-                borderRadius: 2,
-                mx: 1.5,
-                mb: 1,
-                py: 1.2,
-                cursor: "pointer",
-                transition: "all 0.25s ease",
+    // FONDO PRINCIPAL
+    bgcolor: "#18181b",
 
-                "&:hover": {
-                  bgcolor: "#f0f4f7",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                  transform: "translateY(-1px)",
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color: "#1a303e",
-                  minWidth: 42,
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Drawer>
-
-      {/* ===== CONTENIDO ===== */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: {
-            xs: 2,
-            sm: 3,
-          },
-     bgcolor: config.color_fondo || "#f5f6f8",
-          color: "#1a303e",
-          width: "100%",
-        }}
-      >
-        <Toolbar />
-        {children}
-      </Box>
+    color: "#f5f5f5",
+    width: "100%",
+  }}
+>
+  <Toolbar />
+  {children}
+</Box>
     </Box>
   );
 }
