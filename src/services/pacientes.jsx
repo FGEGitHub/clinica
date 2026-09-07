@@ -114,6 +114,29 @@ const guardarConsulta = async (datos)=> {
 } 
 
 
+const eliminarEspecialidad = async (idEspecialidad) => {
+  const { data } = await axios.post(
+    baseUrl + 'eliminarEspecialidad',
+    { idEspecialidad },
+    config
+  );
+
+  return data;
+};
+
+const traerespecialidades = async (id_usuario) => {
+  const { data } = await axios.post(
+    baseUrl + "traerespecialidades",
+    {
+      id_usuario
+    },
+    config
+  );
+
+  return data;
+};
+
+
 
 const guardarConsultanueva = async (datos)=> {
     const {data } = await axios.post(baseUrl + 'guardarConsultanueva' ,datos,config)
@@ -228,4 +251,4 @@ const traerEmpresas = async (id) => {
 
 
 
-export default {agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+export default {traerespecialidades , eliminarEspecialidad,agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

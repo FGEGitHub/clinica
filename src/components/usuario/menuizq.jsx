@@ -109,12 +109,11 @@ const traerDatos = async () => {
       icon: <NfcIcon />,
       path: "/usuario/turnos",
     },
-    {
-      text: "Ir a Calendario publico",
-      icon: <NfcIcon />,
-      path: "/calendariopublico",
-      
-    },
+{
+  text: "Ir a Calendario publico",
+  icon: <NfcIcon />,
+  path: `/calendariop/${user?.id}`,
+},
       {
       text: "Perfil",
       icon: <NfcIcon />,

@@ -622,10 +622,15 @@ width: "100%",
                         Horario
                       </strong>
                     </TableCell>
+ <TableCell>
+                      <strong>
+                        Horario
+                      </strong>
+                    </TableCell>
 
                     <TableCell>
                       <strong>
-                        Acción
+                        Solicitar
                       </strong>
                     </TableCell>
                   </TableRow>
@@ -642,7 +647,9 @@ width: "100%",
                           <TableCell>
                             {t.hora}
                           </TableCell>
-
+ <TableCell>
+                            {t.especialidad || "Sin especialidad"}
+                          </TableCell>
                           <TableCell>
                             <Button
                               variant="contained"

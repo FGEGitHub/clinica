@@ -27,6 +27,8 @@ const [horaNueva, setHoraNueva] = useState("");
 const [obsNueva, setObsNueva] = useState("");
 const [loadingNuevo, setLoadingNuevo] = useState(false);
 const [duracionNueva, setDuracionNueva] = useState(30);
+const [especialidades, setEspecialidades] = useState([]);
+const [especialidadNueva, setEspecialidadNueva] = useState("");
   // --- CARGAR TURNOS ---
   const traerTurnos = async () => {
     try {
@@ -43,6 +45,8 @@ const [duracionNueva, setDuracionNueva] = useState(30);
       console.error(error);
     }
   };
+
+  
 const guardarNuevoTurno = async () => {
   if (!selectedDate || !horaNueva) {
     alert("Seleccioná una fecha y una hora");
@@ -54,6 +58,7 @@ const nuevoTurno = {
   hora: horaNueva,
   observaciones: obsNueva || "",
   duracion: Number(duracionNueva),
+  especialidad: especialidadNueva,
 };
 
   try {
@@ -63,10 +68,10 @@ const nuevoTurno = {
     window.localStorage.getItem("loggedNoteAppUser")
   );
 
-  await servicioDtc.nuevoturnodisp({
-    ...nuevoTurno,
-    id_usuario: usuario.id
-  });
+await servicioDtc.nuevoturnodisp({
+  ...nuevoTurno,
+  id_usuario: usuario.id
+});
 
 } catch (error) {
   console.error(error);
@@ -89,9 +94,27 @@ const nuevoTurno = {
   }
 };
 
-  useEffect(() => {
-    traerTurnos();
-  }, []);
+ useEffect(() => {
+  const cargarDatos = async () => {
+    try {
+      const usuario = JSON.parse(
+        window.localStorage.getItem("loggedNoteAppUser")
+      );
+
+      const especialidadesData =
+        await servicioDtc.traerespecialidades(usuario.id);
+
+      setEspecialidades(especialidadesData);
+
+      await traerTurnos();
+
+    } catch (error) {
+      console.error("Error al cargar especialidades:", error);
+    }
+  };
+
+  cargarDatos();
+}, []);
 
   // --- Marcar días con turnos ---
   const diasConTurnos = turnos.map((t) => t.fechaObj);
@@ -401,7 +424,26 @@ useEffect(() => {
     onChange={(e) => setHoraNueva(e.target.value)}
     style={{ padding: "8px", fontSize: "16px" }}
   />
+<select
+  value={especialidadNueva}
+  onChange={(e) => setEspecialidadNueva(e.target.value)}
+  style={{
+    padding: "8px",
+    fontSize: "16px",
+    minWidth: "220px"
+  }}
+>
+  <option value="">Seleccionar especialidad</option>
 
+  {especialidades.map((especialidad) => (
+    <option
+      key={especialidad.id}
+      value={especialidad.nombre}
+    >
+      {especialidad.nombre}
+    </option>
+  ))}
+</select>
   <input
     type="text"
     placeholder="Observaciones"
@@ -466,7 +508,7 @@ useEffect(() => {
                     <TableCell>
                       {t.apellido} {t.nombre}
                     </TableCell>
-                    <TableCell>{t.asistencia}</TableCell>
+                    <TableCell>{t.especialidad}</TableCell>
                 <TableCell>
   <AgendarTurno
     idTurno={t.id}
