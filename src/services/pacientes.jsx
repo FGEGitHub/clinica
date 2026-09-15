@@ -266,4 +266,40 @@ const traerLogo = async (id) => {
 
   return response.data;
 };
-export default {traerLogo ,guardarlogo, traerespecialidades , eliminarEspecialidad,agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+
+const guardarhorarios = async (datos)=> {
+    const {data } = await axios.post(baseUrl + 'guardarhorarios' ,datos,config)
+    return data 
+} 
+
+
+const traerHorarios = async (usuario_id) => {
+  const response = await axios.get(
+    `${baseUrl}traerhorarios/${usuario_id}`
+  );
+
+  return response.data;
+};
+
+const guardarHorarios = async (datos) => {
+  const response = await axios.post(
+    `${baseUrl}guardarhorarios`,
+    datos
+  );
+
+  return response.data;
+};
+
+const eliminarHorario = async (id) => {
+  const response = await axios.delete(
+    `${baseUrl}eliminarhorario/${id}`
+  );
+
+  return response.data;
+};
+
+
+
+export default {  traerHorarios,
+  guardarHorarios,
+  eliminarHorario, guardarhorarios, traerLogo ,guardarlogo, traerespecialidades , eliminarEspecialidad,agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

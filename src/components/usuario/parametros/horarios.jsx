@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
+
 import {
   Box,
   Paper,
   Typography,
   IconButton,
   Button,
-  Divider,
   Chip,
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import SaveIcon from "@mui/icons-material/Save";
+
+import serviciosHorarios from "../../../services/pacientes";
 
 const dias = [
   { id: 1, nombre: "Lunes", corto: "Lun" },
@@ -55,68 +62,408 @@ const HorariosClinica = () => {
 
   const [horarios, setHorarios] = useState([]);
 
-  // Agregar un horario
-  const agregarHorario = (dia, hora) => {
+  const [usuarioId, setUsuarioId] = useState(null);
 
-    const existe = horarios.some(
-      (h) =>
-        h.dia === dia &&
-        h.hora_inicio === hora
-    );
+  const [cargando, setCargando] = useState(true);
+
+  const [guardando, setGuardando] = useState(false);
+
+  const [mensaje, setMensaje] = useState({
+    open: false,
+    tipo: "success",
+    texto: "",
+  });
+
+
+  // =====================================================
+  // TRAER USUARIO Y HORARIOS
+  // =====================================================
+
+  useEffect(() => {
+    traerHorarios();
+  }, []);
+
+
+  const traerHorarios = async () => {
+
+    try {
+
+      setCargando(true);
+
+      const loggedUserJSON =
+        window.localStorage.getItem(
+          "loggedNoteAppUser"
+        );
+
+      if (!loggedUserJSON) {
+        console.error(
+          "No hay usuario logueado"
+        );
+
+        return;
+      }
+
+      const usuario = JSON.parse(
+        loggedUserJSON
+      );
+
+      if (!usuario?.id) {
+        console.error(
+          "El usuario no tiene ID"
+        );
+
+        return;
+      }
+
+      setUsuarioId(usuario.id);
+
+      // Traemos horarios desde el backend
+
+      const datos =
+        await serviciosHorarios.traerHorarios(
+          usuario.id
+        );
+
+      console.log(
+        "📅 Horarios recibidos:",
+        datos
+      );
+
+      setHorarios(
+        Array.isArray(datos)
+          ? datos
+          : []
+      );
+
+    } catch (error) {
+
+      console.error(
+        "❌ Error trayendo horarios:",
+        error
+      );
+
+      mostrarMensaje(
+        "error",
+        "No se pudieron cargar los horarios"
+      );
+
+    } finally {
+
+      setCargando(false);
+
+    }
+  };
+
+
+  // =====================================================
+  // CALCULAR HORA FIN
+  // =====================================================
+
+  const calcularHoraFin = (hora) => {
+
+    const [h, m] =
+      hora.split(":").map(Number);
+
+    let minutos =
+      h * 60 + m + 30;
+
+    const nuevaHora =
+      Math.floor(minutos / 60);
+
+    const nuevosMinutos =
+      minutos % 60;
+
+    return `${String(
+      nuevaHora
+    ).padStart(2, "0")}:${String(
+      nuevosMinutos
+    ).padStart(2, "0")}`;
+  };
+
+
+  // =====================================================
+  // AGREGAR HORARIO
+  // =====================================================
+
+  const agregarHorario = (
+    dia,
+    hora
+  ) => {
+
+    const existe =
+      horarios.some(
+        (h) =>
+          Number(h.dia) === Number(dia) &&
+          h.hora_inicio === hora
+      );
 
     if (existe) {
       return;
     }
 
     const nuevoHorario = {
-      id: Date.now(),
+
+      // No tiene ID porque todavía
+      // no existe en la BD
+      id: null,
+
       dia,
+
       hora_inicio: hora,
-      hora_fin: calcularHoraFin(hora),
+
+      hora_fin:
+        calcularHoraFin(hora),
+
       duracion: 30,
+
+      nuevo: true,
     };
 
-    setHorarios((prev) => [
-      ...prev,
-      nuevoHorario,
-    ]);
-  };
-
-  // Eliminar horario
-  const eliminarHorario = (id) => {
-
-    setHorarios((prev) =>
-      prev.filter((h) => h.id !== id)
+    setHorarios(
+      (prev) => [
+        ...prev,
+        nuevoHorario,
+      ]
     );
   };
 
-  // Por ahora sumamos 30 minutos
-  const calcularHoraFin = (hora) => {
 
-    const [h, m] = hora.split(":").map(Number);
+  // =====================================================
+  // ELIMINAR HORARIO
+  // =====================================================
 
-    let minutos = h * 60 + m + 30;
+  const eliminarHorario = async (
+    horario
+  ) => {
 
-    const nuevaHora = Math.floor(minutos / 60);
-    const nuevosMinutos = minutos % 60;
+    try {
 
-    return `${String(nuevaHora).padStart(2, "0")}:${String(
-      nuevosMinutos
-    ).padStart(2, "0")}`;
+      // Si todavía no está guardado
+      // simplemente lo quitamos del estado
+
+      if (!horario.id) {
+
+        setHorarios(
+          (prev) =>
+            prev.filter(
+              (h) =>
+                !(
+                  Number(h.dia) ===
+                    Number(horario.dia) &&
+                  h.hora_inicio ===
+                    horario.hora_inicio
+                )
+            )
+        );
+
+        return;
+      }
+
+
+      // Si tiene ID significa que
+      // existe en la base de datos
+
+      await serviciosHorarios.eliminarHorario(
+        horario.id
+      );
+
+
+      setHorarios(
+        (prev) =>
+          prev.filter(
+            (h) =>
+              h.id !== horario.id
+          )
+      );
+
+
+      mostrarMensaje(
+        "success",
+        "Horario eliminado correctamente"
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "❌ Error eliminando horario:",
+        error
+      );
+
+      mostrarMensaje(
+        "error",
+        "No se pudo eliminar el horario"
+      );
+
+    }
   };
 
-  const horariosDelDia = (dia) => {
+
+  // =====================================================
+  // GUARDAR HORARIOS
+  // =====================================================
+
+  const guardarHorarios = async () => {
+
+    try {
+
+      if (!usuarioId) {
+        mostrarMensaje(
+          "error",
+          "No se encontró el usuario"
+        );
+
+        return;
+      }
+
+      if (horarios.length === 0) {
+        mostrarMensaje(
+          "error",
+          "No hay horarios para guardar"
+        );
+
+        return;
+      }
+
+      setGuardando(true);
+
+
+      const datos = {
+
+        usuario_id: usuarioId,
+
+        horarios: horarios.map(
+          (h) => ({
+            dia: h.dia,
+            hora_inicio:
+              h.hora_inicio,
+            hora_fin:
+              h.hora_fin,
+            duracion:
+              h.duracion,
+          })
+        ),
+
+      };
+
+
+      console.log(
+        "📤 Guardando:",
+        datos
+      );
+
+
+      await serviciosHorarios.guardarHorarios(
+        datos
+      );
+
+
+      mostrarMensaje(
+        "success",
+        "Horarios guardados correctamente"
+      );
+
+
+      // Volvemos a traerlos para obtener
+      // los IDs reales de la BD
+
+      await traerHorarios();
+
+
+    } catch (error) {
+
+      console.error(
+        "❌ Error guardando horarios:",
+        error
+      );
+
+      mostrarMensaje(
+        "error",
+        "No se pudieron guardar los horarios"
+      );
+
+    } finally {
+
+      setGuardando(false);
+
+    }
+  };
+
+
+  // =====================================================
+  // HORARIOS DE UN DÍA
+  // =====================================================
+
+  const horariosDelDia = (
+    dia
+  ) => {
+
     return horarios.filter(
-      (h) => h.dia === dia
+      (h) =>
+        Number(h.dia) ===
+        Number(dia)
     );
+
   };
+
+
+  // =====================================================
+  // MENSAJES
+  // =====================================================
+
+  const mostrarMensaje = (
+    tipo,
+    texto
+  ) => {
+
+    setMensaje({
+      open: true,
+      tipo,
+      texto,
+    });
+
+  };
+
+
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  if (cargando) {
+
+    return (
+
+      <Box
+        sx={{
+          minHeight: "400px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+
+        <CircularProgress />
+
+      </Box>
+
+    );
+
+  }
+
+
+  // =====================================================
+  // VISTA
+  // =====================================================
 
   return (
 
     <Box
       sx={{
         width: "100%",
-        p: { xs: 1, md: 3 },
+        p: {
+          xs: 1,
+          md: 3,
+        },
         background: "#f5f7fa",
         minHeight: "100vh",
       }}
@@ -127,7 +474,8 @@ const HorariosClinica = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent:
+            "space-between",
           alignItems: "center",
           mb: 3,
           flexWrap: "wrap",
@@ -148,14 +496,18 @@ const HorariosClinica = () => {
             variant="body2"
             color="text.secondary"
           >
-            Seleccioná los días y horarios disponibles
+            Seleccioná los días y
+            horarios disponibles
             para la clínica.
           </Typography>
 
         </Box>
 
+
         <Chip
-          icon={<AccessTimeIcon />}
+          icon={
+            <AccessTimeIcon />
+          }
           label={`${horarios.length} horarios configurados`}
           color="primary"
           variant="outlined"
@@ -171,18 +523,21 @@ const HorariosClinica = () => {
         sx={{
           borderRadius: 3,
           overflow: "hidden",
-          border: "1px solid #e5e7eb",
+          border:
+            "1px solid #e5e7eb",
           background: "#fff",
         }}
       >
 
-        {/* CABECERA DIAS */}
+        {/* CABECERA */}
 
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "70px repeat(7, 1fr)",
-            borderBottom: "1px solid #e5e7eb",
+            gridTemplateColumns:
+              "70px repeat(7, 1fr)",
+            borderBottom:
+              "1px solid #e5e7eb",
             position: "sticky",
             top: 0,
             background: "#fff",
@@ -192,36 +547,48 @@ const HorariosClinica = () => {
 
           <Box />
 
-          {dias.map((dia) => (
+          {dias.map(
+            (dia) => (
 
-            <Box
-              key={dia.id}
-              sx={{
-                textAlign: "center",
-                py: 2,
-                borderLeft: "1px solid #e5e7eb",
-              }}
-            >
-
-              <Typography
+              <Box
+                key={dia.id}
                 sx={{
-                  fontWeight: 700,
-                  fontSize: { xs: 11, md: 14 },
+                  textAlign:
+                    "center",
+                  py: 2,
+                  borderLeft:
+                    "1px solid #e5e7eb",
                 }}
               >
-                {dia.nombre}
-              </Typography>
 
-              <Typography
-                variant="caption"
-                color="text.secondary"
-              >
-                {horariosDelDia(dia.id).length} horarios
-              </Typography>
+                <Typography
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: {
+                      xs: 11,
+                      md: 14,
+                    },
+                  }}
+                >
+                  {dia.nombre}
+                </Typography>
 
-            </Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                >
+                  {
+                    horariosDelDia(
+                      dia.id
+                    ).length
+                  }{" "}
+                  horarios
+                </Typography>
 
-          ))}
+              </Box>
+
+            )
+          )}
 
         </Box>
 
@@ -230,178 +597,225 @@ const HorariosClinica = () => {
 
         <Box
           sx={{
-            maxHeight: "650px",
-            overflowY: "auto",
+            maxHeight:
+              "650px",
+            overflowY:
+              "auto",
           }}
         >
 
-          {horas.map((hora) => (
-
-            <Box
-              key={hora}
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "70px repeat(7, 1fr)",
-                minHeight: 55,
-                borderBottom: "1px solid #f0f0f0",
-              }}
-            >
-
-              {/* HORA */}
+          {horas.map(
+            (hora) => (
 
               <Box
+                key={hora}
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "text.secondary",
-                  fontSize: 12,
-                  fontWeight: 600,
+                  display:
+                    "grid",
+                  gridTemplateColumns:
+                    "70px repeat(7, 1fr)",
+                  minHeight: 55,
+                  borderBottom:
+                    "1px solid #f0f0f0",
                 }}
               >
-                {hora}
-              </Box>
+
+                {/* HORA */}
+
+                <Box
+                  sx={{
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    justifyContent:
+                      "center",
+                    color:
+                      "text.secondary",
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  {hora}
+                </Box>
 
 
-              {/* DIAS */}
+                {/* DÍAS */}
 
-              {dias.map((dia) => {
+                {dias.map(
+                  (dia) => {
 
-                const horario = horarios.find(
-                  (h) =>
-                    h.dia === dia.id &&
-                    h.hora_inicio === hora
-                );
-
-                return (
-
-                  <Box
-                    key={dia.id}
-                    sx={{
-                      borderLeft:
-                        "1px solid #f0f0f0",
-                      p: 0.5,
-                    }}
-                  >
-
-                    {!horario ? (
-
-                      <Button
-                        fullWidth
-                        onClick={() =>
-                          agregarHorario(
-                            dia.id,
+                    const horario =
+                      horarios.find(
+                        (h) =>
+                          Number(
+                            h.dia
+                          ) ===
+                            Number(
+                              dia.id
+                            ) &&
+                          h.hora_inicio ===
                             hora
-                          )
-                        }
-                        sx={{
-                          height: "100%",
-                          minHeight: 45,
-                          color: "#b0b7c3",
-                          opacity: 0,
-                          "&:hover": {
-                            opacity: 1,
-                            background:
-                              "#f0f7ff",
-                            color: "primary.main",
-                          },
-                        }}
-                      >
+                      );
 
-                        <AddIcon fontSize="small" />
-
-                      </Button>
-
-                    ) : (
+                    return (
 
                       <Box
+                        key={
+                          dia.id
+                        }
                         sx={{
-                          height: "100%",
-                          minHeight: 45,
-                          borderRadius: 1.5,
-                          background:
-                            "linear-gradient(135deg, #1976d2, #42a5f5)",
-                          color: "#fff",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent:
-                            "space-between",
-                          px: 1,
-                          boxShadow:
-                            "0 2px 6px rgba(25,118,210,.25)",
+                          borderLeft:
+                            "1px solid #f0f0f0",
+                          p: 0.5,
                         }}
                       >
 
-                        <Box>
+                        {!horario ? (
 
-                          <Typography
+                          <Button
+                            fullWidth
+                            onClick={() =>
+                              agregarHorario(
+                                dia.id,
+                                hora
+                              )
+                            }
                             sx={{
-                              fontSize: 12,
-                              fontWeight: 700,
+                              height:
+                                "100%",
+                              minHeight:
+                                45,
+                              color:
+                                "#b0b7c3",
+                              opacity:
+                                0,
+                              "&:hover":
+                                {
+                                  opacity:
+                                    1,
+                                  background:
+                                    "#f0f7ff",
+                                  color:
+                                    "primary.main",
+                                },
                             }}
                           >
-                            {horario.hora_inicio}
-                          </Typography>
 
-                          <Typography
+                            <AddIcon fontSize="small" />
+
+                          </Button>
+
+                        ) : (
+
+                          <Box
                             sx={{
-                              fontSize: 10,
-                              opacity: 0.85,
-                            }}
-                          >
-                            {horario.hora_fin}
-                          </Typography>
-
-                        </Box>
-
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            eliminarHorario(
-                              horario.id
-                            )
-                          }
-                          sx={{
-                            color: "#fff",
-                            "&:hover": {
+                              height:
+                                "100%",
+                              minHeight:
+                                45,
+                              borderRadius:
+                                1.5,
                               background:
-                                "rgba(255,255,255,.2)",
-                            },
-                          }}
-                        >
+                                "linear-gradient(135deg, #1976d2, #42a5f5)",
+                              color:
+                                "#fff",
+                              display:
+                                "flex",
+                              alignItems:
+                                "center",
+                              justifyContent:
+                                "space-between",
+                              px: 1,
+                              boxShadow:
+                                "0 2px 6px rgba(25,118,210,.25)",
+                            }}
+                          >
 
-                          <DeleteOutlineIcon
-                            fontSize="small"
-                          />
+                            <Box>
 
-                        </IconButton>
+                              <Typography
+                                sx={{
+                                  fontSize:
+                                    12,
+                                  fontWeight:
+                                    700,
+                                }}
+                              >
+                                {
+                                  horario.hora_inicio
+                                }
+                              </Typography>
+
+                              <Typography
+                                sx={{
+                                  fontSize:
+                                    10,
+                                  opacity:
+                                    0.85,
+                                }}
+                              >
+                                {
+                                  horario.hora_fin
+                                }
+                              </Typography>
+
+                            </Box>
+
+
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                eliminarHorario(
+                                  horario
+                                )
+                              }
+                              sx={{
+                                color:
+                                  "#fff",
+                                "&:hover":
+                                  {
+                                    background:
+                                      "rgba(255,255,255,.2)",
+                                  },
+                              }}
+                            >
+
+                              <DeleteOutlineIcon
+                                fontSize="small"
+                              />
+
+                            </IconButton>
+
+                          </Box>
+
+                        )}
 
                       </Box>
 
-                    )}
+                    );
 
-                  </Box>
+                  }
+                )}
 
-                );
+              </Box>
 
-              })}
-
-            </Box>
-
-          ))}
+            )
+          )}
 
         </Box>
 
       </Paper>
 
 
-      {/* RESUMEN */}
+      {/* BOTÓN GUARDAR */}
 
       <Box
         sx={{
           mt: 3,
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent:
+            "space-between",
           alignItems: "center",
           flexWrap: "wrap",
           gap: 2,
@@ -412,22 +826,71 @@ const HorariosClinica = () => {
           variant="body2"
           color="text.secondary"
         >
-          Hacé click en un espacio libre para agregar
-          un horario.
+          Hacé click en un espacio
+          libre para agregar un
+          horario.
         </Typography>
+
 
         <Button
           variant="contained"
-          disabled={horarios.length === 0}
+          startIcon={
+            guardando
+              ? <CircularProgress
+                  size={18}
+                  color="inherit"
+                />
+              : <SaveIcon />
+          }
+          disabled={
+            guardando ||
+            horarios.length === 0
+          }
+          onClick={
+            guardarHorarios
+          }
           sx={{
             borderRadius: 2,
             px: 4,
           }}
         >
-          Guardar horarios
+          {guardando
+            ? "Guardando..."
+            : "Guardar horarios"}
         </Button>
 
       </Box>
+
+
+      {/* MENSAJE */}
+
+      <Snackbar
+        open={
+          mensaje.open
+        }
+        autoHideDuration={
+          3000
+        }
+        onClose={() =>
+          setMensaje(
+            (prev) => ({
+              ...prev,
+              open: false,
+            })
+          )
+        }
+      >
+
+        <Alert
+          severity={
+            mensaje.tipo
+          }
+          variant="filled"
+        >
+          {mensaje.texto}
+        </Alert>
+
+      </Snackbar>
 
     </Box>
 
