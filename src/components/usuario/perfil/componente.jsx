@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -9,6 +10,7 @@ import {
   Avatar,
   Divider,
 } from "@mui/material";
+
 import servicio from "../../../services/pacientes";
 
 export default function PerfilClinica() {
@@ -20,14 +22,24 @@ export default function PerfilClinica() {
     color_fondo: "#f5f5f5",
   });
 
+  const [subiendoLogo, setSubiendoLogo] = useState(false);
+
   const traerPerfil = async () => {
     try {
-          const usuario = JSON.parse(
-    window.localStorage.getItem("loggedNoteAppUser"))
+      const usuario = JSON.parse(
+        window.localStorage.getItem("loggedNoteAppUser")
+      );
+
+      if (!usuario?.id) {
+        console.error("No se encontró el usuario");
+        return;
+      }
+
       const datos = await servicio.traerperfil(usuario.id);
+
       setPerfil(datos);
     } catch (error) {
-      console.error(error);
+      console.error("Error trayendo perfil:", error);
     }
   };
 
@@ -36,15 +48,92 @@ export default function PerfilClinica() {
   }, []);
 
   const handleChange = (e) => {
-    setPerfil({
-      ...perfil,
+    setPerfil((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
+
+  // ==============================
+  // SUBIR LOGO
+  // ==============================
+
+  const handleLogo = async (e) => {
+    const archivo = e.target.files?.[0];
+
+    if (!archivo) return;
+
+    const formatosPermitidos = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/svg+xml",
+      "image/webp",
+    ];
+
+    if (!formatosPermitidos.includes(archivo.type)) {
+      alert("Formato no permitido. Use PNG, JPG, SVG o WEBP.");
+      return;
+    }
+
+    // Máximo 5 MB
+    if (archivo.size > 5 * 1024 * 1024) {
+      alert("El logo no puede superar los 5 MB.");
+      return;
+    }
+
+    try {
+      setSubiendoLogo(true);
+
+      const usuario = JSON.parse(
+        window.localStorage.getItem("loggedNoteAppUser")
+      );
+
+      if (!usuario?.id) {
+        alert("No se encontró el usuario.");
+        return;
+      }
+
+      const formData = new FormData();
+
+      formData.append("logo", archivo);
+      formData.append("id", usuario.id);
+
+      const respuesta = await servicio.guardarlogo(formData);
+
+      console.log("Respuesta guardar logo:", respuesta);
+
+      if (respuesta.logodir) {
+        setPerfil((prev) => ({
+          ...prev,
+          foto: respuesta.logodir,
+        }));
+      }
+
+      alert("Logo actualizado correctamente");
+    } catch (error) {
+      console.error("Error subiendo logo:", error);
+
+      alert(
+        error?.response?.data?.error ||
+          "Error al guardar el logo"
+      );
+    } finally {
+      setSubiendoLogo(false);
+
+      // Permite volver a seleccionar el mismo archivo
+      e.target.value = "";
+    }
+  };
+
+  // ==============================
+  // GUARDAR PERFIL
+  // ==============================
 
   const guardar = async () => {
     try {
       await servicio.actualizarPerfil(perfil);
+
       alert("Perfil guardado");
     } catch (error) {
       console.error(error);
@@ -67,9 +156,14 @@ export default function PerfilClinica() {
           overflow: "hidden",
         }}
       >
+        {/* HEADER */}
         <Box
           sx={{
-            background: `linear-gradient(90deg, ${perfil.color_nav}, #1976d2)`,
+            background: `linear-gradient(
+              90deg,
+              ${perfil.color_nav},
+              #1976d2
+            )`,
             color: "#fff",
             p: 3,
           }}
@@ -85,6 +179,11 @@ export default function PerfilClinica() {
 
         <Box p={4}>
           <Grid container spacing={4}>
+
+            {/* ==============================
+                LOGO
+            ============================== */}
+
             <Grid item xs={12} md={4}>
               <Paper
                 variant="outlined"
@@ -95,18 +194,32 @@ export default function PerfilClinica() {
                 }}
               >
                 <Avatar
-                  src={perfil.foto}
+                  src={perfil.foto || ""}
+                  variant="rounded"
                   sx={{
                     width: 180,
                     height: 180,
                     margin: "auto",
                     mb: 2,
+                    border: "1px solid #ddd",
                   }}
                 />
 
-                <Button variant="contained" component="label">
-                  Cambiar Logo
-                  <input hidden type="file" />
+                <Button
+                  variant="contained"
+                  component="label"
+                  disabled={subiendoLogo}
+                >
+                  {subiendoLogo
+                    ? "Subiendo..."
+                    : "Cambiar Logo"}
+
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp"
+                    onChange={handleLogo}
+                  />
                 </Button>
 
                 <Typography
@@ -114,10 +227,22 @@ export default function PerfilClinica() {
                   color="text.secondary"
                   mt={2}
                 >
-                  PNG, JPG o SVG
+                  PNG, JPG, SVG o WEBP
+                </Typography>
+
+                <Typography
+                  variant="caption"
+                  display="block"
+                  color="text.secondary"
+                >
+                  Máximo 5 MB
                 </Typography>
               </Paper>
             </Grid>
+
+            {/* ==============================
+                DATOS GENERALES
+            ============================== */}
 
             <Grid item xs={12} md={8}>
               <Paper
@@ -137,12 +262,13 @@ export default function PerfilClinica() {
                 <Divider sx={{ mb: 3 }} />
 
                 <Grid container spacing={3}>
+
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
                       label="Nombre de la Clínica"
                       name="nombre_clinica"
-                      value={perfil.nombre_clinica}
+                      value={perfil.nombre_clinica || ""}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -153,7 +279,7 @@ export default function PerfilClinica() {
                       label="Contraseña"
                       name="password"
                       type="password"
-                      value={perfil.password}
+                      value={perfil.password || ""}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -185,6 +311,7 @@ export default function PerfilClinica() {
                       onChange={handleChange}
                     />
                   </Grid>
+
                 </Grid>
 
                 <Box
@@ -203,6 +330,8 @@ export default function PerfilClinica() {
               </Paper>
             </Grid>
           </Grid>
+
+          {/* PREVIEW */}
 
           <Paper
             sx={{
@@ -225,3 +354,5 @@ export default function PerfilClinica() {
     </Box>
   );
 }
+
+

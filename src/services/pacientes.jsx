@@ -250,5 +250,20 @@ const traerEmpresas = async (id) => {
 }
 
 
+const guardarlogo = async (formData) => {
+  const response = await axios.post(
+    `${baseUrl}guardarlogo`,
+    formData
+  );
 
-export default {traerespecialidades , eliminarEspecialidad,agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
+  return response.data;
+};
+
+const traerLogo = async (id) => {
+  const response = await axios.get(
+    `${baseUrl}traerlogo/${id}`
+  );
+
+  return response.data;
+};
+export default {traerLogo ,guardarlogo, traerespecialidades , eliminarEspecialidad,agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}

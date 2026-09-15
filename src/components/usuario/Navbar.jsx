@@ -1,99 +1,160 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/diente.jpeg";
-import  useUser from '../hooks/useUser'
 import {
   AppBar,
   Button,
-  Tab,
   Tabs,
   Toolbar,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import DrawerNav from "./DrawerNav";
-import serviciousuarios from "../../services/usuarios"
+import servicioPacientes from "../../services/pacientes";
 
-const Navbar = ( { colorNav }) => {
+const Navbar = ({ colorNav }) => {
 
-  const [usuario, setUsuario] = useState(null)
-  
-  const [user, setUser] = useState(null)
-  const [cargado, setCargado] = useState(false)
+  const [usuario, setUsuario] = useState(null);
+  const [logoUsuario, setLogoUsuario] = useState(logo);
+  const [user, setUser] = useState(null);
+  const [cargado, setCargado] = useState(false);
 
   const [value, setValue] = useState();
   const theme = useTheme();
 
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
+
   const islogo = {
-                  width: "100px",                  
-                  };
+    width: "100px",
+  };
+
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    traer()
-}, [])
-const traer = async () => {
+    traer();
+  }, []);
 
-  const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
+  const traer = async () => {
+    try {
 
-    const user = JSON.parse(loggedUserJSON)
-    console.log(user)
-if (user != null){
-       setUsuario(user)
+      const loggedUserJSON = window.localStorage.getItem(
+        "loggedNoteAppUser"
+      );
+
+      // No hay usuario logueado
+      if (!loggedUserJSON) {
+        setUsuario(null);
+        setLogoUsuario(logo);
+        setCargado(true);
+        return;
       }
-   
-  setCargado(true)
 
-}
+      const usuarioLocal = JSON.parse(loggedUserJSON);
+
+      console.log("👤 Usuario:", usuarioLocal);
+
+      if (!usuarioLocal?.id) {
+        setUsuario(null);
+        setLogoUsuario(logo);
+        setCargado(true);
+        return;
+      }
+
+      // Guardamos usuario
+      setUsuario(usuarioLocal);
+
+      // ============================
+      // TRAER LOGO
+      // ============================
+
+      const datosLogo = await servicioPacientes.traerLogo(
+        usuarioLocal.id
+      );
+
+      console.log("🖼️ Logo recibido:", datosLogo);
+
+      if (datosLogo?.logodir) {
+
+        const API = import.meta.env.VITE_API_URL;
+
+        setLogoUsuario(
+          `${API.replace(/\/$/, "")}${datosLogo.logodir}`
+        );
+
+      } else {
+
+        // No tiene logo
+        setLogoUsuario(logo);
+
+      }
+
+    } catch (error) {
+
+      console.error("❌ Error cargando usuario/logo:", error);
+
+      // Si falla algo mostramos el logo por defecto
+      setLogoUsuario(logo);
+
+    } finally {
+
+      setCargado(true);
+
+    }
+  };
 
   const handleClick = () => {
     navigate("/login");
   };
+
   const hanleLogout = () => {
- 
-     setUser(null)
-     //servicioUsuario.setToken(user.token) 
-         navigate('/login')
-     
-   
 
-     window.localStorage.removeItem('loggedNoteAppUser')
-   
+    setUser(null);
+    setUsuario(null);
 
-   } 
+    window.localStorage.removeItem("loggedNoteAppUser");
+
+    setLogoUsuario(logo);
+
+    navigate("/login");
+  };
 
   const inicio = () => {
-    navigate("/usuario2/clientes")
-    
+    navigate("/usuario2/clientes");
+  };
 
-  }
-  //1a303e COLOR AZUL OSCURO DEL NAV
   return (
     <React.Fragment>
-    <AppBar
-  sx={{
-    background: colorNav
-      ? `linear-gradient(
-          90deg,
-          ${colorNav} 0%,
-          ${colorNav}CC 50%,
-          ${colorNav}99 100%
-        )`
-      : "linear-gradient(90deg, #051821 0%, #051821 30%, #0b2a3a 45%, #01567c 65%, #148D8D 100%)"
-  }}
->
+
+      <AppBar
+        sx={{
+          background: colorNav
+            ? `linear-gradient(
+                90deg,
+                ${colorNav} 0%,
+                ${colorNav}CC 50%,
+                ${colorNav}99 100%
+              )`
+            : "linear-gradient(90deg, #051821 0%, #051821 30%, #0b2a3a 45%, #01567c 65%, #148D8D 100%)",
+        }}
+      >
+
         <Toolbar>
 
-          
-            <img style={islogo} src={logo} alt="logo" />
+          {/* LOGO */}
+          <img
+            style={islogo}
+            src={logoUsuario}
+            alt="logo"
+          />
+
           {isMatch ? (
-            <>
-              <DrawerNav />
-            </>
+
+            <DrawerNav />
+
           ) : (
+
             <>
+
               <Tabs
                 sx={{ marginLeft: "auto" }}
                 indicatorColor="Secondary"
@@ -101,33 +162,83 @@ if (user != null){
                 value={value}
                 onChange={(e, value) => setValue(value)}
               >
-                  {usuario &&  <Button onClick={inicio} sx={{ marginLeft: "10px" }} variant="Outlined">
-        
-              </Button>  }
-            
-                {cargado ? <div> <Button onClick={inicio} sx={{ marginLeft: "10px" }} variant="Outlined">
-                  {/* {user != undefined ? <> <Tab label= {`hola ${user.nombre}!`}/></>: <><Tab /></>} */}
-                  
-              </Button> </div>:<div></div>}
-              
+
+                {usuario && (
+                  <Button
+                    onClick={inicio}
+                    sx={{ marginLeft: "10px" }}
+                    variant="Outlined"
+                  >
+                  </Button>
+                )}
+
+                {cargado ? (
+
+                  <div>
+
+                    <Button
+                      onClick={inicio}
+                      sx={{ marginLeft: "10px" }}
+                      variant="Outlined"
+                    >
+                    </Button>
+
+                  </div>
+
+                ) : (
+
+                  <div></div>
+
+                )}
+
               </Tabs>
-              {usuario ?  <div> <Button onClick={hanleLogout} sx={{ marginLeft: "10px" }} variant="Outlined">
-                Cerrar Sesión
-              </Button> </div>:<div></div>}
 
+              {/* USUARIO LOGUEADO */}
+              {usuario ? (
 
-              {!usuario && <div>    <Button sx={{ marginLeft: "10px" }} variant="Outlined">
-                Registrarse
-              </Button>
-              <Button onClick={handleClick} sx={{ marginLeft: "auto" }} variant="Outlined">
-                Ingresar
-              </Button></div>}
-             
+                <div>
+
+                  <Button
+                    onClick={hanleLogout}
+                    sx={{ marginLeft: "10px" }}
+                    variant="Outlined"
+                  >
+                    Cerrar Sesión
+                  </Button>
+
+                </div>
+
+              ) : (
+
+                <div>
+
+                  <Button
+                    sx={{ marginLeft: "10px" }}
+                    variant="Outlined"
+                  >
+                    Registrarse
+                  </Button>
+
+                  <Button
+                    onClick={handleClick}
+                    sx={{ marginLeft: "auto" }}
+                    variant="Outlined"
+                  >
+                    Ingresar
+                  </Button>
+
+                </div>
+
+              )}
 
             </>
+
           )}
+
         </Toolbar>
+
       </AppBar>
+
     </React.Fragment>
   );
 };
