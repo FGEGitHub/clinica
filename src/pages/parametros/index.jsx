@@ -3,7 +3,7 @@ import  { useEffect, useState } from "react";
 import PAcintes from '../../components/usuario/parametros/componente';
 import {nivel} from '../../helpers/herlperlogin'
 import { useNavigate } from "react-router-dom";
-
+import Horarios from '../../components/usuario/parametros/horarios';
 import BarraLAteral from '../../components/usuario/menuizq'
 
 
@@ -46,6 +46,7 @@ export default function MenuUsuario2() {
       
     <BarraLAteral>
 <PAcintes/>
+<Horarios/>
  </BarraLAteral>
  </div>   :<div></div> } </div>
   );
