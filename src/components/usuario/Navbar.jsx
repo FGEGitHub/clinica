@@ -23,10 +23,11 @@ const Navbar = ({ colorNav }) => {
   const theme = useTheme();
 
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
-
-  const islogo = {
-    width: "100px",
-  };
+const islogo = {
+  width: "70px",
+  height: "50px",
+  objectFit: "contain",
+};
 
   const navigate = useNavigate();
 

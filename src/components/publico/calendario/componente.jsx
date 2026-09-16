@@ -41,7 +41,7 @@ const PaginaTurnosPublica = () => {
 
 
   const [turnos, setTurnos] = useState([]);
-
+const [horariosEstandar, setHorariosEstandar] = useState([]);
   const [selectedDate, setSelectedDate] =
     useState(new Date());
 
@@ -59,6 +59,7 @@ const [expirado, setExpirado] =
           // FORM
           // =========================
   const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
   const [dni, setDni] = useState("");
   const [telefono, setTelefono] = useState("");
   const [categoria, setCategoria] =
@@ -91,22 +92,187 @@ const [expirado, setExpirado] =
   // =========================
   // TRAER TURNOS
   // =========================
-  const traerTurnos = async () => {
-    
-const data =
-  await servicioDtc.traerturnosusuario(
-     id
-  );
+ const traerTurnos = async () => {
+  try {
+    const data = await servicioDtc.traerturnosusuario(id);
+
+    console.log("RESPUESTA TURNOS:", data);
+
+    const horarios = data?.[0] || [];
+    const turnosConFecha = data?.[1] || [];
+
+    setHorariosEstandar(horarios);
+
     setTurnos(
-      data.map((t) => ({
+      turnosConFecha.map((t) => ({
         ...t,
         fechaObj: startOfDay(
           parseISO(t.fecha)
         ),
       }))
     );
-  };
 
+  } catch (error) {
+    console.error("Error trayendo turnos:", error);
+  }
+};
+const generarHorariosDelDia = (date) => {
+
+  if (!date) return [];
+
+  // JS:
+  // 0 = domingo
+  // 1 = lunes
+  // 2 = martes
+  // ...
+  //
+  // Tu backend:
+  // 1 = lunes
+  // 2 = martes
+  // ...
+  // 7 = domingo
+
+  const diaSemana =
+    date.getDay() === 0
+      ? 7
+      : date.getDay();
+
+  // Horarios estándar correspondientes
+  // al día seleccionado
+  const horariosDelDia =
+    horariosEstandar.filter(
+      (h) =>
+        Number(h.dia) === diaSemana
+    );
+
+  // Turnos que ya existen para esa fecha
+  const turnosExistentes =
+    turnos.filter((t) =>
+      t.fecha &&
+      format(
+        parseISO(t.fecha),
+        "yyyy-MM-dd"
+      ) === format(date, "yyyy-MM-dd")
+    );
+
+  const resultado = [];
+
+  horariosDelDia.forEach((horario) => {
+
+    let horaActual = horario.hora_inicio;
+
+    while (
+      horaActual < horario.hora_fin
+    ) {
+
+      // Verificar si ya existe ese horario
+      const ocupado =
+        turnosExistentes.some(
+          (t) =>
+            t.hora === horaActual
+        );
+
+      if (!ocupado) {
+const calcularHoraFin = (
+  horaInicio,
+  duracion
+) => {
+
+  const [horas, minutos] =
+    horaInicio
+      .split(":")
+      .map(Number);
+
+  const fechaHora = new Date();
+
+  fechaHora.setHours(
+    horas,
+    minutos,
+    0,
+    0
+  );
+
+  fechaHora.setMinutes(
+    fechaHora.getMinutes() +
+      Number(duracion)
+  );
+
+  return format(
+    fechaHora,
+    "HH:mm"
+  );
+};
+resultado.push({
+
+  id: `libre-${format(
+    date,
+    "yyyy-MM-dd"
+  )}-${horaActual}`,
+
+  id_horario_estandar:
+    horario.id,
+
+  fecha: format(
+    date,
+    "yyyy-MM-dd"
+  ),
+
+  hora: horaActual,
+
+  hora_inicio: horaActual,
+
+  hora_fin: calcularHoraFin(
+    horaActual,
+    horario.duracion
+  ),
+
+  duracion: Number(
+    horario.duracion
+  ),
+
+  consulta_paga:
+    horario.consulta_paga,
+
+  especialidad:
+    horario.especialidad ||
+    null,
+
+  esDisponible: true,
+
+});
+
+      }
+
+      // avanzar según duración
+      const [horas, minutos] =
+        horaActual
+          .split(":")
+          .map(Number);
+
+      const fechaHora =
+        new Date();
+
+      fechaHora.setHours(
+        horas,
+        minutos,
+        0,
+        0
+      );
+
+      fechaHora.setMinutes(
+        fechaHora.getMinutes() +
+          Number(horario.duracion)
+      );
+
+      horaActual = format(
+        fechaHora,
+        "HH:mm"
+      );
+    }
+  });
+
+  return resultado;
+};
 useEffect(() => {
   traerTurnos();
 }, [id]);
@@ -240,9 +406,28 @@ useEffect(() => {
   // =========================
   // DÍAS CON TURNOS
   // =========================
-  const diasConTurnos = turnos.map(
-    (t) => t.fechaObj
-  );
+const tieneDisponibilidad = (date) => {
+
+  const diaSemana =
+    date.getDay() === 0
+      ? 7
+      : date.getDay();
+
+  const horariosDelDia =
+    horariosEstandar.filter(
+      (h) =>
+        Number(h.dia) === diaSemana
+    );
+
+  if (horariosDelDia.length === 0) {
+    return false;
+  }
+
+  const disponibles =
+    generarHorariosDelDia(date);
+
+  return disponibles.length > 0;
+};
 const formatearTiempo = (segundos) => {
 
   const min = Math.floor(
@@ -270,17 +455,20 @@ const formatearTiempo = (segundos) => {
     }, 200);
   };
 
-  useEffect(() => {
-    const lista = turnos.filter(
-      (t) =>
-        startOfDay(
-          parseISO(t.fecha)
-        ).getTime() ===
-        startOfDay(selectedDate).getTime()
+ useEffect(() => {
+
+  const lista =
+    generarHorariosDelDia(
+      selectedDate
     );
 
-    setTurnosDelDia(lista);
-  }, [turnos, selectedDate]);
+  setTurnosDelDia(lista);
+
+}, [
+  turnos,
+  horariosEstandar,
+  selectedDate
+]);
 
   // =========================
   // SCROLL FORM
@@ -304,73 +492,138 @@ useEffect(() => {
   // =========================
   // SOLICITAR TURNO
   // =========================
-  const solicitarTurno = async () => {
-    if (
-      !nombre ||
-      !dni ||
-      !telefono ||
-      !categoria
-    ) {
-      alert("Completá todos los datos 🙂");
-      return;
-    }
+const solicitarTurno = async () => {
+ if (
+  !nombre ||
+  !apellido ||
+  !dni ||
+  !telefono ||
+  !categoria
+) {
+    alert("Completá todos los datos 🙂");
+    return;
+  }
 
-    try {
-      setLoading(true);
-console.log(turnoSeleccionado.consulta_paga)
-     const servicio =
-  turnoSeleccionado.consulta_paga === "No"
-    ? servicioDtc.confirmarTurnoNoPago
-    : servicioDtc.solicitarturno;
+  if (!turnoSeleccionado) {
+    alert("Seleccioná un horario");
+    return;
+  }
 
-const resp = await servicio({
+  try {
+    setLoading(true);
+
+    console.log(
+      "TURNO SELECCIONADO:",
+      turnoSeleccionado
+    );
+
+    const servicio =
+      turnoSeleccionado.consulta_paga === "No"
+        ? servicioDtc.confirmarTurnoNoPago
+        : servicioDtc.solicitarturno;
+
+ const resp = await servicio({
   id_empresa: id,
-  id_turno: turnoSeleccionado.id,
+
+  fecha:
+    turnoSeleccionado.fecha,
+
+  hora:
+    turnoSeleccionado.hora,
+
+  hora_inicio:
+    turnoSeleccionado.hora_inicio,
+
+  hora_fin:
+    turnoSeleccionado.hora_fin,
+
+  duracion:
+    turnoSeleccionado.duracion,
+
+  id_horario_estandar:
+    turnoSeleccionado.id_horario_estandar,
+
+  especialidad:
+    turnoSeleccionado.especialidad,
+
   nombre,
+  apellido,
   dni,
   telefono,
   categoria,
-})
-if (turnoSeleccionado.consulta_paga === "No") {
+});
 
-  setEstadoSolicitud("confirmado");
+    console.log(
+      "RESPUESTA COMPLETA:",
+      resp
+    );
 
-  setOpenExito(true);
+    // ==================================
+    // TURNO SIN PAGO
+    // ==================================
 
-  traerTurnos();
+    if (
+      turnoSeleccionado.consulta_paga === "No"
+    ) {
 
-  return;
-}
-      console.log(
-  "RESPUESTA COMPLETA:",
-  resp
-);
+      setEstadoSolicitud(
+        "confirmado"
+      );
 
-console.log(
-  "ID SOLICITUD:",
-  resp.id_solicitud
-);;
+      setOpenExito(true);
 
-      // guardar id solicitud
-setSolicitudId(
-  turnoSeleccionado.id
-);
+      traerTurnos();
 
-      // guardar url pago
-      if (resp.pago_url) {
-        setPagoUrl(resp.pago_url);
-      }
-
-      // estado pendiente
-      setEstadoSolicitud("pendiente");
-
-    } catch (error) {
-      console.error(error);
-      alert("Error al solicitar turno");
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    // ==================================
+    // TURNO CON PAGO
+    // ==================================
+
+    console.log(
+      "ID SOLICITUD:",
+      resp.id_solicitud
+    );
+
+    // IMPORTANTE:
+    // Guardamos el ID REAL creado en backend
+    setSolicitudId(
+      resp.id_solicitud
+    );
+
+    if (resp.pago_url) {
+      setPagoUrl(
+        resp.pago_url
+      );
+    }
+
+    // Reiniciar contador
+    setTiempoRestante(300);
+    setExpirado(false);
+
+    setEstadoSolicitud(
+      "pendiente"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "ERROR SOLICITANDO TURNO:",
+      error
+    );
+
+    alert(
+      error?.response?.data?.message ||
+      "Error al solicitar turno"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
 
   // =========================
   // IR A PAGO
@@ -558,26 +811,29 @@ width: "100%",
     },
   }}
 >
-  <DayPicker
-    locale={es}
-    mode="single"
-    selected={selectedDate}
-    onSelect={cargarTurnosDelDia}
-    modifiers={{
-      tieneTurnos: diasConTurnos,
-    }}
-    modifiersStyles={{
-      tieneTurnos: {
-        backgroundColor: "#1976d2",
-        color: "#fff",
-        borderRadius: "50%",
-      },
-      selected: {
-        backgroundColor: "#0d47a1",
-        color: "#fff",
-      },
-    }}
-  />
+<DayPicker
+  locale={es}
+  mode="single"
+  selected={selectedDate}
+  onSelect={cargarTurnosDelDia}
+
+  modifiers={{
+    tieneTurnos: tieneDisponibilidad,
+  }}
+
+  modifiersStyles={{
+    tieneTurnos: {
+      backgroundColor: "#1976d2",
+      color: "#fff",
+      borderRadius: "50%",
+    },
+
+    selected: {
+      backgroundColor: "#0d47a1",
+      color: "#fff",
+    },
+  }}
+/>
 </Box>
           </Paper>
 
@@ -636,59 +892,59 @@ width: "100%",
                   </TableRow>
                 </TableHead>
 
-                <TableBody>
-                  {turnosDelDia.length >
-                  0 ? (
-                    turnosDelDia.map(
-                      (t) => (
-                        <TableRow
-                          key={t.id}
-                        >
-                          <TableCell>
-                            {t.hora}
-                          </TableCell>
- <TableCell>
-                            {t.especialidad || "Sin especialidad"}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="contained"
-                              disabled={
-                                t.id_pacientee
-                              }
-                              onClick={() => {
-                                if (
-                                  t.id_pacientee
-                                )
-                                  return;
+               <TableBody>
+  {turnosDelDia.length > 0 ? (
 
-                                setTurnoSeleccionado(
-                                  t
-                                );
+    turnosDelDia.map((t) => (
 
-                                scrollToFormulario();
-                              }}
-                            >
-                              {t.id_pacientee
-                                ? "Ocupado"
-                                : "Solicitar"}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={2}
-                        align="center"
-                      >
-                        No hay horarios
-                        disponibles
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
+      <TableRow key={t.id}>
+
+        <TableCell>
+          {t.hora}
+        </TableCell>
+
+        <TableCell>
+          {t.especialidad ||
+            "Sin especialidad"}
+        </TableCell>
+
+        <TableCell>
+
+          <Button
+            variant="contained"
+            onClick={() => {
+
+              setTurnoSeleccionado(t);
+
+              scrollToFormulario();
+
+            }}
+          >
+            Solicitar
+          </Button>
+
+        </TableCell>
+
+      </TableRow>
+
+    ))
+
+  ) : (
+
+    <TableRow>
+
+      <TableCell
+        colSpan={3}
+        align="center"
+      >
+        No hay horarios disponibles
+        para este día
+      </TableCell>
+
+    </TableRow>
+
+  )}
+</TableBody>
               </Table>
             </TableContainer>
           </Paper>
@@ -736,7 +992,7 @@ width: "100%",
               }}
             >
               <TextField
-                label="Nombre completo"
+                label="Nombre "
                 value={nombre}
                 onChange={(e) =>
                   setNombre(
@@ -748,7 +1004,16 @@ width: "100%",
                   "pendiente"
                 }
               />
-
+<TextField
+  label="Apellido"
+  value={apellido}
+  onChange={(e) =>
+    setApellido(e.target.value)
+  }
+  disabled={
+    estadoSolicitud === "pendiente"
+  }
+/>
               <TextField
                 label="DNI"
                 value={dni}
