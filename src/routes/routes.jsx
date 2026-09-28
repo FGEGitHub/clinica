@@ -11,7 +11,7 @@ import Calendariopublicoempresa from '../pages/publicocalendarioempresa';
 
 import Perfil from '../pages/perfil';
 import PArametros from '../pages/parametros';
-
+import MisHorarios from '../pages/horarios';
 
 
 
@@ -32,6 +32,7 @@ const Rutas = [
         
         { path: '/usuario/pacientenuevo', element: <Pacientenuevo /> },
         { path: '/usuario/turnos', element: <Turnos /> },
+              { path: '/usuario/horarios', element: <MisHorarios /> },
 
         { path: '/usuario/turno/:id', element: <Turno /> },
 

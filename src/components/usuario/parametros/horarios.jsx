@@ -57,6 +57,19 @@ const horas = [
   "19:30",
   "20:00",
 ];
+const categorias = [
+  "Consulta",
+  "Control",
+  "Primera vez",
+];
+
+const duraciones = [
+  { label: "30 minutos", value: 30 },
+  { label: "60 minutos", value: 60 },
+  { label: "90 minutos", value: 90 },
+  { label: "120 minutos", value: 120 },
+];
+
 
 const HorariosClinica = () => {
 
@@ -154,7 +167,47 @@ const HorariosClinica = () => {
     }
   };
 
+const convertirMinutos = (hora) => {
+  const [h, m] = hora.split(":").map(Number);
+  return h * 60 + m;
+};
 
+const haySolapamiento = (
+  dia,
+  horaInicio,
+  duracion
+) => {
+
+  const inicioNuevo =
+    convertirMinutos(horaInicio);
+
+  const finNuevo =
+    inicioNuevo + duracion;
+
+  return horarios.some((h) => {
+
+    if (
+      Number(h.dia) !== Number(dia)
+    ) {
+      return false;
+    }
+
+    const inicioExistente =
+      convertirMinutos(
+        h.hora_inicio
+      );
+
+    const finExistente =
+      convertirMinutos(
+        h.hora_fin
+      );
+
+    return (
+      inicioNuevo < finExistente &&
+      finNuevo > inicioExistente
+    );
+  });
+};
   // =====================================================
   // CALCULAR HORA FIN
   // =====================================================

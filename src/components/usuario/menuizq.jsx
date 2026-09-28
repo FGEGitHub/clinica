@@ -72,19 +72,22 @@ const traerDatos = async () => {
 };
 
   const handleClick = (item) => {
-    // abrir en nueva pestaña
-    if (item.newTab) {
-      window.open(item.path, "_blank");
-      return;
-    }
 
-    navigate(item.path);
+  if (!item.path) {
+    return;
+  }
 
-    if (isMobile) {
-      setMenuOpen(false);
-    }
-  };
+  if (item.newTab) {
+    window.open(item.path, "_blank");
+    return;
+  }
 
+  navigate(item.path);
+
+  if (isMobile) {
+    setMenuOpen(false);
+  }
+};
   const menuItemsNivel2 = [
     {
       text: "Ver Clientes",
@@ -112,7 +115,10 @@ const traerDatos = async () => {
 {
   text: "Ir a Calendario publico",
   icon: <NfcIcon />,
-  path: `/calendariop/${user?.id}`,
+  path: user?.id
+    ? `/calendariop/${user.id}`
+    : null,
+  newTab: true,
 },
       {
       text: "Perfil",
@@ -124,6 +130,12 @@ const traerDatos = async () => {
       text: "Config parametros",
       icon: <NfcIcon />,
       path: "/usuario/parametros",
+     
+    },
+         {
+      text: "Mis horarios",
+      icon: <NfcIcon />,
+      path: "/usuario/horarios",
      
     },
   ];
