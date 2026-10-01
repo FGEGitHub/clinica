@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -6,71 +7,87 @@ import {
   MenuItem,
   Button,
   Popover,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import servicioPacientes from "../../../services/pacientes";
 
-const categorias = [
-  { value: "consulta", label: "Consulta" },
-  { value: "control", label: "Control" },
-  { value: "urgencia", label: "Urgencia" },
-];
-
 const AgendarTurno = ({ idTurno, onAgendar }) => {
   const [pacientes, setPacientes] = useState([]);
+  const [especialidades, setEspecialidades] = useState([]);
   const [pacienteSel, setPacienteSel] = useState(null);
-  const [categoria, setCategoria] = useState("");
+  const [especialidad, setEspecialidad] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // Traer pacientes
+  // Traer pacientes y especialidades
   useEffect(() => {
-    const traer = async () => {
+    const traerDatos = async () => {
       try {
-          const usuario = JSON.parse(
-    window.localStorage.getItem("loggedNoteAppUser")
-  );
+        const usuario = JSON.parse(
+          window.localStorage.getItem("loggedNoteAppUser")
+        );
 
-        const data = await servicioPacientes.traerpacientes(usuario.id);
-        setPacientes(data);
+        // Traer pacientes
+        const pacientesData =
+          await servicioPacientes.traerpacientes(usuario.id);
+
+        setPacientes(pacientesData);
+
+        // Traer especialidades
+        const especialidadesData =
+          await servicioPacientes.traerespecialidades(usuario.id);
+
+        setEspecialidades(especialidadesData);
+
       } catch (error) {
-        console.error("Error cargando pacientes", error);
+        console.error("Error cargando pacientes/especialidades", error);
       }
     };
-    traer();
+
+    traerDatos();
   }, []);
 
   // Popover control
-  const abrir = (event) => setAnchorEl(event.currentTarget);
-  const cerrar = () => setAnchorEl(null);
+  const abrir = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const cerrar = () => {
+    setAnchorEl(null);
+  };
 
   // Confirmar agenda
   const handleAgendar = () => {
-    if (!pacienteSel || !categoria) {
-      alert("Seleccione paciente y categoría");
+    if (!pacienteSel || !especialidad) {
+      alert("Seleccione paciente y especialidad");
       return;
     }
 
     onAgendar({
       id_turno: idTurno,
       id_paciente: pacienteSel.id,
-      categoria: categoria
+      especialidad: especialidad,
     });
 
-    // limpiar y cerrar
+    // Limpiar
     setPacienteSel(null);
-    setCategoria("");
+    setEspecialidad("");
+
     cerrar();
   };
 
   return (
     <>
       {/* Botón visible en la tabla */}
-      <Button variant="contained" size="small" onClick={abrir}>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={abrir}
+      >
         Agendar
       </Button>
 
-      {/* Popover desplegable */}
+      {/* Popover */}
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -89,35 +106,61 @@ const AgendarTurno = ({ idTurno, onAgendar }) => {
             minWidth: 260,
           }}
         >
-          <Typography variant="subtitle1" fontWeight="bold">
+          <Typography
+            variant="subtitle1"
+            fontWeight="bold"
+          >
             Asignar paciente
           </Typography>
 
+          {/* PACIENTE */}
           <Autocomplete
             options={pacientes}
-            getOptionLabel={(p) => `${p.apellido} ${p.nombre}`}
+            getOptionLabel={(p) =>
+              `${p.apellido} ${p.nombre}`
+            }
             value={pacienteSel}
-            onChange={(e, newValue) => setPacienteSel(newValue)}
+            onChange={(e, newValue) =>
+              setPacienteSel(newValue)
+            }
             renderInput={(params) => (
-              <TextField {...params} label="Paciente" size="small" />
+              <TextField
+                {...params}
+                label="Paciente"
+                size="small"
+              />
             )}
           />
 
+          {/* ESPECIALIDAD */}
           <TextField
             select
-            label="Categoría"
+            label="Especialidad"
             size="small"
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
+            value={especialidad}
+            onChange={(e) =>
+              setEspecialidad(e.target.value)
+            }
           >
-            {categorias.map((c) => (
-              <MenuItem key={c.value} value={c.value}>
-                {c.label}
+            <MenuItem value="">
+              Seleccionar especialidad
+            </MenuItem>
+
+            {especialidades.map((esp) => (
+              <MenuItem
+                key={esp.id}
+                value={esp.nombre}
+              >
+                {esp.nombre}
               </MenuItem>
             ))}
           </TextField>
 
-          <Button variant="contained" onClick={handleAgendar}>
+          {/* CONFIRMAR */}
+          <Button
+            variant="contained"
+            onClick={handleAgendar}
+          >
             Confirmar
           </Button>
         </Box>

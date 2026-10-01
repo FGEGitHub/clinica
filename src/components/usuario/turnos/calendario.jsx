@@ -145,53 +145,47 @@ const calcularHoraFin = (
 const generarHorariosDelDia = (date) => {
   if (!date) return [];
 
-  // JavaScript:
-  // 0 = domingo
-  // 1 = lunes
-  // ...
-  // 6 = sábado
+  const fechaSeleccionada = format(date, "yyyy-MM-dd");
 
-  // Tu BD:
-  // 1 = lunes
-  // 2 = martes
-  // ...
-  // 7 = domingo
-
+  // Día de semana BD: lunes=1 ... domingo=7
   const diaSemana =
     date.getDay() === 0
       ? 7
       : date.getDay();
 
-  // Horarios configurados para ese día
+  // Horarios estándar configurados para ese día
   const horariosDelDia = horariosEstandar.filter(
     (h) => Number(h.dia) === diaSemana
   );
 
-  // Turnos que ya existen para esa fecha
+  // Todos los turnos creados para esa fecha
   const turnosExistentes = turnos.filter(
     (t) =>
       t.fecha &&
       format(parseISO(t.fecha), "yyyy-MM-dd") ===
-        format(date, "yyyy-MM-dd")
+        fechaSeleccionada
   );
 
   const resultado = [];
+
+  // Guardamos las horas que ya fueron agregadas
+  const horasAgregadas = new Set();
+
+  // ==========================================
+  // 1. GENERAR HORARIOS ESTÁNDAR
+  // ==========================================
 
   horariosDelDia.forEach((horario) => {
     let horaActual = horario.hora_inicio;
 
     while (horaActual < horario.hora_fin) {
 
-      // ¿Este horario ya está ocupado?
       const turnoExistente = turnosExistentes.find(
         (t) => t.hora === horaActual
       );
 
-      // ==============================
-      // SI YA EXISTE EL TURNO
-      // ==============================
-
       if (turnoExistente) {
+
         resultado.push({
           ...turnoExistente,
 
@@ -218,26 +212,20 @@ const generarHorariosDelDia = (date) => {
             null,
 
           esDisponible: false,
+
+          esExcepcional: false,
         });
-      }
 
-      // ==============================
-      // SI ESTÁ LIBRE
-      // ==============================
+        horasAgregadas.add(turnoExistente.hora);
 
-      else {
+      } else {
+
         resultado.push({
-          id: `libre-${format(
-            date,
-            "yyyy-MM-dd"
-          )}-${horaActual}`,
+          id: `libre-${fechaSeleccionada}-${horaActual}`,
 
           id_horario_estandar: horario.id,
 
-          fecha: format(
-            date,
-            "yyyy-MM-dd"
-          ),
+          fecha: fechaSeleccionada,
 
           hora: horaActual,
 
@@ -260,16 +248,14 @@ const generarHorariosDelDia = (date) => {
 
           esDisponible: true,
 
-          // Para que la tabla pueda mostrarlo
+          esExcepcional: false,
+
           apellido: "",
           nombre: "",
         });
       }
 
-      // ==============================
-      // AVANZAR SEGÚN DURACIÓN
-      // ==============================
-
+      // Avanzar según duración
       const [horas, minutos] =
         horaActual
           .split(":")
@@ -295,6 +281,49 @@ const generarHorariosDelDia = (date) => {
       );
     }
   });
+
+  // ==========================================
+  // 2. AGREGAR TURNOS EXCEPCIONALES
+  // ==========================================
+
+  turnosExistentes.forEach((turno) => {
+
+    // Si ya fue agregado dentro del horario estándar,
+    // no lo volvemos a agregar
+    if (horasAgregadas.has(turno.hora)) {
+      return;
+    }
+
+    resultado.push({
+      ...turno,
+
+      hora_inicio:
+        turno.hora_inicio ||
+        turno.hora,
+
+      hora_fin:
+        turno.hora_fin ||
+        calcularHoraFin(
+          turno.hora,
+          turno.duracion || 30
+        ),
+
+      duracion:
+        Number(turno.duracion) || 30,
+
+      esDisponible: false,
+
+      esExcepcional: true,
+    });
+  });
+
+  // ==========================================
+  // 3. ORDENAR POR HORA
+  // ==========================================
+
+  resultado.sort((a, b) =>
+    a.hora.localeCompare(b.hora)
+  );
 
   return resultado;
 };
@@ -323,19 +352,71 @@ const generarHorariosDelDia = (date) => {
 }, []);
 
   // --- Marcar días con turnos ---
-const tieneDisponibilidad = (date) => {
-  if (!date) return false;
+// --- Marcar días con horarios habituales ---
+  const tieneTurnosHabituales = (date) => {
+    if (!date) return false;
 
-  const diaSemana =
-    date.getDay() === 0
-      ? 7
-      : date.getDay();
+    const fecha = format(date, "yyyy-MM-dd");
 
-  return horariosEstandar.some(
-    (h) =>
-      Number(h.dia) === diaSemana
-  );
-};
+    const diaSemana =
+      date.getDay() === 0
+        ? 7
+        : date.getDay();
+
+    const horariosDelDia = horariosEstandar.filter(
+      (h) => Number(h.dia) === diaSemana
+    );
+
+    const turnosDelDia = turnos.filter(
+      (t) =>
+        t.fecha &&
+        format(parseISO(t.fecha), "yyyy-MM-dd") === fecha
+    );
+
+    return turnosDelDia.some((turno) => {
+      return horariosDelDia.some((horario) => {
+        return (
+          turno.hora >= horario.hora_inicio &&
+          turno.hora < horario.hora_fin
+        );
+      });
+    });
+  };
+
+// --- Marcar días con turnos excepcionales ---
+  const tieneTurnoExcepcional = (date) => {
+    if (!date) return false;
+
+    const fecha = format(date, "yyyy-MM-dd");
+
+    const diaSemana =
+      date.getDay() === 0
+        ? 7
+        : date.getDay();
+
+    const horariosDelDia = horariosEstandar.filter(
+      (h) => Number(h.dia) === diaSemana
+    );
+
+    const turnosDelDia = turnos.filter(
+      (t) =>
+        t.fecha &&
+        format(parseISO(t.fecha), "yyyy-MM-dd") === fecha
+    );
+
+    if (turnosDelDia.length === 0) {
+      return false;
+    }
+
+    return turnosDelDia.some((turno) => {
+      return !horariosDelDia.some((horario) => {
+        return (
+          turno.hora >= horario.hora_inicio &&
+          turno.hora < horario.hora_fin
+        );
+      });
+    });
+  };
 
   // --- Cuando selecciono un día ---
 const cargarTurnosDelDia = (date) => {
@@ -390,41 +471,39 @@ useEffect(() => {
     borderRadius: 2,
   }}
 >
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-          Calendario de Turnos
-        </Typography>
+       <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+  Calendario de Turnos
+</Typography>
 
- <Box
+<Box
   sx={{
     width: "100%",
     display: "flex",
     justifyContent: "center",
 
-"& .rdp": {
-  margin: 0,
-  width: "100%",
-  maxWidth: {
-    xs: "100%",
-    md: "850px",
-  },
+    "& .rdp": {
+      margin: 0,
+      width: "100%",
+      maxWidth: {
+        xs: "100%",
+        md: "850px",
+      },
 
-  "--rdp-accent-color": "#3b82f6",
-  "--rdp-background-color": "#343438",
-},
+      "--rdp-accent-color": "#3b82f6",
+      "--rdp-background-color": "#343438",
+    },
 
-    /* CONTENEDOR DEL MES */
-  "& .rdp-month": {
-  width: "100%",
-  backgroundColor: "#2b2b2e",
-  borderRadius: "16px",
-  padding: {
-    xs: "8px",
-    md: "20px",
-  },
-  boxSizing: "border-box",
-},
+    "& .rdp-month": {
+      width: "100%",
+      backgroundColor: "#2b2b2e",
+      borderRadius: "16px",
+      padding: {
+        xs: "8px",
+        md: "20px",
+      },
+      boxSizing: "border-box",
+    },
 
-    /* ENCABEZADO DEL MES */
     "& .rdp-month_caption": {
       height: {
         xs: "50px",
@@ -442,7 +521,6 @@ useEffect(() => {
       textTransform: "capitalize",
     },
 
-    /* BOTONES ANTERIOR / SIGUIENTE */
     "& .rdp-button_previous, & .rdp-button_next": {
       width: {
         xs: "38px",
@@ -456,7 +534,6 @@ useEffect(() => {
       border: "1px solid #bbdefb",
       backgroundColor: "#e3f2fd",
       color: "#1565c0",
-      transition: "all 0.2s ease",
 
       "&:hover": {
         backgroundColor: "#bbdefb",
@@ -464,7 +541,6 @@ useEffect(() => {
       },
     },
 
-    /* TABLA */
     "& .rdp-month_grid": {
       width: "100%",
     },
@@ -474,7 +550,6 @@ useEffect(() => {
       maxWidth: "100%",
     },
 
-    /* DÍAS DE LA SEMANA */
     "& .rdp-head_cell": {
       fontSize: {
         xs: "0.75rem",
@@ -488,103 +563,73 @@ useEffect(() => {
       },
       textTransform: "uppercase",
     },
-/* CELDAS */
-"& .rdp-cell": {
-  padding: {
-    xs: "2px",
-    md: "6px",
-  },
-  textAlign: "center",
-  verticalAlign: "middle",
-},
 
-/* DÍAS */
-"& .rdp-day": {
-  width: {
-    xs: "36px",
-    md: "85px",
-  },
-  height: {
-    xs: "36px",
-    md: "85px",
-  },
-  maxWidth: {
-    xs: "36px",
-    md: "85px",
-  },
-  padding: 0,
-  margin: "0 auto",
+    "& .rdp-cell": {
+      padding: {
+        xs: "2px",
+        md: "6px",
+      },
+      textAlign: "center",
+      verticalAlign: "middle",
+    },
 
-  fontSize: {
-    xs: "0.8rem",
-    md: "1.35rem",
-  },
+    "& .rdp-day": {
+      width: {
+        xs: "36px",
+        md: "85px",
+      },
+      height: {
+        xs: "36px",
+        md: "85px",
+      },
+      maxWidth: {
+        xs: "36px",
+        md: "85px",
+      },
+      padding: 0,
+      margin: "0 auto",
 
-  fontWeight: "500",
-  borderRadius: "50%",
-  color: "#e4e4e7",
+      fontSize: {
+        xs: "0.8rem",
+        md: "1.35rem",
+      },
 
-  transition: "all 0.2s ease",
-},
+      fontWeight: "500",
+      borderRadius: "50%",
+      color: "#e4e4e7",
+    },
 
-/* BOTÓN INTERNO DEL DÍA */
-"& .rdp-day_button": {
-  width: {
-    xs: "36px",
-    md: "85px",
-  },
-  height: {
-    xs: "36px",
-    md: "85px",
-  },
-  maxWidth: {
-    xs: "36px",
-    md: "85px",
-  },
-  padding: 0,
-  margin: "0 auto",
-  borderRadius: "50%",
-  fontSize: {
-    xs: "0.8rem",
-    md: "1.35rem",
-  },
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-},
-/* BOTÓN INTERNO DEL DÍA */
-"& .rdp-day_button": {
-  width: {
-    xs: "36px",
-    md: "85px",
-  },
-  height: {
-    xs: "36px",
-    md: "85px",
-  },
-  maxWidth: {
-    xs: "36px",
-    md: "85px",
-  },
-  padding: 0,
-  margin: "0 auto",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: "50%",
-  fontSize: {
-    xs: "0.8rem",
-    md: "1.35rem",
-  },
-},
-    /* HOVER */
+    "& .rdp-day_button": {
+      width: {
+        xs: "36px",
+        md: "85px",
+      },
+      height: {
+        xs: "36px",
+        md: "85px",
+      },
+      maxWidth: {
+        xs: "36px",
+        md: "85px",
+      },
+      padding: 0,
+      margin: "0 auto",
+      borderRadius: "50%",
+      fontSize: {
+        xs: "0.8rem",
+        md: "1.35rem",
+      },
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
     "& .rdp-day:hover:not([disabled])": {
       backgroundColor: "#e3f2fd",
       color: "#1565c0",
       transform: "scale(1.08)",
     },
 
-    /* DÍA SELECCIONADO */
     "& .rdp-selected .rdp-day_button": {
       backgroundColor: "#1976d2",
       color: "#ffffff",
@@ -592,33 +637,61 @@ useEffect(() => {
       boxShadow: "0 4px 10px rgba(25, 118, 210, 0.35)",
     },
 
-    /* DÍA ACTUAL */
     "& .rdp-today:not(.rdp-selected) .rdp-day_button": {
       color: "#1976d2",
       fontWeight: "700",
       border: "2px solid #1976d2",
     },
 
-
-/* DÍAS QUE TIENEN TURNOS */
+    // 🟢 HORARIO HABITUAL
+   // 🟢 DÍA CON TURNOS HABITUALES
 "& .dia-con-turnos": {
   backgroundColor: "#c8e6c9 !important",
   color: "#1b5e20 !important",
   fontWeight: "700",
   borderRadius: "50%",
+  position: "relative",
 },
 
-"& .rdp-selected.dia-con-turnos": {
-  backgroundColor: "#1976d2 !important",
-  color: "#ffffff !important",
+// 🟠 DÍA CON TURNO EXCEPCIONAL
+"& .dia-con-excepcional": {
+  position: "relative",
 },
 
-    /* DÍAS FUERA DEL MES */
+"& .dia-con-excepcional::after": {
+  content: '"*"',
+  position: "absolute",
+
+  top: {
+    xs: "1px",
+    md: "5px",
+  },
+
+  right: {
+    xs: "2px",
+    md: "8px",
+  },
+
+  fontSize: {
+    xs: "16px",
+    md: "24px",
+  },
+
+  fontWeight: "900",
+  color: "#f57c00",
+  lineHeight: 1,
+  zIndex: 2,
+},
+
+    "& .rdp-selected.dia-con-turnos": {
+      backgroundColor: "#1976d2 !important",
+      color: "#ffffff !important",
+    },
+
     "& .rdp-outside": {
       opacity: 0.35,
     },
 
-    /* DÍAS DESHABILITADOS */
     "& .rdp-disabled": {
       opacity: 0.3,
     },
@@ -631,14 +704,46 @@ useEffect(() => {
   onSelect={cargarTurnosDelDia}
 
   modifiers={{
-    tieneTurnos: tieneDisponibilidad,
+    tieneTurnos: tieneTurnosHabituales,
+    tieneExcepcional: tieneTurnoExcepcional,
   }}
 
   modifiersClassNames={{
     tieneTurnos: "dia-con-turnos",
+    tieneExcepcional: "dia-con-excepcional",
   }}
 />
 </Box>
+
+{/* LEYENDA */}
+<Box
+  sx={{
+    display: "flex",
+    gap: 3,
+    mt: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+  }}
+>
+  <Typography variant="body2">
+    🟢 Turnos habituales
+  </Typography>
+
+  <Typography variant="body2">
+    <span
+      style={{
+        color: "#f57c00",
+        fontWeight: "bold",
+        fontSize: "18px",
+      }}
+    >
+      *
+    </span>{" "}
+    Turno excepcional
+  </Typography>
+</Box>
+
       </Paper>
 
       {/* --- TABLA DE TURNOS DEL DÍA --- */}
@@ -740,7 +845,9 @@ useEffect(() => {
 
         <TableCell>
           <strong>
-            {t.hora}
+            {t.hora} {t.esDisponible
+            ? "Disponible"
+            : `Ocupado`}
           </strong>
         </TableCell>
 
@@ -797,7 +904,7 @@ useEffect(() => {
       fontWeight: "bold",
     }}
   >
-    Agendar
+    Crear turno
   </button>
 ) : (
   <AgendarTurno
