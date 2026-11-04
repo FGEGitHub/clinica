@@ -14,7 +14,7 @@ export default function MenuUsuario2() {
     <Box
       sx={{
       //  minHeight: "100vh",
-        background: "linear-gradient(180deg, #f4f8fb 0%, #ffffff 60%)",
+        background: "linear-gradient(180deg, #f4f8fb 0%, #ffffff 90%)",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
