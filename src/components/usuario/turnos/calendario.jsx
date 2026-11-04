@@ -5,6 +5,7 @@ import { startOfDay, format, parseISO } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import AgendarTurno from "./AgendarTurno";
+import { usePanelTheme } from "../menuizq";
 
 import {
   Box,
@@ -17,11 +18,59 @@ import {
   TableHead,
   TableRow,
   Slider,
+  Button,
+  TextField,
+  MenuItem,
+  Chip,
+  Divider,
 } from "@mui/material";
+
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AddIcon from "@mui/icons-material/Add";
 
 import servicioDtc from "../../../services/pacientes";
 
 const CalendarioTurnos = () => {
+
+  // =========================================================
+  // TEMA HEREDADO DEL COMPONENTE PADRE
+  // =========================================================
+
+  const { mode, colors } = usePanelTheme();
+  const isDark = mode === "dark";
+
+  const panel = {
+    background: colors.card,
+    text: colors.text,
+    secondary: colors.secondary,
+    border: colors.border,
+    active: colors.active,
+    primary: colors.primary,
+  };
+
+  const inputStyles = {
+    "& .MuiOutlinedInput-root": {
+      color: panel.text,
+      backgroundColor: isDark ? "#172235" : "#f8fafc",
+      borderRadius: 2,
+      "& fieldset": {
+        borderColor: panel.border,
+      },
+      "&:hover fieldset": {
+        borderColor: panel.primary,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: panel.primary,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: panel.secondary,
+    },
+    "& .MuiSvgIcon-root": {
+      color: panel.secondary,
+    },
+  };
+
   const [turnos, setTurnos] = useState([]);
   const [horariosEstandar, setHorariosEstandar] = useState([]);
 
@@ -38,7 +87,7 @@ const CalendarioTurnos = () => {
   const [especialidadNueva, setEspecialidadNueva] = useState("");
 
   // =========================================================
-  // TRAER TURNOS Y HORARIOS
+  // TRAER TURNOS
   // =========================================================
 
   const traerTurnos = async () => {
@@ -49,16 +98,8 @@ const CalendarioTurnos = () => {
 
       const data = await servicioDtc.traerturnosusuario(usuario.id);
 
-      console.log("RESPUESTA TURNOS:", data);
-
-      // data[0] = horarios habituales
-      // data[1] = turnos asignados/creados
-
       const horarios = data?.[0] || [];
       const turnosAsignados = data?.[1] || [];
-
-      console.log("HORARIOS ESTANDAR:", horarios);
-      console.log("TURNOS:", turnosAsignados);
 
       setHorariosEstandar(horarios);
 
@@ -70,6 +111,7 @@ const CalendarioTurnos = () => {
             : null,
         }))
       );
+
     } catch (error) {
       console.error("Error trayendo turnos:", error);
     }
@@ -80,6 +122,7 @@ const CalendarioTurnos = () => {
   // =========================================================
 
   const guardarNuevoTurno = async () => {
+
     if (!selectedDate || !horaNueva) {
       alert("Seleccioná una fecha y una hora");
       return;
@@ -109,6 +152,7 @@ const CalendarioTurnos = () => {
       setObsNueva("");
 
       await traerTurnos();
+
     } catch (error) {
       console.error(error);
       alert("Error al guardar turno");
@@ -122,6 +166,7 @@ const CalendarioTurnos = () => {
   // =========================================================
 
   const calcularHoraFin = (horaInicio, duracion) => {
+
     const [horas, minutos] = horaInicio.split(":").map(Number);
 
     const fechaHora = new Date();
@@ -140,77 +185,50 @@ const CalendarioTurnos = () => {
   // =========================================================
 
   const generarHorariosDelDia = (date) => {
+
     if (!date) return [];
 
-    const fechaSeleccionada = format(
-      date,
-      "yyyy-MM-dd"
-    );
-
-    // Lunes = 1
-    // ...
-    // Domingo = 7
+    const fechaSeleccionada = format(date, "yyyy-MM-dd");
 
     const diaSemana =
-      date.getDay() === 0
-        ? 7
-        : date.getDay();
+      date.getDay() === 0 ? 7 : date.getDay();
 
-    // Horarios habituales configurados para ese día
-    const horariosDelDia =
-      horariosEstandar.filter(
-        (h) => Number(h.dia) === diaSemana
-      );
+    const horariosDelDia = horariosEstandar.filter(
+      (h) => Number(h.dia) === diaSemana
+    );
 
-    // Turnos existentes para esa fecha
-    const turnosExistentes =
-      turnos.filter(
-        (t) =>
-          t.fecha &&
-          format(
-            parseISO(t.fecha),
-            "yyyy-MM-dd"
-          ) === fechaSeleccionada
-      );
+    const turnosExistentes = turnos.filter(
+      (t) =>
+        t.fecha &&
+        format(parseISO(t.fecha), "yyyy-MM-dd") === fechaSeleccionada
+    );
 
     const resultado = [];
-
     const horasAgregadas = new Set();
 
-    // =====================================================
-    // 1. GENERAR HORARIOS HABITUALES
-    // =====================================================
-
     horariosDelDia.forEach((horario) => {
+
       let horaActual = horario.hora_inicio;
 
       while (horaActual < horario.hora_fin) {
-        const turnoExistente =
-          turnosExistentes.find(
-            (t) => t.hora === horaActual
-          );
 
-        // -------------------------------------------------
-        // YA EXISTE UN TURNO EN ESA HORA
-        // -------------------------------------------------
+        const turnoExistente = turnosExistentes.find(
+          (t) => t.hora === horaActual
+        );
 
         if (turnoExistente) {
+
           resultado.push({
             ...turnoExistente,
 
-            id_horario_estandar:
-              horario.id,
+            id_horario_estandar: horario.id,
 
             hora_inicio:
-              turnoExistente.hora_inicio ||
-              horaActual,
+              turnoExistente.hora_inicio || horaActual,
 
             hora_fin:
               turnoExistente.hora_fin ||
-              calcularHoraFin(
-                horaActual,
-                horario.duracion
-              ),
+              calcularHoraFin(horaActual, horario.duracion),
 
             duracion:
               turnoExistente.duracion ||
@@ -222,30 +240,20 @@ const CalendarioTurnos = () => {
               null,
 
             esDisponible: false,
-
             esExcepcional: false,
           });
 
-          horasAgregadas.add(
-            turnoExistente.hora
-          );
-        }
+          horasAgregadas.add(turnoExistente.hora);
 
-        // -------------------------------------------------
-        // HORARIO HABITUAL LIBRE
-        // -------------------------------------------------
+        } else {
 
-        else {
           resultado.push({
             id: `libre-${fechaSeleccionada}-${horaActual}`,
 
-            id_horario_estandar:
-              horario.id,
+            id_horario_estandar: horario.id,
 
             fecha: fechaSeleccionada,
-
             hora: horaActual,
-
             hora_inicio: horaActual,
 
             hora_fin: calcularHoraFin(
@@ -253,19 +261,13 @@ const CalendarioTurnos = () => {
               horario.duracion
             ),
 
-            duracion: Number(
-              horario.duracion
-            ),
+            duracion: Number(horario.duracion),
 
-            consulta_paga:
-              horario.consulta_paga,
+            consulta_paga: horario.consulta_paga,
 
-            especialidad:
-              horario.especialidad ||
-              null,
+            especialidad: horario.especialidad || null,
 
             esDisponible: true,
-
             esExcepcional: false,
 
             apellido: "",
@@ -273,68 +275,43 @@ const CalendarioTurnos = () => {
           });
         }
 
-        // Avanzar según duración
-        const [horas, minutos] =
-          horaActual
-            .split(":")
-            .map(Number);
+        const [horas, minutos] = horaActual
+          .split(":")
+          .map(Number);
 
         const fechaHora = new Date();
 
-        fechaHora.setHours(
-          horas,
-          minutos,
-          0,
-          0
-        );
+        fechaHora.setHours(horas, minutos, 0, 0);
 
         fechaHora.setMinutes(
-          fechaHora.getMinutes() +
-            Number(horario.duracion)
+          fechaHora.getMinutes() + Number(horario.duracion)
         );
 
-        horaActual = format(
-          fechaHora,
-          "HH:mm"
-        );
+        horaActual = format(fechaHora, "HH:mm");
       }
     });
 
-    // =====================================================
-    // 2. AGREGAR TURNOS EXCEPCIONALES
-    // =====================================================
+    // TURNOS EXCEPCIONALES
 
     turnosExistentes.forEach((turno) => {
-      if (horasAgregadas.has(turno.hora)) {
-        return;
-      }
+
+      if (horasAgregadas.has(turno.hora)) return;
 
       resultado.push({
         ...turno,
 
-        hora_inicio:
-          turno.hora_inicio ||
-          turno.hora,
+        hora_inicio: turno.hora_inicio || turno.hora,
 
         hora_fin:
           turno.hora_fin ||
-          calcularHoraFin(
-            turno.hora,
-            turno.duracion || 30
-          ),
+          calcularHoraFin(turno.hora, turno.duracion || 30),
 
-        duracion:
-          Number(turno.duracion) || 30,
+        duracion: Number(turno.duracion) || 30,
 
         esDisponible: false,
-
         esExcepcional: true,
       });
     });
-
-    // =====================================================
-    // 3. ORDENAR
-    // =====================================================
 
     resultado.sort((a, b) =>
       a.hora.localeCompare(b.hora)
@@ -342,152 +319,114 @@ const CalendarioTurnos = () => {
 
     return resultado;
   };
-// 🔵 MARCAR DÍAS QUE TIENEN TURNOS EXISTENTES
-const tieneTurnosExistentes = (date) => {
-  if (!date) return false;
 
-  const fecha = format(date, "yyyy-MM-dd");
+  // =========================================================
+  // INDICADORES DEL CALENDARIO
+  // =========================================================
 
-  return turnos.some(
-    (turno) =>
-      turno.fecha &&
-      format(
-        parseISO(turno.fecha),
-        "yyyy-MM-dd"
-      ) === fecha
-  );
-}; 
+  const tieneTurnosExistentes = (date) => {
+
+    if (!date) return false;
+
+    const fecha = format(date, "yyyy-MM-dd");
+
+    return turnos.some(
+      (turno) =>
+        turno.fecha &&
+        format(parseISO(turno.fecha), "yyyy-MM-dd") === fecha
+    );
+  };
+
+  const tieneTurnosHabituales = (date) => {
+
+    if (!date) return false;
+
+    const diaSemana =
+      date.getDay() === 0 ? 7 : date.getDay();
+
+    return horariosEstandar.some(
+      (horario) => Number(horario.dia) === diaSemana
+    );
+  };
+
+  const tieneTurnoExcepcional = (date) => {
+
+    if (!date) return false;
+
+    const fecha = format(date, "yyyy-MM-dd");
+
+    const diaSemana =
+      date.getDay() === 0 ? 7 : date.getDay();
+
+    const horariosDelDia = horariosEstandar.filter(
+      (h) => Number(h.dia) === diaSemana
+    );
+
+    const turnosDelDia = turnos.filter(
+      (t) =>
+        t.fecha &&
+        format(parseISO(t.fecha), "yyyy-MM-dd") === fecha
+    );
+
+    if (turnosDelDia.length === 0) return false;
+
+    return turnosDelDia.some((turno) => {
+
+      return !horariosDelDia.some((horario) => {
+
+        return (
+          turno.hora >= horario.hora_inicio &&
+          turno.hora < horario.hora_fin
+        );
+
+      });
+
+    });
+  };
+
   // =========================================================
   // CARGA INICIAL
   // =========================================================
 
   useEffect(() => {
+
     const cargarDatos = async () => {
+
       try {
+
         const usuario = JSON.parse(
-          window.localStorage.getItem(
-            "loggedNoteAppUser"
-          )
+          window.localStorage.getItem("loggedNoteAppUser")
         );
 
         const especialidadesData =
-          await servicioDtc.traerespecialidades(
-            usuario.id
-          );
+          await servicioDtc.traerespecialidades(usuario.id);
 
-        setEspecialidades(
-          especialidadesData
-        );
+        setEspecialidades(especialidadesData);
 
         await traerTurnos();
+
       } catch (error) {
-        console.error(
-          "Error al cargar especialidades:",
-          error
-        );
+
+        console.error("Error al cargar especialidades:", error);
+
       }
+
     };
 
     cargarDatos();
+
   }, []);
-
-  // =========================================================
-  // 🟢 MARCAR DÍAS CON HORARIOS HABITUALES
-  // =========================================================
-  //
-  // IMPORTANTE:
-  //
-  // Antes esta función preguntaba si había un TURNO guardado
-  // dentro de un horario habitual.
-  //
-  // Ahora solamente pregunta si ese día de la semana tiene
-  // HORARIOS CONFIGURADOS.
-  //
-  // Por ejemplo:
-  //
-  // horariosEstandar:
-  // lunes 08:00 - 12:00
-  //
-  // Todos los lunes del calendario quedan marcados,
-  // aunque no tengan ningún turno creado.
-  //
-  // =========================================================
-
-  const tieneTurnosHabituales = (date) => {
-    if (!date) return false;
-
-    const diaSemana =
-      date.getDay() === 0
-        ? 7
-        : date.getDay();
-
-    return horariosEstandar.some(
-      (horario) =>
-        Number(horario.dia) === diaSemana
-    );
-  };
-
-  // =========================================================
-  // 🟠 MARCAR DÍAS CON TURNOS EXCEPCIONALES
-  // =========================================================
-
-  const tieneTurnoExcepcional = (date) => {
-    if (!date) return false;
-
-    const fecha = format(
-      date,
-      "yyyy-MM-dd"
-    );
-
-    const diaSemana =
-      date.getDay() === 0
-        ? 7
-        : date.getDay();
-
-    const horariosDelDia =
-      horariosEstandar.filter(
-        (h) =>
-          Number(h.dia) === diaSemana
-      );
-
-    const turnosDelDia =
-      turnos.filter(
-        (t) =>
-          t.fecha &&
-          format(
-            parseISO(t.fecha),
-            "yyyy-MM-dd"
-          ) === fecha
-      );
-
-    if (turnosDelDia.length === 0) {
-      return false;
-    }
-
-    return turnosDelDia.some(
-      (turno) => {
-        return !horariosDelDia.some(
-          (horario) => {
-            return (
-              turno.hora >=
-                horario.hora_inicio &&
-              turno.hora <
-                horario.hora_fin
-            );
-          }
-        );
-      }
-    );
-  };
 
   // =========================================================
   // SELECCIONAR DÍA
   // =========================================================
 
   const cargarTurnosDelDia = (date) => {
+
     if (!date) return;
 
     setSelectedDate(date);
+
   };
 
   // =========================================================
@@ -495,55 +434,320 @@ const tieneTurnosExistentes = (date) => {
   // =========================================================
 
   useEffect(() => {
+
     if (!selectedDate) return;
 
-    const lista =
-      generarHorariosDelDia(
-        selectedDate
-      );
+    const lista = generarHorariosDelDia(selectedDate);
 
     setTurnosDelDia(lista);
-  }, [
-    turnos,
-    horariosEstandar,
-    selectedDate,
-  ]);
+
+  }, [turnos, horariosEstandar, selectedDate]);
+
+  // =========================================================
+  // CREAR TURNO DESDE TABLA
+  // =========================================================
+
+  const crearTurnoDesdeTabla = async (t) => {
+
+    try {
+
+      const usuario = JSON.parse(
+        window.localStorage.getItem("loggedNoteAppUser")
+      );
+
+      await servicioDtc.nuevoturnodisp({
+        fecha: t.fecha,
+        hora: t.hora,
+        duracion: t.duracion,
+        especialidad: t.especialidad || "",
+        observaciones: "",
+        id_usuario: usuario.id,
+      });
+
+      await traerTurnos();
+
+      alert("Turno creado. Ahora podés agendar el paciente.");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("No se pudo crear el turno");
+
+    }
+
+  };
+
+  // =========================================================
+  // ESTILOS DEL CALENDARIO
+  // =========================================================
+
+  const calendarStyles = {
+
+    "& .rdp": {
+      margin: 0,
+      width: "100%",
+      maxWidth: {
+        xs: "100%",
+        md: "850px",
+      },
+      "--rdp-accent-color": panel.primary,
+      "--rdp-background-color": panel.active,
+    },
+
+    "& .rdp-month": {
+      width: "100%",
+      backgroundColor: panel.card,
+      borderRadius: "16px",
+      padding: {
+        xs: "8px",
+        md: "20px",
+      },
+      boxSizing: "border-box",
+    },
+
+    "& .rdp-month_caption": {
+      height: {
+        xs: "50px",
+        md: "70px",
+      },
+    },
+
+    "& .rdp-caption_label": {
+      fontSize: {
+        xs: "1.1rem",
+        md: "2rem",
+      },
+      fontWeight: 700,
+      color: panel.text,
+      textTransform: "capitalize",
+    },
+
+    "& .rdp-button_previous, & .rdp-button_next": {
+      width: {
+        xs: "38px",
+        md: "50px",
+      },
+      height: {
+        xs: "38px",
+        md: "50px",
+      },
+      borderRadius: "12px",
+      border: `1px solid ${panel.border}`,
+      backgroundColor: panel.active,
+      color: panel.text,
+      "&:hover": {
+        backgroundColor: panel.border,
+      },
+    },
+
+    "& .rdp-month_grid": {
+      width: "100%",
+    },
+
+    "& .rdp-head_cell": {
+      fontSize: {
+        xs: "0.7rem",
+        md: "1.1rem",
+      },
+      fontWeight: 700,
+      color: panel.secondary,
+      padding: {
+        xs: "5px",
+        md: "10px",
+      },
+      textTransform: "uppercase",
+    },
+
+    "& .rdp-cell": {
+      padding: {
+        xs: "2px",
+        md: "6px",
+      },
+      textAlign: "center",
+    },
+
+    "& .rdp-day": {
+      width: {
+        xs: "36px",
+        md: "85px",
+      },
+      height: {
+        xs: "36px",
+        md: "85px",
+      },
+      maxWidth: {
+        xs: "36px",
+        md: "85px",
+      },
+      padding: 0,
+      margin: "0 auto",
+      fontSize: {
+        xs: "0.8rem",
+        md: "1.35rem",
+      },
+      fontWeight: 500,
+      borderRadius: "50%",
+      color: panel.text,
+    },
+
+    "& .rdp-day_button": {
+      width: {
+        xs: "36px",
+        md: "85px",
+      },
+      height: {
+        xs: "36px",
+        md: "85px",
+      },
+      maxWidth: {
+        xs: "36px",
+        md: "85px",
+      },
+      padding: 0,
+      margin: "0 auto",
+      borderRadius: "50%",
+      fontSize: {
+        xs: "0.8rem",
+        md: "1.35rem",
+      },
+      color: panel.text,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      position: "relative",
+    },
+
+    "& .rdp-day:hover:not([disabled])": {
+      backgroundColor: panel.active,
+      color: panel.text,
+    },
+
+    "& .rdp-selected .rdp-day_button": {
+      backgroundColor: `${panel.primary} !important`,
+      color: "#ffffff !important",
+      fontWeight: 700,
+      boxShadow: "0 4px 10px rgba(25,118,210,0.25)",
+    },
+
+    "& .rdp-today:not(.rdp-selected) .rdp-day_button": {
+      color: panel.primary,
+      fontWeight: 700,
+      border: `2px solid ${panel.primary}`,
+    },
+
+    "& .dia-con-turnos": {
+      position: "relative",
+    },
+
+    "& .dia-con-turnos::before": {
+      content: '"*"',
+      position: "absolute",
+      top: {
+        xs: "1px",
+        md: "5px",
+      },
+      left: {
+        xs: "12px",
+        md: "32px",
+      },
+      fontSize: {
+        xs: "16px",
+        md: "24px",
+      },
+      fontWeight: 900,
+      color: "#4caf50",
+      lineHeight: 1,
+      zIndex: 2,
+    },
+
+    "& .dia-con-turnos-existentes": {
+      position: "relative",
+    },
+
+    "& .dia-con-turnos-existentes::before": {
+      content: '"*"',
+      position: "absolute",
+      top: {
+        xs: "1px",
+        md: "5px",
+      },
+      right: {
+        xs: "12px",
+        md: "32px",
+      },
+      fontSize: {
+        xs: "16px",
+        md: "24px",
+      },
+      fontWeight: 900,
+      color: "#2196f3",
+      lineHeight: 1,
+      zIndex: 2,
+    },
+
+    "& .dia-con-excepcional": {
+      position: "relative",
+    },
+
+    "& .dia-con-excepcional::after": {
+      content: '"*"',
+      position: "absolute",
+      top: {
+        xs: "1px",
+        md: "5px",
+      },
+      right: {
+        xs: "2px",
+        md: "8px",
+      },
+      fontSize: {
+        xs: "16px",
+        md: "24px",
+      },
+      fontWeight: 900,
+      color: "#f57c00",
+      lineHeight: 1,
+      zIndex: 2,
+    },
+
+    "& .rdp-outside": {
+      opacity: 0.35,
+    },
+
+    "& .rdp-disabled": {
+      opacity: 0.3,
+    },
+
+  };
 
   // =========================================================
   // RENDER
   // =========================================================
 
   return (
+
     <Box
       sx={{
         display: "flex",
-
         flexDirection: {
           xs: "column",
           md: "row",
         },
-
         gap: 3,
-
         p: {
-          xs: 1,
+          xs: 0,
+          sm: 1,
           md: 2,
         },
-
         width: "100%",
-
         maxWidth: 1900,
-
         margin: "0 auto",
-
         overflowX: "hidden",
-
-        height: {
-          xs: "auto",
-          md: "90vh",
-        },
+        alignItems: "stretch",
       }}
     >
+
       {/* =====================================================
           CALENDARIO
       ===================================================== */}
@@ -554,29 +758,31 @@ const tieneTurnosExistentes = (date) => {
             xs: "none",
             md: 1.5,
           },
-
           p: {
-            xs: 2,
+            xs: 1.5,
+            sm: 2,
             md: 3,
           },
-
           minWidth: 0,
-
-          backgroundColor: "#242426",
-
-          color: "#f4f4f5",
-
-          border:
-            "1px solid #36363a",
-
-          borderRadius: 2,
+          backgroundColor: panel.background,
+          color: panel.text,
+          border: `1px solid ${panel.border}`,
+          borderRadius: 3,
+          boxShadow: isDark
+            ? "none"
+            : "0 4px 20px rgba(0,0,0,0.04)",
         }}
       >
+
         <Typography
           variant="h5"
           sx={{
             mb: 2,
-            fontWeight: "bold",
+            fontWeight: 750,
+            fontSize: {
+              xs: 19,
+              md: 25,
+            },
           }}
         >
           Calendario de Turnos
@@ -585,467 +791,62 @@ const tieneTurnosExistentes = (date) => {
         <Box
           sx={{
             width: "100%",
-
             display: "flex",
-
-            justifyContent:
-              "center",
-
-            "& .rdp": {
-              margin: 0,
-
-              width: "100%",
-
-              maxWidth: {
-                xs: "100%",
-                md: "850px",
-              },
-
-              "--rdp-accent-color":
-                "#3b82f6",
-
-              "--rdp-background-color":
-                "#343438",
-            },
-
-            "& .rdp-month": {
-              width: "100%",
-
-              backgroundColor:
-                "#2b2b2e",
-
-              borderRadius:
-                "16px",
-
-              padding: {
-                xs: "8px",
-                md: "20px",
-              },
-
-              boxSizing:
-                "border-box",
-            },
-
-            "& .rdp-month_caption": {
-              height: {
-                xs: "50px",
-                md: "70px",
-              },
-            },
-
-            "& .rdp-caption_label": {
-              fontSize: {
-                xs: "1.1rem",
-                md: "2rem",
-              },
-
-              fontWeight: "700",
-
-              color: "#1565c0",
-
-              textTransform:
-                "capitalize",
-            },
-
-            "& .rdp-button_previous, & .rdp-button_next":
-              {
-                width: {
-                  xs: "38px",
-                  md: "50px",
-                },
-
-                height: {
-                  xs: "38px",
-                  md: "50px",
-                },
-
-                borderRadius:
-                  "12px",
-
-                border:
-                  "1px solid #bbdefb",
-
-                backgroundColor:
-                  "#e3f2fd",
-
-                color: "#1565c0",
-
-                "&:hover": {
-                  backgroundColor:
-                    "#bbdefb",
-
-                  transform:
-                    "scale(1.05)",
-                },
-              },
-
-            "& .rdp-month_grid": {
-              width: "100%",
-            },
-
-            "& .rdp-table": {
-              width: "100%",
-
-              maxWidth:
-                "100%",
-            },
-
-            "& .rdp-head_cell": {
-              fontSize: {
-                xs: "0.75rem",
-                md: "1.1rem",
-              },
-
-              fontWeight: "700",
-
-              color: "#546e7a",
-
-              padding: {
-                xs: "5px",
-                md: "10px",
-              },
-
-              textTransform:
-                "uppercase",
-            },
-
-            "& .rdp-cell": {
-              padding: {
-                xs: "2px",
-                md: "6px",
-              },
-
-              textAlign:
-                "center",
-
-              verticalAlign:
-                "middle",
-            },
-
-            "& .rdp-day": {
-              width: {
-                xs: "36px",
-                md: "85px",
-              },
-
-              height: {
-                xs: "36px",
-                md: "85px",
-              },
-
-              maxWidth: {
-                xs: "36px",
-                md: "85px",
-              },
-
-              padding: 0,
-
-              margin: "0 auto",
-
-              fontSize: {
-                xs: "0.8rem",
-                md: "1.35rem",
-              },
-
-              fontWeight: "500",
-
-              borderRadius:
-                "50%",
-
-              color: "#e4e4e7",
-            },
-
-            "& .rdp-day_button": {
-              width: {
-                xs: "36px",
-                md: "85px",
-              },
-
-              height: {
-                xs: "36px",
-                md: "85px",
-              },
-
-              maxWidth: {
-                xs: "36px",
-                md: "85px",
-              },
-
-              padding: 0,
-
-              margin: "0 auto",
-
-              borderRadius:
-                "50%",
-
-              fontSize: {
-                xs: "0.8rem",
-                md: "1.35rem",
-              },
-
-              display: "flex",
-
-              alignItems:
-                "center",
-
-              justifyContent:
-                "center",
-
-              position:
-                "relative",
-            },
-
-            "& .rdp-day:hover:not([disabled])":
-              {
-                backgroundColor:
-                  "#e3f2fd",
-
-                color: "#1565c0",
-
-                transform:
-                  "scale(1.08)",
-              },
-
-            "& .rdp-selected .rdp-day_button":
-              {
-                backgroundColor:
-                  "#1976d2",
-
-                color:
-                  "#ffffff",
-
-                fontWeight: "700",
-
-                boxShadow:
-                  "0 4px 10px rgba(25, 118, 210, 0.35)",
-              },
-
-            "& .rdp-today:not(.rdp-selected) .rdp-day_button":
-              {
-                color:
-                  "#1976d2",
-
-                fontWeight: "700",
-
-                border:
-                  "2px solid #1976d2",
-              },
-
-            // =================================================
-            // 🟢 DÍA CON HORARIO HABITUAL
-            // =================================================
-
-    // 🟢 DÍA CON HORARIO HABITUAL
-"& .dia-con-turnos": {
-  position: "relative",
-},
-
-"& .dia-con-turnos::before": {
-  content: '"*"',
-
-  position: "absolute",
-
-  top: {
-    xs: "1px",
-    md: "5px",
-  },
-
-  left: {
-    xs: "12px",
-    md: "32px",
-  },
-
-  fontSize: {
-    xs: "16px",
-    md: "24px",
-  },
-
-  fontWeight: "900",
-
-  color: "#4caf50",
-
-  lineHeight: 1,
-
-  zIndex: 2,
-},
-// 🔵 DÍA CON TURNOS EXISTENTES
-"& .dia-con-turnos-existentes": {
-  position: "relative",
-},
-
-"& .dia-con-turnos-existentes::before": {
-  content: '"*"',
-  position: "absolute",
-
-  top: {
-    xs: "1px",
-    md: "5px",
-  },
-
-  right: {
-    xs: "12px",
-    md: "32px",
-  },
-
-  fontSize: {
-    xs: "16px",
-    md: "24px",
-  },
-
-  fontWeight: "900",
-  color: "#2196f3",
-  lineHeight: 1,
-  zIndex: 2,
-},
-            // =================================================
-            // 🟠 DÍA CON TURNO EXCEPCIONAL
-            // =================================================
-
-            "& .dia-con-excepcional": {
-              position:
-                "relative",
-            },
-
-            "& .dia-con-excepcional::after":
-              {
-                content: '"*"',
-
-                position:
-                  "absolute",
-
-                top: {
-                  xs: "1px",
-                  md: "5px",
-                },
-
-                right: {
-                  xs: "2px",
-                  md: "8px",
-                },
-
-                fontSize: {
-                  xs: "16px",
-                  md: "24px",
-                },
-
-                fontWeight:
-                  "900",
-
-                color:
-                  "#f57c00",
-
-                lineHeight: 1,
-
-                zIndex: 2,
-              },
-
-            // =================================================
-            // 🟢 + SELECCIONADO
-            // =================================================
-
-            "& .rdp-selected.dia-con-turnos":
-              {
-                backgroundColor:
-                  "#1976d2 !important",
-
-                color:
-                  "#ffffff !important",
-              },
-
-            // =================================================
-            // OTROS
-            // =================================================
-
-            "& .rdp-outside": {
-              opacity: 0.35,
-            },
-
-            "& .rdp-disabled": {
-              opacity: 0.3,
-            },
+            justifyContent: "center",
+            ...calendarStyles,
           }}
         >
-       <DayPicker
-  locale={es}
-  mode="single"
-  selected={selectedDate}
-  onSelect={cargarTurnosDelDia}
 
-  modifiers={{
-    tieneTurnos:
-      tieneTurnosHabituales,
+          <DayPicker
+            locale={es}
+            mode="single"
+            selected={selectedDate}
+            onSelect={cargarTurnosDelDia}
+            modifiers={{
+              tieneTurnos: tieneTurnosHabituales,
+              tieneTurnosExistentes: tieneTurnosExistentes,
+              tieneExcepcional: tieneTurnoExcepcional,
+            }}
+            modifiersClassNames={{
+              tieneTurnos: "dia-con-turnos",
+              tieneTurnosExistentes: "dia-con-turnos-existentes",
+              tieneExcepcional: "dia-con-excepcional",
+            }}
+          />
 
-    tieneTurnosExistentes:
-      tieneTurnosExistentes,
-
-    tieneExcepcional:
-      tieneTurnoExcepcional,
-  }}
-
-  modifiersClassNames={{
-    tieneTurnos:
-      "dia-con-turnos",
-
-    tieneTurnosExistentes:
-      "dia-con-turnos-existentes",
-
-    tieneExcepcional:
-      "dia-con-excepcional",
-  }}
-/>
         </Box>
 
-        {/* =====================================================
-            LEYENDA
-        ===================================================== */}
+        {/* LEYENDA */}
+
+        <Divider sx={{ my: 2, borderColor: panel.border }} />
 
         <Box
           sx={{
             display: "flex",
-
-            gap: 3,
-
-            mt: 2,
-
-            justifyContent:
-              "center",
-
-            alignItems:
-              "center",
-
+            gap: {
+              xs: 1.5,
+              md: 3,
+            },
+            justifyContent: "center",
+            alignItems: "center",
             flexWrap: "wrap",
           }}
         >
-          <Typography variant="body2">
-            🟢 Horario habitual
+
+          <Typography variant="caption" sx={{ color: panel.text }}>
+            <span style={{ color: "#4caf50" }}>●</span> Horario habitual
           </Typography>
-<Typography variant="body2">
-  <span
-    style={{
-      color: "#2196f3",
-      fontWeight: "bold",
-      fontSize: "18px",
-    }}
-  >
-    *
-  </span>{" "}
-  Turno existente
-</Typography>
-          <Typography variant="body2">
-            <span
-              style={{
-                color: "#f57c00",
-                fontWeight:
-                  "bold",
-                fontSize:
-                  "18px",
-              }}
-            >
-              *
-            </span>{" "}
-            Turno Fuera de horario
+
+          <Typography variant="caption" sx={{ color: panel.text }}>
+            <span style={{ color: "#2196f3" }}>●</span> Turno existente
           </Typography>
+
+          <Typography variant="caption" sx={{ color: panel.text }}>
+            <span style={{ color: "#f57c00" }}>●</span> Fuera de horario
+          </Typography>
+
         </Box>
+
       </Paper>
 
       {/* =====================================================
@@ -1058,369 +859,411 @@ const tieneTurnosExistentes = (date) => {
             xs: "none",
             md: 1,
           },
-
-          p: 2,
+          minWidth: 0,
+          p: {
+            xs: 1.5,
+            sm: 2,
+            md: 3,
+          },
+          backgroundColor: panel.background,
+          color: panel.text,
+          border: `1px solid ${panel.border}`,
+          borderRadius: 3,
+          boxShadow: isDark
+            ? "none"
+            : "0 4px 20px rgba(0,0,0,0.04)",
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            mb: 2,
-          }}
-        >
-          Turnos del día:{" "}
-          {selectedDate
-            ? format(
-                selectedDate,
-                "dd/MM/yyyy"
-              )
-            : "--/--/----"}
-        </Typography>
 
-        {/* ===================================================
-            NUEVO TURNO
-        =================================================== */}
+        {/* ENCABEZADO */}
 
         <Box
           sx={{
             display: "flex",
-
-            gap: 2,
-
+            flexDirection: {
+              xs: "column",
+              sm: "row",
+            },
+            justifyContent: "space-between",
+            alignItems: {
+              xs: "flex-start",
+              sm: "center",
+            },
+            gap: 1,
             mb: 2,
-
-            flexWrap: "wrap",
           }}
         >
-          <input
-            type="time"
-            value={horaNueva}
-            onChange={(e) =>
-              setHoraNueva(
-                e.target.value
-              )
-            }
-            style={{
-              padding: "8px",
-              fontSize: "16px",
+
+          <Box>
+
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 750,
+                color: panel.text,
+              }}
+            >
+              Turnos del día
+            </Typography>
+
+            <Typography
+              variant="body2"
+              sx={{ color: panel.secondary }}
+            >
+              {selectedDate
+                ? format(selectedDate, "dd/MM/yyyy")
+                : "--/--/----"}
+            </Typography>
+
+          </Box>
+
+          <Chip
+            icon={<AccessTimeIcon />}
+            label={`${turnosDelDia.length} horarios`}
+            sx={{
+              color: panel.primary,
+              bgcolor: isDark ? "#1e3a5f" : "#e8eefc",
+              fontWeight: 700,
             }}
           />
 
-          <select
-            value={
-              especialidadNueva
-            }
-            onChange={(e) =>
-              setEspecialidadNueva(
-                e.target.value
-              )
-            }
-            style={{
-              padding: "8px",
-              fontSize: "16px",
-              minWidth: "220px",
-            }}
+        </Box>
+
+        <Divider sx={{ mb: 2, borderColor: panel.border }} />
+
+        {/* NUEVO TURNO */}
+
+        <Typography
+          sx={{
+            mb: 2,
+            fontWeight: 700,
+            color: panel.text,
+          }}
+        >
+          Agregar horario excepcional
+        </Typography>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+              lg: "repeat(2, minmax(0, 1fr))",
+            },
+            gap: 1.5,
+            mb: 2,
+          }}
+        >
+
+          <TextField
+            type="time"
+            label="Hora"
+            value={horaNueva}
+            onChange={(e) => setHoraNueva(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            size="small"
+            sx={inputStyles}
+          />
+
+          <TextField
+            select
+            label="Especialidad"
+            value={especialidadNueva}
+            onChange={(e) => setEspecialidadNueva(e.target.value)}
+            fullWidth
+            size="small"
+            sx={inputStyles}
           >
-            <option value="">
-              Seleccionar
-              especialidad
-            </option>
 
-            {especialidades.map(
-              (especialidad) => (
-                <option
-                  key={
-                    especialidad.id
-                  }
-                  value={
-                    especialidad.nombre
-                  }
-                >
-                  {
-                    especialidad.nombre
-                  }
-                </option>
-              )
-            )}
-          </select>
+            <MenuItem value="">
+              Seleccionar especialidad
+            </MenuItem>
 
-          <input
-            type="text"
-            placeholder="Observaciones"
+            {especialidades.map((especialidad) => (
+              <MenuItem
+                key={especialidad.id}
+                value={especialidad.nombre}
+              >
+                {especialidad.nombre}
+              </MenuItem>
+            ))}
+
+          </TextField>
+
+          <TextField
+            label="Observaciones"
             value={obsNueva}
-            onChange={(e) =>
-              setObsNueva(
-                e.target.value
-              )
-            }
-            style={{
-              padding: "8px",
-              fontSize: "16px",
-              flex: 1,
+            onChange={(e) => setObsNueva(e.target.value)}
+            fullWidth
+            size="small"
+            sx={{
+              ...inputStyles,
+              gridColumn: {
+                xs: "auto",
+                sm: "1 / -1",
+              },
             }}
           />
 
           <Box
             sx={{
-              width: 220,
+              gridColumn: "1 / -1",
               px: 1,
+              py: 1,
             }}
           >
+
             <Typography
               variant="body2"
+              sx={{
+                color: panel.text,
+                fontWeight: 600,
+                mb: 1,
+              }}
             >
-              Duración:{" "}
-              <strong>
-                {
-                  duracionNueva
-                }{" "}
-                minutos
-              </strong>
+              Duración: {duracionNueva} minutos
             </Typography>
 
             <Slider
-              value={
-                duracionNueva
+              value={duracionNueva}
+              onChange={(event, newValue) =>
+                setDuracionNueva(Number(newValue))
               }
-              onChange={(
-                event,
-                newValue
-              ) => {
-                setDuracionNueva(
-                  Number(newValue)
-                );
-              }}
               min={30}
               max={90}
               step={null}
               marks={[
-                {
-                  value: 30,
-                  label: "30",
-                },
-                {
-                  value: 45,
-                  label: "45",
-                },
-                {
-                  value: 60,
-                  label: "60",
-                },
-                {
-                  value: 90,
-                  label: "90",
-                },
+                { value: 30, label: "30" },
+                { value: 45, label: "45" },
+                { value: 60, label: "60" },
+                { value: 90, label: "90" },
               ]}
               valueLabelDisplay="auto"
+              sx={{
+                color: panel.primary,
+                "& .MuiSlider-markLabel": {
+                  color: panel.secondary,
+                },
+              }}
             />
+
           </Box>
 
-          <button
-            onClick={
-              guardarNuevoTurno
-            }
-            disabled={
-              loadingNuevo
-            }
-            style={{
-              padding:
-                "8px 16px",
-
-              background:
-                "#1976d2",
-
-              color: "white",
-
-              border: "none",
-
-              cursor: "pointer",
-
-              fontSize: "16px",
+          <Button
+            onClick={guardarNuevoTurno}
+            disabled={loadingNuevo}
+            variant="contained"
+            startIcon={<AddIcon />}
+            fullWidth
+            sx={{
+              gridColumn: "1 / -1",
+              py: 1.3,
+              borderRadius: 2,
+              fontWeight: 700,
+              textTransform: "none",
+              backgroundColor: panel.primary,
+              "&:hover": {
+                backgroundColor: panel.primary,
+                filter: "brightness(0.9)",
+              },
             }}
           >
-            {loadingNuevo
-              ? "Guardando..."
-              : "Nuevo Turno"}
-          </button>
+            {loadingNuevo ? "Guardando..." : "Nuevo turno"}
+          </Button>
+
         </Box>
 
-        {/* ===================================================
-            TABLA
-        =================================================== */}
+        <Divider sx={{ my: 2, borderColor: panel.border }} />
 
-        <TableContainer>
-          <Table>
+        {/* TABLA */}
+
+        <Typography
+          sx={{
+            mb: 2,
+            fontWeight: 700,
+            color: panel.text,
+          }}
+        >
+          Listado de horarios
+        </Typography>
+
+        <TableContainer
+          sx={{
+            width: "100%",
+            overflowX: "auto",
+            border: `1px solid ${panel.border}`,
+            borderRadius: 2,
+          }}
+        >
+
+          <Table
+            size="small"
+            sx={{
+              minWidth: 520,
+              "& .MuiTableCell-root": {
+                color: panel.text,
+                borderColor: panel.border,
+                py: 1.5,
+              },
+              "& .MuiTableHead-root": {
+                backgroundColor: panel.active,
+              },
+            }}
+          >
+
             <TableHead>
+
               <TableRow>
+
                 <TableCell>
-                  Hora
+                  <strong>Hora</strong>
                 </TableCell>
 
                 <TableCell>
-                  Paciente
+                  <strong>Paciente</strong>
                 </TableCell>
 
                 <TableCell>
-                  Asistencia
+                  <strong>Especialidad</strong>
                 </TableCell>
 
-                <TableCell>
-                  Acciones
+                <TableCell align="center">
+                  <strong>Acciones</strong>
                 </TableCell>
+
               </TableRow>
+
             </TableHead>
 
             <TableBody>
-              {turnosDelDia.length >
-              0 ? (
-                turnosDelDia.map(
-                  (t, i) => (
-                    <TableRow
-                      key={
-                        t.id || i
-                      }
-                    >
-                      <TableCell>
-                        <strong>
-                          {t.hora}{" "}
-                          {t.esDisponible
-                            ? "Disponible"
-                            : "Ocupado"}
-                        </strong>
-                      </TableCell>
 
-                      <TableCell>
-                        {t.esDisponible
-                          ? "Disponible"
-                          : `${
-                              t.apellido ||
-                              ""
-                            } ${
-                              t.nombre ||
-                              ""
-                            }`}
-                      </TableCell>
+              {turnosDelDia.length > 0 ? (
 
-                      <TableCell>
-                        {t.especialidad ||
-                          "Sin especialidad"}
-                      </TableCell>
+                turnosDelDia.map((t, i) => (
 
-                      <TableCell>
-                        {t.esDisponible ? (
-                          <button
-                            onClick={async () => {
-                              try {
-                                const usuario =
-                                  JSON.parse(
-                                    window.localStorage.getItem(
-                                      "loggedNoteAppUser"
-                                    )
-                                  );
+                  <TableRow
+                    key={t.id || i}
+                    hover
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: panel.active,
+                      },
+                    }}
+                  >
 
-                                await servicioDtc.nuevoturnodisp(
-                                  {
-                                    fecha:
-                                      t.fecha,
+                    <TableCell>
 
-                                    hora:
-                                      t.hora,
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.5,
+                        }}
+                      >
 
-                                    duracion:
-                                      t.duracion,
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: 14,
+                          }}
+                        >
+                          {t.hora}
+                        </Typography>
 
-                                    especialidad:
-                                      t.especialidad ||
-                                      "",
+                        <Chip
+                          size="small"
+                          label={t.esDisponible ? "Disponible" : "Ocupado"}
+                          color={t.esDisponible ? "success" : "default"}
+                          sx={{
+                            width: "fit-content",
+                            fontSize: 11,
+                          }}
+                        />
 
-                                    observaciones:
-                                      "",
+                      </Box>
 
-                                    id_usuario:
-                                      usuario.id,
-                                  }
-                                );
+                    </TableCell>
 
-                                await traerTurnos();
+                    <TableCell>
+                      {t.esDisponible
+                        ? "Sin asignar"
+                        : `${t.apellido || ""} ${t.nombre || ""}`}
+                    </TableCell>
 
-                                alert(
-                                  "Turno creado. Ahora podés agendar el paciente."
-                                );
-                              } catch (error) {
-                                console.error(
-                                  error
-                                );
+                    <TableCell>
+                      {t.especialidad || "Sin especialidad"}
+                    </TableCell>
 
-                                alert(
-                                  "No se pudo crear el turno"
-                                );
-                              }
-                            }}
-                            style={{
-                              padding:
-                                "7px 14px",
+                    <TableCell align="center">
 
-                              background:
-                                "#2e7d32",
+                      {t.esDisponible ? (
 
-                              color:
-                                "white",
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          onClick={() => crearTurnoDesdeTabla(t)}
+                          sx={{
+                            textTransform: "none",
+                            fontWeight: 700,
+                            borderRadius: 2,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Crear turno
+                        </Button>
 
-                              border:
-                                "none",
+                      ) : (
 
-                              borderRadius:
-                                "6px",
+                        <AgendarTurno
+                          idTurno={t.id}
+                          onAgendar={(data) => {
+                            servicioDtc
+                              .agendarapaciente(data)
+                              .then(() => traerTurnos());
+                          }}
+                        />
 
-                              cursor:
-                                "pointer",
+                      )}
 
-                              fontWeight:
-                                "bold",
-                            }}
-                          >
-                            Crear turno
-                          </button>
-                        ) : (
-                          <AgendarTurno
-                            idTurno={
-                              t.id
-                            }
-                            onAgendar={(
-                              data
-                            ) => {
-                              servicioDtc
-                                .agendarapaciente(
-                                  data
-                                )
-                                .then(
-                                  () =>
-                                    traerTurnos()
-                                );
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )
-                )
+                    </TableCell>
+
+                  </TableRow>
+
+                ))
+
               ) : (
+
                 <TableRow>
+
                   <TableCell
                     colSpan={4}
                     align="center"
+                    sx={{
+                      py: 5,
+                      color: panel.secondary,
+                    }}
                   >
-                    No hay horarios
-                    configurados para
-                    este día.
+                    No hay horarios configurados para este día.
+
                   </TableCell>
+
                 </TableRow>
+
               )}
+
             </TableBody>
+
           </Table>
+
         </TableContainer>
+
       </Paper>
+
     </Box>
+
   );
 };
 
