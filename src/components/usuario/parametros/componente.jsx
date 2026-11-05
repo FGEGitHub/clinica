@@ -20,8 +20,12 @@ import {
   TableHead,
   TableRow,
   IconButton,
-} from "@mui/material";
-
+  Collapse
+} from '@mui/material';
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import servicio from "../../../services/pacientes";
@@ -39,6 +43,122 @@ export default function Parametros() {
   // Estado del modal
   const [openEspecialidad, setOpenEspecialidad] = useState(false);
   const [especialidad, setEspecialidad] = useState("");
+// Especialidades desplegadas
+const [filasAbiertas, setFilasAbiertas] = useState({});
+
+// Modal de consultas
+const [openConsulta, setOpenConsulta] = useState(false);
+
+const [consultaActual, setConsultaActual] = useState({
+  id: null,
+  id_especialidad: null,
+  nombre: ""
+});
+
+// Abrir o cerrar especialidad
+const toggleFila = (id) => {
+  setFilasAbiertas(prev => ({
+    ...prev,
+    [id]: !prev[id]
+  }));
+};
+
+// Abrir modal para agregar
+const agregarConsulta = (idEspecialidad) => {
+  setConsultaActual({
+    id: null,
+    id_especialidad: idEspecialidad,
+    nombre: ""
+  });
+
+  setOpenConsulta(true);
+};
+
+// Abrir modal para editar
+const editarConsulta = (consulta) => {
+  setConsultaActual({
+    id: consulta.id,
+    id_especialidad: consulta.id_especialidad,
+    nombre: consulta.nombre
+  });
+
+  setOpenConsulta(true);
+};
+
+// Guardar consulta
+const guardarConsulta = async () => {
+  try {
+    const usuario = JSON.parse(
+      window.localStorage.getItem("loggedNoteAppUser")
+    );
+
+    if (!usuario?.id) {
+      alert("No se pudo obtener el usuario");
+      return;
+    }
+
+    if (!consultaActual.nombre.trim()) {
+      alert("Ingrese el nombre de la consulta");
+      return;
+    }
+
+    const data = {
+      id_especialidad: consultaActual.id_especialidad,
+      nombre: consultaActual.nombre.trim(),
+      id_medico: usuario.id
+    };
+
+    let resultado;
+
+    if (consultaActual.id) {
+      resultado = await servicio.editarConsultaEspecialidad(
+        consultaActual.id,
+        data
+      );
+    } else {
+      resultado = await servicio.agregarConsultaEspecialidad(data);
+    }
+
+    alert(resultado.data?.message || "Consulta guardada correctamente");
+
+    setOpenConsulta(false);
+
+    await traerPerfil();
+
+  } catch (error) {
+    console.error("Error al guardar consulta:", error);
+    alert("Error al guardar la consulta");
+  }
+};
+
+// Eliminar consulta
+const eliminarConsulta = async (idConsulta) => {
+  const confirmar = window.confirm(
+    "¿Está seguro que desea eliminar esta consulta?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const usuario = JSON.parse(
+      window.localStorage.getItem("loggedNoteAppUser")
+    );
+
+    const resultado = await servicio.eliminarConsultaEspecialidad(
+      idConsulta,
+      usuario.id
+    );
+
+    alert(resultado.data?.message || "Consulta eliminada");
+
+    await traerPerfil();
+
+  } catch (error) {
+    console.error("Error al eliminar consulta:", error);
+    alert("Error al eliminar la consulta");
+  }
+};
+
 
   const traerPerfil = async () => {
     try {
@@ -288,70 +408,214 @@ export default function Parametros() {
           <Divider sx={{ my: 2 }} />
 
           {/* TABLA DE ESPECIALIDADES */}
-          <TableContainer
-            component={Paper}
-            variant="outlined"
-            sx={{
-              borderRadius: 2,
-              overflow: "hidden",
-            }}
-          >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    <strong>#</strong>
-                  </TableCell>
+  <TableContainer
+  component={Paper}
+  variant="outlined"
+  sx={{
+    borderRadius: 2,
+    overflow: "hidden",
+    backgroundColor: "background.paper",
+    color: "text.primary",
+    borderColor: "divider",
+  }}
+>
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell><strong>#</strong></TableCell>
+        <TableCell><strong>Especialidad</strong></TableCell>
+        <TableCell align="center"><strong>Consultas</strong></TableCell>
+        <TableCell align="center"><strong>Acciones</strong></TableCell>
+      </TableRow>
+    </TableHead>
 
-                  <TableCell>
-                    <strong>Especialidad</strong>
-                  </TableCell>
+    <TableBody>
+      {especialidades.length > 0 ? (
+        especialidades.map((item, index) => (
+          <React.Fragment key={item.id}>
 
-                  <TableCell align="center">
-                    <strong>Acciones</strong>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
+            {/* FILA PRINCIPAL */}
+            <TableRow hover>
+              <TableCell>
+                {index + 1}
+              </TableCell>
 
-              <TableBody>
-                {especialidades.length > 0 ? (
-                  especialidades.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        {index + 1}
-                      </TableCell>
+              <TableCell>
+                <Typography fontWeight="bold">
+                  {item.nombre}
+                </Typography>
+              </TableCell>
 
-                      <TableCell>
-                        {item.nombre}
-                      </TableCell>
+              <TableCell align="center">
+                {item.consultas?.length || 0}
+              </TableCell>
 
-                      <TableCell align="center">
-                        <IconButton
-                          color="error"
-                          onClick={() =>
-                            eliminarEspecialidad(item.id)
-                          }
-                          title="Eliminar especialidad"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      align="center"
-                      sx={{ py: 3 }}
+              <TableCell align="center">
+
+                <IconButton
+                  color="primary"
+                  onClick={() => toggleFila(item.id)}
+                  title="Ver consultas"
+                >
+                  {filasAbiertas[item.id]
+                    ? <ExpandLessIcon />
+                    : <ExpandMoreIcon />
+                  }
+                </IconButton>
+
+                <IconButton
+                  color="error"
+                  onClick={() => eliminarEspecialidad(item.id)}
+                  title="Eliminar especialidad"
+                >
+                  <DeleteIcon />
+                </IconButton>
+
+              </TableCell>
+            </TableRow>
+
+            {/* FILA DESPLEGABLE */}
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                sx={{ p: 0, borderBottom: 0 }}
+              >
+                <Collapse
+                  in={!!filasAbiertas[item.id]}
+                  timeout="auto"
+                  unmountOnExit
+                >
+             <Box
+  sx={(theme) => ({
+    p: 3,
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
+    borderTop: `1px solid ${theme.palette.divider}`,
+  })}
+>
+
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={2}
                     >
-                      No hay especialidades cargadas
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                      <Typography
+                        fontWeight="bold"
+                        color="primary"
+                      >
+                        Consultas de {item.nombre}
+                      </Typography>
+
+                      <Button
+                        size="small"
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => agregarConsulta(item.id)}
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: 2
+                        }}
+                      >
+                        Agregar consulta
+                      </Button>
+                    </Box>
+
+                    {item.consultas?.length > 0 ? (
+
+                   <Table
+  size="small"
+  sx={{
+    backgroundColor: "background.paper",
+    "& .MuiTableCell-root": {
+      borderColor: "divider",
+      color: "text.primary",
+    },
+    "& .MuiTableHead-root .MuiTableCell-root": {
+      fontWeight: "bold",
+      backgroundColor: "action.hover",
+    },
+  }}
+>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>
+                              <strong>Nombre de consulta</strong>
+                            </TableCell>
+
+                            <TableCell align="center">
+                              <strong>Acciones</strong>
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+
+                        <TableBody>
+                          {item.consultas.map(consulta => (
+                            <TableRow key={consulta.id} hover>
+
+                              <TableCell>
+                                {consulta.nombre}
+                              </TableCell>
+
+                              <TableCell align="center">
+
+                                <IconButton
+                                  color="primary"
+                                  size="small"
+                                  title="Editar"
+                                  onClick={() => editarConsulta(consulta)}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+
+                                <IconButton
+                                  color="error"
+                                  size="small"
+                                  title="Eliminar"
+                                  onClick={() => eliminarConsulta(consulta.id)}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+
+                              </TableCell>
+
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+
+                    ) : (
+
+                      <Typography
+                        color="text.secondary"
+                        textAlign="center"
+                        py={2}
+                      >
+                        Esta especialidad todavía no tiene consultas cargadas.
+                      </Typography>
+
+                    )}
+
+                  </Box>
+                </Collapse>
+              </TableCell>
+            </TableRow>
+
+          </React.Fragment>
+        ))
+
+      ) : (
+
+        <TableRow>
+          <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+            No hay especialidades cargadas
+          </TableCell>
+        </TableRow>
+
+      )}
+    </TableBody>
+  </Table>
+</TableContainer>
 
           {/* ============================= */}
           {/* GUARDAR PARÁMETROS */}
@@ -378,7 +642,54 @@ export default function Parametros() {
       {/* ============================= */}
       {/* MODAL ESPECIALIDAD */}
       {/* ============================= */}
+<Dialog
+  open={openConsulta}
+  onClose={() => setOpenConsulta(false)}
+  fullWidth
+  maxWidth="sm"
+>
+  <DialogTitle fontWeight="bold">
+    {consultaActual.id
+      ? "Modificar consulta"
+      : "Agregar consulta"}
+  </DialogTitle>
 
+  <DialogContent>
+
+    <TextField
+      autoFocus
+      fullWidth
+      margin="dense"
+      label="Nombre de la consulta"
+      placeholder="Ej. Consulta presencial"
+      value={consultaActual.nombre}
+      onChange={(e) =>
+        setConsultaActual(prev => ({
+          ...prev,
+          nombre: e.target.value
+        }))
+      }
+    />
+
+  </DialogContent>
+
+  <DialogActions sx={{ p: 2 }}>
+
+    <Button
+      onClick={() => setOpenConsulta(false)}
+    >
+      Cancelar
+    </Button>
+
+    <Button
+      variant="contained"
+      onClick={guardarConsulta}
+    >
+      Guardar
+    </Button>
+
+  </DialogActions>
+</Dialog>
       <Dialog
         open={openEspecialidad}
         onClose={() => setOpenEspecialidad(false)}
@@ -422,6 +733,7 @@ export default function Parametros() {
         </DialogActions>
       </Dialog>
     </Box>
+
   );
 }
 

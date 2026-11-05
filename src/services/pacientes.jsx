@@ -300,6 +300,37 @@ const eliminarHorario = async (id) => {
 
 
 
-export default {  traerHorarios,
+const agregarConsultaEspecialidad = async (data) => {
+  const response = await axios.post(
+    `${baseUrl}agregarconsultaespecialidad`,
+    data
+  );
+
+  return response.data;
+};
+
+const editarConsultaEspecialidad = async (id, data) => {
+  const response = await axios.put(
+    `${baseUrl}editarconsultaespecialidad/${id}`,
+    data
+  );
+
+  return response.data;
+};
+
+const eliminarConsultaEspecialidad = async (id, id_medico) => {
+  const response = await axios.delete(
+    `${baseUrl}eliminarconsultaespecialidad/${id}`,
+    {
+      data: { id_medico }
+    }
+  );
+
+  return response.data;
+};
+
+
+
+export default { agregarConsultaEspecialidad, editarConsultaEspecialidad, eliminarConsultaEspecialidad, traerHorarios,
   guardarHorarios,
   eliminarHorario, guardarhorarios, traerLogo ,guardarlogo, traerespecialidades , eliminarEspecialidad,agregarEspecialidad, actualizarParametros, traerEmpresas, confirmarTurnoNoPago, traerperfil, actualizarPerfil, traerturnosusuario, traerodontograma, guardarodontogramapaciente, estadoSolicitud, guardarConsultanueva, solicitarturno, traerTurnosDisponibles, agendarapaciente, guardarConsulta, nuevoturnodisp, traerTurnoDetalle, modificarusuario,traerturnos, borrarturno, crearturno, traerpacientes , agregarPersona , datospaciente, borrarpaciente}
